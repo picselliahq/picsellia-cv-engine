@@ -11,6 +11,8 @@ from picsellia_cv_engine.models.utils.dataset_logging import get_labelmap
 
 logger = logging.getLogger(__name__)
 
+TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound="BaseDatasetContext")
+
 
 class BaseDatasetContext:
     """
@@ -143,6 +145,3 @@ class BaseDatasetContext:
             NoDataError: If the offset exceeds the total number of assets in the dataset version.
         """
         return self.dataset_version.list_assets(limit=limit, offset=offset)
-
-
-TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound=BaseDatasetContext)
