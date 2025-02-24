@@ -1,8 +1,6 @@
-from typing import Optional
+from picsellia import Asset, DatasetVersion
 
-from picsellia import DatasetVersion, Asset
-
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
 
@@ -22,8 +20,8 @@ class ProcessingDatasetContextExtractor:
     def __init__(
         self,
         dataset_version: DatasetVersion,
-        assets: Optional[Asset],
-        use_id: Optional[bool] = True,
+        assets: Asset | None,
+        use_id: bool | None = True,
     ):
         """
         Initializes the ProcessingDatasetContextExtractor with a dataset version and an optional use_id flag.

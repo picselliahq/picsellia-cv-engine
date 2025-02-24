@@ -1,10 +1,10 @@
 from picsellia import DatasetVersion
 
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
-    DatasetCollection,
-)
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
+)
+from picsellia_cv_engine.models.dataset.dataset_collection import (
+    DatasetCollection,
 )
 
 

@@ -1,17 +1,16 @@
-from typing import List, Dict, Type
+import logging
+
 from picsellia import DatasetVersion, Experiment
 from picsellia.exceptions import ResourceNotFoundError
 from picsellia.types.enums import LogType
 
-from src.picsellia_cv_engine.enums import DatasetSplitName
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
+from picsellia_cv_engine.enums import DatasetSplitName
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
     TBaseDatasetContext,
 )
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ class TrainingDatasetCollectionExtractor:
         self.train_set_split_ratio = train_set_split_ratio
 
     def get_dataset_collection(
-        self, context_class: Type[TBaseDatasetContext], random_seed=None
+        self, context_class: type[TBaseDatasetContext], random_seed=None
     ) -> DatasetCollection[TBaseDatasetContext]:
         """
         Retrieves dataset versions attached to the experiment and organizes them into a DatasetCollection.
@@ -122,7 +121,7 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_three_datasets(
         self,
-        context_class: Type[TBaseDatasetContext],
+        context_class: type[TBaseDatasetContext],
         train_dataset_version: DatasetVersion,
         val_dataset_version: DatasetVersion,
         test_dataset_version: DatasetVersion,
@@ -176,7 +175,7 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_two_datasets(
         self,
-        context_class: Type[TBaseDatasetContext],
+        context_class: type[TBaseDatasetContext],
         train_dataset_version: DatasetVersion,
         test_dataset_version: DatasetVersion,
         random_seed=None,
@@ -234,7 +233,7 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_one_dataset(
         self,
-        context_class: Type[TBaseDatasetContext],
+        context_class: type[TBaseDatasetContext],
         train_dataset_version: DatasetVersion,
         random_seed=None,
     ) -> DatasetCollection[TBaseDatasetContext]:
@@ -285,7 +284,7 @@ class TrainingDatasetCollectionExtractor:
             ]
         )
 
-    def _get_split_ratios(self, nb_attached_datasets: int) -> List[float]:
+    def _get_split_ratios(self, nb_attached_datasets: int) -> list[float]:
         """
         Determines the split ratios for dividing a single dataset into training, validation, and testing splits based on the configuration.
 
@@ -317,7 +316,7 @@ class TrainingDatasetCollectionExtractor:
                 "1, 2 or 3 datasets are expected."
             )
 
-    def log_distribution(self, distribution: Dict[str, int], log_name: str) -> None:
+    def log_distribution(self, distribution: dict[str, int], log_name: str) -> None:
         """
         Logs the label distribution into the experiment, updating it if it already exists.
 
