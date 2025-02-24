@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from picsellia.types.enums import InferenceType
 
-from src.enums import DatasetSplitName
+from picsellia_cv_engine.enums import DatasetSplitName
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 
@@ -20,10 +20,10 @@ class TestDatasetCollection:
         with tempfile.TemporaryDirectory() as destination_path:
             with (
                 patch(
-                    "src.models.dataset.common.dataset_context.DatasetContext.download_assets"
+                    "models.dataset.common.dataset_context.DatasetContext.download_assets"
                 ) as mocked_download_assets,
                 patch(
-                    "src.models.dataset.common.dataset_context.DatasetContext.download_and_build_coco_file"
+                    "models.dataset.common.dataset_context.DatasetContext.download_and_build_coco_file"
                 ) as mocked_download_coco,
             ):
                 dataset_collection.download_all(destination_path=destination_path)
@@ -80,10 +80,10 @@ class TestDatasetCollection:
         with tempfile.TemporaryDirectory() as destination_path:
             with (
                 patch(
-                    "src.models.dataset.common.dataset_context.DatasetContext.download_assets"
+                    "models.dataset.common.dataset_context.DatasetContext.download_assets"
                 ) as mocked_download_assets,
                 patch(
-                    "src.models.dataset.common.dataset_context.DatasetContext.download_and_build_coco_file"
+                    "models.dataset.common.dataset_context.DatasetContext.download_and_build_coco_file"
                 ) as mocked_download_coco,
             ):
                 dataset_collection.download_all(destination_path=destination_path)

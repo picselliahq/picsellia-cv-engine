@@ -5,17 +5,17 @@ import shutil
 import sys
 import tempfile
 from datetime import datetime
-from typing import List, Optional, TextIO, cast
+from typing import TextIO, cast
 
-from src.picsellia_cv_engine.models.logging.stream_to_logger import StreamToLogger
-from src.picsellia_cv_engine.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine.models.logging.stream_to_logger import StreamToLogger
+from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 
 
 class LoggerManager:
-    def __init__(self, pipeline_name: str, log_folder_root_path: Optional[str] = None):
+    def __init__(self, pipeline_name: str, log_folder_root_path: str | None = None):
         self.pipeline_name = pipeline_name
         self.log_folder_root_path = log_folder_root_path
-        self.log_folder_path: Optional[str] = None
+        self.log_folder_path: str | None = None
         self.uses_temp_dir = False
 
         self.original_stdout: TextIO = sys.stdout
@@ -54,7 +54,7 @@ class LoggerManager:
 
         return pipeline_initialization_log_file_path
 
-    def configure_log_files(self, steps_metadata: List[StepMetadata]) -> None:
+    def configure_log_files(self, steps_metadata: list[StepMetadata]) -> None:
         """Configures the folders and log files for the pipeline and its steps.
 
         If the `log_folder_path` is not provided when decorating a pipeline, a temporary directory is created instead.
@@ -77,7 +77,7 @@ class LoggerManager:
         self._create_pipeline_log_folder()
         self._configure_steps_log_files(steps_metadata=steps_metadata)
 
-    def prepare_logger(self, log_file_path: Optional[str]) -> logging.Logger:
+    def prepare_logger(self, log_file_path: str | None) -> logging.Logger:
         """
         Prepares the logger for a step or the pipeline.
 
@@ -145,7 +145,7 @@ class LoggerManager:
 
         return self.logger
 
-    def _configure_steps_log_files(self, steps_metadata: List[StepMetadata]) -> None:
+    def _configure_steps_log_files(self, steps_metadata: list[StepMetadata]) -> None:
         """Configures the log files for each step.
 
         For each step, will look at the metadata to create a log file.

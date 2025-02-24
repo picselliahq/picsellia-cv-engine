@@ -3,8 +3,7 @@ import tempfile
 from unittest.mock import patch
 
 import pytest
-
-from src.logger import LoggerManager
+from logger import LoggerManager
 
 
 class TestLoggerManager:

@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 from picsellia.types.enums import InferenceType
 
-from src.enums import DatasetSplitName
+from picsellia_cv_engine.enums import DatasetSplitName
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 

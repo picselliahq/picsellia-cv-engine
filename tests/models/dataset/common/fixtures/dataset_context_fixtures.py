@@ -5,7 +5,7 @@ import pytest
 from picsellia import Label
 from picsellia.sdk.asset import MultiAsset
 
-from src.models.dataset.common.dataset_context import DatasetContext
+from picsellia_cv_engine.models.dataset.common.dataset_context import DatasetContext
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 

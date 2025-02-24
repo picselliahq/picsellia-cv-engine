@@ -2,8 +2,7 @@ import os
 import shutil
 
 import pytest
-
-from src.logger import LoggerManager
+from logger import LoggerManager
 
 
 @pytest.fixture

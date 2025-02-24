@@ -4,8 +4,8 @@ import pytest
 from picsellia.exceptions import ResourceNotFoundError
 from picsellia.types.enums import InferenceType
 
-from src.picsellia_cv_engine.enums import DatasetSplitName
-from src.picsellia_cv_engine.models.dataset.dataset_collection import DatasetCollection
+from picsellia_cv_engine.enums import DatasetSplitName
+from picsellia_cv_engine.models.dataset.dataset_collection import DatasetCollection
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 

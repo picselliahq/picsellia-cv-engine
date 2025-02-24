@@ -2,8 +2,7 @@ from collections.abc import Callable
 from unittest.mock import patch
 
 from picsellia.types.enums import InferenceType
-
-from src.steps.data_validation.common.classification_data_validator import (
+from steps.data_validation.common.classification_data_validator import (
     classification_dataset_collection_validator,
 )
 
@@ -11,7 +10,7 @@ from src.steps.data_validation.common.classification_data_validator import (
 class TestDataValidator:
     def test_data_validator(self, mock_dataset_collection: Callable):
         with patch(
-            "src.models.steps.data_validation.common.classification_dataset_context_validator"
+            "models.steps.data_validation.common.classification_dataset_context_validator"
             ".ClassificationDatasetContextValidator"
             ".validate"
         ) as mocked_validate:

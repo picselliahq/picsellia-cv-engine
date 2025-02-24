@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from src.picsellia_cv_engine import Pipeline
+from picsellia_cv_engine import Pipeline
 
 entrypoint_call_tracker: dict[str, Any] = {
     "count": 0,

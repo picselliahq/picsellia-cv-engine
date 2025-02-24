@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 from picsellia.types.enums import InferenceType
 
+from picsellia_cv_engine import Pipeline
+from picsellia_cv_engine.enums import DatasetSplitName
 from picsellia_cv_engine.models.parameters.augmentation_parameters import (
     AugmentationParameters,
 )
+from picsellia_cv_engine.models.parameters.export_parameters import ExportParameters
 from picsellia_cv_engine.models.parameters.hyper_parameters import HyperParameters
-from src.picsellia_cv_engine import Pipeline
-from src.picsellia_cv_engine.enums import DatasetSplitName
-from src.picsellia_cv_engine.models.parameters.export_parameters import ExportParameters
-from src.picsellia_cv_engine.steps.data_extraction.coco_data_extractor import (
+from picsellia_cv_engine.steps.data_extraction.coco_data_extractor import (
     get_coco_dataset_collection,
 )
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata

@@ -2,8 +2,8 @@ from collections.abc import Callable
 
 import pytest
 
-from src.models.dataset.common.dataset_context import DatasetContext
-from src.models.steps.data_validation.common.dataset_context_validator import (
+from picsellia_cv_engine.models.dataset.common.dataset_context import DatasetContext
+from picsellia_cv_engine.models.steps.data_validation.common.dataset_context_validator import (
     DatasetContextValidator,
 )
 

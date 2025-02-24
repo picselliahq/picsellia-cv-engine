@@ -3,7 +3,7 @@ import shutil
 
 import pytest
 
-from src.picsellia_cv_engine import Pipeline
+from picsellia_cv_engine import Pipeline
 from tests.decorators.fixtures.pipeline_fixtures import (
     reset_pipeline_entrypoint_call_tracker,
 )

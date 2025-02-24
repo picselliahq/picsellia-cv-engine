@@ -1,8 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-
-from src.steps.weights_validation.processing.processing_diversified_data_extractor_weights_validator import (
+from steps.weights_validation.processing.processing_diversified_data_extractor_weights_validator import (
     validate_model_architecture,
     validate_pretrained_weights,
 )

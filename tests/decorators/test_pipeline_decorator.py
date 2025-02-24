@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 import pytest
 
-from src.picsellia_cv_engine import Pipeline
-from src.picsellia_cv_engine import pipeline as pipeline_decorator
-from src.picsellia_cv_engine.enums import PipelineState, StepState
-from src.picsellia_cv_engine.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine import Pipeline
+from picsellia_cv_engine import pipeline as pipeline_decorator
+from picsellia_cv_engine.enums import PipelineState, StepState
+from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 from tests.decorators.fixtures.pipeline_fixtures import entrypoint_call_tracker
 
 
@@ -106,7 +106,7 @@ class TestPipelineDecorator:
         assert len(entrypoint_call_tracker["args"]) == 1
         assert len(entrypoint_call_tracker["kwargs"]) == 2
 
-    @patch("src.decorators.pipeline_decorator.inspect.getsource")
+    @patch("decorators.pipeline_decorator.inspect.getsource")
     def test_analyze_and_register_steps(
         self,
         mock_getsource,

@@ -3,10 +3,10 @@ import string
 import uuid
 
 import pytest
+from decorators.step_decorator import Step
 
-from src.decorators.step_decorator import Step
-from src.enums import StepState
-from src.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine.enums import StepState
+from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 
 
 def step_entrypoint_pass():

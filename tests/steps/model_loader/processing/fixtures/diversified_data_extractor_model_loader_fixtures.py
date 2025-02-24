@@ -1,10 +1,9 @@
 import pytest
 import torch
-from torchvision import transforms
-
-from src.steps.model_loading.processing.processing_diversified_data_extractor_model_loader import (
+from steps.model_loading.processing.processing_diversified_data_extractor_model_loader import (
     OpenClipEmbeddingModel,
 )
+from torchvision import transforms
 
 
 class MockCLIP:

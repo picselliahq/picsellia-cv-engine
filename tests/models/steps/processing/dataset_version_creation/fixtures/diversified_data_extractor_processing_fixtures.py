@@ -1,13 +1,13 @@
 import open_clip
 import pytest
 from picsellia.types.enums import InferenceType
-
-from src.enums import DatasetSplitName
-from src.models.steps.processing.dataset_version_creation.diversified_data_extractor_processing import (
-    DiversifiedDataExtractorProcessing,
-)
-from src.steps.model_loading.processing.processing_diversified_data_extractor_model_loader import (
+from steps.model_loading.processing.processing_diversified_data_extractor_model_loader import (
     OpenClipEmbeddingModel,
+)
+
+from picsellia_cv_engine.enums import DatasetSplitName
+from picsellia_cv_engine.models.steps.processing.dataset_version_creation.diversified_data_extractor_processing import (
+    DiversifiedDataExtractorProcessing,
 )
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 

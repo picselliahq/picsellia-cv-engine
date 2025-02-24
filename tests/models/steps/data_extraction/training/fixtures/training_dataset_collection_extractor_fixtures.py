@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 from picsellia import Client, Experiment, Project
 
-from src.models.steps.data_extraction.training.training_dataset_collection_extractor import (
+from picsellia_cv_engine.models.steps.data_extraction.training.training_dataset_collection_extractor import (
     TrainingDatasetCollectionExtractor,
 )
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata

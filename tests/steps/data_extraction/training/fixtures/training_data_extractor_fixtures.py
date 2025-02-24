@@ -2,12 +2,18 @@ from collections.abc import Callable
 
 import pytest
 
-from src.models.contexts.training.picsellia_training_context import (
+from picsellia_cv_engine.models.contexts.training.picsellia_training_context import (
     PicselliaTrainingContext,
 )
-from src.models.parameters.common.augmentation_parameters import AugmentationParameters
-from src.models.parameters.common.export_parameters import ExportParameters
-from src.models.parameters.common.hyper_parameters import HyperParameters
+from picsellia_cv_engine.models.parameters.common.augmentation_parameters import (
+    AugmentationParameters,
+)
+from picsellia_cv_engine.models.parameters.common.export_parameters import (
+    ExportParameters,
+)
+from picsellia_cv_engine.models.parameters.common.hyper_parameters import (
+    HyperParameters,
+)
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 

@@ -2,9 +2,9 @@ from unittest.mock import patch
 
 import pytest
 
-from src.picsellia_cv_engine import Pipeline, Step
-from src.picsellia_cv_engine import step as step_decorator
-from src.picsellia_cv_engine.enums import PipelineState, StepState
+from picsellia_cv_engine import Pipeline, Step
+from picsellia_cv_engine import step as step_decorator
+from picsellia_cv_engine.enums import PipelineState, StepState
 
 
 class TestStepDecorator:

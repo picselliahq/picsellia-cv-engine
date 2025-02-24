@@ -2,14 +2,16 @@ from collections.abc import Callable
 
 import pytest
 
-from src.models.dataset.common.dataset_collection import DatasetCollection
-from src.models.steps.data_validation.common.classification_dataset_context_validator import (
+from picsellia_cv_engine.models.dataset.common.dataset_collection import (
+    DatasetCollection,
+)
+from picsellia_cv_engine.models.steps.data_validation.common.classification_dataset_context_validator import (
     ClassificationDatasetContextValidator,
 )
-from src.models.steps.data_validation.common.dataset_collection_validator import (
+from picsellia_cv_engine.models.steps.data_validation.common.dataset_collection_validator import (
     DatasetCollectionValidator,
 )
-from src.models.steps.data_validation.common.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.common.dataset_context_validator import (
     DatasetContextValidator,
 )
 

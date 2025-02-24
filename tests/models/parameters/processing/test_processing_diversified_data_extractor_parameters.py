@@ -1,4 +1,4 @@
-from src.models.parameters.processing.processing_diversified_data_extractor_parameters import (
+from picsellia_cv_engine.models.parameters.processing.processing_diversified_data_extractor_parameters import (
     ProcessingDiversifiedDataExtractorParameters,
 )
 

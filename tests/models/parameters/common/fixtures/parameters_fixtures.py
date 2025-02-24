@@ -1,6 +1,6 @@
 import pytest
 
-from src.models.parameters.common.parameters import Parameters
+from picsellia_cv_engine.models.parameters.common.parameters import Parameters
 
 
 class ConcreteParameters(Parameters):

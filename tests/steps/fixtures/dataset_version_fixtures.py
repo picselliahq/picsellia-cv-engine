@@ -7,7 +7,7 @@ import pytest
 from picsellia import Client, Data, Dataset, DatasetVersion
 from picsellia.types.enums import InferenceType
 
-from src.enums import DatasetSplitName
+from picsellia_cv_engine.enums import DatasetSplitName
 from tests.steps.fixtures.integration_tests_fixtures import (
     create_dataset_version,
     upload_data,

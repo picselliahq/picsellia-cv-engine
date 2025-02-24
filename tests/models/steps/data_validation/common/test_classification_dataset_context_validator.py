@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from picsellia.types.enums import InferenceType
 
-from src.enums import DatasetSplitName
+from picsellia_cv_engine.enums import DatasetSplitName
 from tests.steps.fixtures.dataset_version_fixtures import DatasetTestMetadata
 
 
@@ -53,7 +53,7 @@ class TestClassificationDatasetValidator:
 
         # Define a mock destination path
         with patch(
-            "src.models.dataset.common.dataset_context.DatasetContext.load_coco_file_data"
+            "models.dataset.common.dataset_context.DatasetContext.load_coco_file_data"
         ) as mock_load_coco_data:
             # Simulating COCO file content with no images for one class
             mock_load_coco_data.return_value = {
