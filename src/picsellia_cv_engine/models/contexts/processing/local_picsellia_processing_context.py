@@ -1,9 +1,11 @@
-from typing import Any, Dict, Optional
-from src.picsellia_cv_engine.models.contexts.common.picsellia_context import (
+from typing import Any
+
+from picsellia import DatasetVersion, ModelVersion
+from picsellia.types.enums import ProcessingType
+
+from picsellia_cv_engine.models.contexts.common.picsellia_context import (
     PicselliaContext,
 )
-from picsellia.types.enums import ProcessingType
-from picsellia import DatasetVersion, ModelVersion
 
 
 class LocalPicselliaProcessingContext(PicselliaContext):
@@ -13,17 +15,17 @@ class LocalPicselliaProcessingContext(PicselliaContext):
 
     def __init__(
         self,
-        api_token: Optional[str] = None,
-        host: Optional[str] = None,
-        organization_id: Optional[str] = None,
-        job_id: Optional[str] = None,
-        job_type: Optional[ProcessingType] = None,
-        input_dataset_version_id: Optional[str] = None,
-        output_dataset_version_id: Optional[str] = None,
-        output_dataset_version_name: Optional[str] = None,
-        use_id: Optional[bool] = True,
-        download_annotations: Optional[bool] = True,
-        model_version_id: Optional[str] = None,
+        api_token: str | None = None,
+        host: str | None = None,
+        organization_id: str | None = None,
+        job_id: str | None = None,
+        job_type: ProcessingType | None = None,
+        input_dataset_version_id: str | None = None,
+        output_dataset_version_id: str | None = None,
+        output_dataset_version_name: str | None = None,
+        use_id: bool | None = True,
+        download_annotations: bool | None = True,
+        model_version_id: str | None = None,
         processing_parameters=None,
     ):
         # Initialize the Picsellia client from the base class
@@ -76,7 +78,7 @@ class LocalPicselliaProcessingContext(PicselliaContext):
         """
         return self.client.get_model_version_by_id(self.model_version_id)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "context_parameters": {
                 "host": self.host,

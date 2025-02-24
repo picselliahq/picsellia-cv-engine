@@ -1,19 +1,26 @@
 import os
-from typing import Type, Optional, Any, Dict, Generic, Union
+from typing import Any, Generic, TypeVar
 
 from picsellia import Experiment  # type: ignore
-from src.picsellia_cv_engine.models.contexts.common.picsellia_context import (
+
+from picsellia_cv_engine.models.contexts.common.picsellia_context import (
     PicselliaContext,
 )
-from src.picsellia_cv_engine.models.parameters.augmentation_parameters import (
-    TAugmentationParameters,
+from picsellia_cv_engine.models.parameters.augmentation_parameters import (
+    AugmentationParameters,
 )
-from src.picsellia_cv_engine.models.parameters.export_parameters import (
-    TExportParameters,
+from picsellia_cv_engine.models.parameters.export_parameters import (
+    ExportParameters,
 )
-from src.picsellia_cv_engine.models.parameters.hyper_parameters import (
-    THyperParameters,
+from picsellia_cv_engine.models.parameters.hyper_parameters import (
+    HyperParameters,
 )
+
+THyperParameters = TypeVar("THyperParameters", bound=HyperParameters)
+TAugmentationParameters = TypeVar(
+    "TAugmentationParameters", bound=AugmentationParameters
+)
+TExportParameters = TypeVar("TExportParameters", bound=ExportParameters)
 
 
 class PicselliaTrainingContext(
@@ -22,13 +29,13 @@ class PicselliaTrainingContext(
 ):
     def __init__(
         self,
-        hyperparameters_cls: Union[Type[THyperParameters]],
-        augmentation_parameters_cls: Union[Type[TAugmentationParameters]],
-        export_parameters_cls: Union[Type[TExportParameters]],
-        api_token: Optional[str] = None,
-        host: Optional[str] = None,
-        organization_id: Optional[str] = None,
-        experiment_id: Optional[str] = None,
+        hyperparameters_cls: type[THyperParameters],
+        augmentation_parameters_cls: type[TAugmentationParameters],
+        export_parameters_cls: type[TExportParameters],
+        api_token: str | None = None,
+        host: str | None = None,
+        organization_id: str | None = None,
+        experiment_id: str | None = None,
     ):
         super().__init__(api_token, host, organization_id)
         self.experiment_id = experiment_id or os.getenv("experiment_id")
@@ -48,7 +55,7 @@ class PicselliaTrainingContext(
         )
         self.export_parameters = export_parameters_cls(log_data=parameters_log_data)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "context_parameters": {
                 "host": self.host,

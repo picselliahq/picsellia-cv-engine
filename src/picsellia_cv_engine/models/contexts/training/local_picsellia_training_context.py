@@ -1,18 +1,23 @@
-from typing import Any, Dict, Optional, Type, Union, Generic
+from typing import Any, Generic, TypeVar
 
 from picsellia import Experiment
-from src.picsellia_cv_engine.models.contexts.common.picsellia_context import (
+
+from picsellia_cv_engine.models.contexts.common.picsellia_context import (
     PicselliaContext,
 )
-from src.picsellia_cv_engine.models.parameters.export_parameters import (
+from picsellia_cv_engine.models.parameters.augmentation_parameters import (
+    AugmentationParameters,
+)
+from picsellia_cv_engine.models.parameters.export_parameters import (
     TExportParameters,
 )
-
-from src.picsellia_cv_engine.models.parameters.hyper_parameters import (
-    THyperParameters,
+from picsellia_cv_engine.models.parameters.hyper_parameters import (
+    HyperParameters,
 )
-from src.picsellia_cv_engine.models.parameters.augmentation_parameters import (
-    TAugmentationParameters,
+
+THyperParameters = TypeVar("THyperParameters", bound=HyperParameters)
+TAugmentationParameters = TypeVar(
+    "TAugmentationParameters", bound=AugmentationParameters
 )
 
 
@@ -25,13 +30,13 @@ class LocalPicselliaTrainingContext(
 
     def __init__(
         self,
-        hyperparameters_cls: Union[Type[THyperParameters]],
-        augmentation_parameters_cls: Union[Type[TAugmentationParameters]],
-        export_parameters_cls: Union[Type[TExportParameters]],
-        api_token: Optional[str] = None,
-        host: Optional[str] = None,
-        organization_id: Optional[str] = None,
-        experiment_id: Optional[str] = None,
+        hyperparameters_cls: type[THyperParameters],
+        augmentation_parameters_cls: type[TAugmentationParameters],
+        export_parameters_cls: type[TExportParameters],
+        api_token: str | None = None,
+        host: str | None = None,
+        organization_id: str | None = None,
+        experiment_id: str | None = None,
     ):
         # Initialize the Picsellia client from the base class
         super().__init__(api_token, host, organization_id)
@@ -46,7 +51,7 @@ class LocalPicselliaTrainingContext(
         )
         self.export_parameters = export_parameters_cls(log_data=parameters_log_data)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "context_parameters": {
                 "host": self.host,
