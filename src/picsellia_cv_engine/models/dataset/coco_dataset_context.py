@@ -2,19 +2,17 @@ import json
 import logging
 import os
 import shutil
-
-from tqdm import tqdm
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 from picsellia import DatasetVersion, Label
 from picsellia.exceptions import NoDataError
 from picsellia.sdk.asset import MultiAsset
 from picsellia.types.enums import AnnotationFileType
+from tqdm import tqdm
 
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
     BaseDatasetContext,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +26,7 @@ def remove_empty_directories(directory: str) -> None:
     Args:
         directory (str): The root directory to clean.
     """
-    for root, dirs, files in os.walk(directory, topdown=False):
+    for root, dirs, _files in os.walk(directory, topdown=False):
         for dir_ in dirs:
             dir_path = os.path.join(root, dir_)
             if not os.listdir(dir_path):  # Check if the directory is empty
@@ -49,8 +47,8 @@ class CocoDatasetContext(BaseDatasetContext):
         self,
         dataset_name: str,
         dataset_version: DatasetVersion,
-        assets: Optional[MultiAsset] = None,
-        labelmap: Optional[Dict[str, Label]] = None,
+        assets: MultiAsset | None = None,
+        labelmap: dict[str, Label] | None = None,
     ):
         """
         Initialize the COCO dataset context.
@@ -67,21 +65,24 @@ class CocoDatasetContext(BaseDatasetContext):
             assets=assets,
             labelmap=labelmap,
         )
-        self.coco_file_path: Optional[str] = None  # Path to the final COCO file.
-        self.coco_data: Optional[Dict[str, Any]] = None  # Loaded COCO data.
+        self.coco_file_path: str | None = None  # Path to the final COCO file.
+        self.coco_data: dict[str, Any] | None = None  # Loaded COCO data.
 
     def download_annotations(
-        self, destination_path: str, use_id: Optional[bool] = True
+        self, destination_dir: str, use_id: bool | None = True
     ) -> None:
         """
         Download COCO annotations in batches, optionally merging them into a single file.
 
         Args:
-            destination_path (str): Path where the final COCO file will be saved.
+            destination_dir (str): Directory to save the COCO annotation files.
             use_id (Optional[bool]): Whether to use asset IDs in file paths (default: True).
         """
-        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
-        self.annotations_dir = os.path.dirname(destination_path)
+        self.annotations_dir = destination_dir
+        self.coco_file_path = os.path.join(
+            self.annotations_dir, "coco_annotations.json"
+        )
+        os.makedirs(self.annotations_dir, exist_ok=True)
 
         assets_to_download = self._determine_assets_source()
 
@@ -98,17 +99,19 @@ class CocoDatasetContext(BaseDatasetContext):
             return None
 
         if len(batch_files) == 1:
-            shutil.move(batch_files[0], destination_path)
-            logger.info(f"Single batch file saved directly to {destination_path}")
+            moved_file_path = shutil.move(batch_files[0], self.annotations_dir)
+            os.rename(moved_file_path, self.coco_file_path)
+            logger.info(f"Single batch file saved to {self.coco_file_path}")
         else:
-            self._merge_batches(batch_files, destination_path)
+            self._merge_batches(batch_files, self.coco_file_path)
+            logger.info(f"Merged COCO annotations saved to {self.coco_file_path}")
+
         remove_empty_directories(self.annotations_dir)
 
-        self.coco_file_path = destination_path
         self.coco_data = self.load_coco_file_data()
         logger.info("COCO annotations downloaded and loaded into memory.")
 
-    def _determine_assets_source(self) -> Optional[MultiAsset]:
+    def _determine_assets_source(self) -> MultiAsset | None:
         """
         Determine the source of assets for downloading annotations.
 
@@ -127,10 +130,10 @@ class CocoDatasetContext(BaseDatasetContext):
     def _process_batches(
         self,
         destination_dir: str,
-        assets_to_download: Optional[MultiAsset],
+        assets_to_download: MultiAsset | None,
         pbar: tqdm,
-        use_id: Optional[bool] = True,
-    ) -> List[str]:
+        use_id: bool | None = True,
+    ) -> list[str]:
         """
         Process assets in batches and export their COCO annotations.
 
@@ -179,7 +182,7 @@ class CocoDatasetContext(BaseDatasetContext):
         return batch_files
 
     def _get_next_batch(
-        self, assets_to_download: Optional[MultiAsset], offset: int
+        self, assets_to_download: MultiAsset | None, offset: int
     ) -> MultiAsset:
         """
         Retrieve the next batch of assets.
@@ -200,7 +203,7 @@ class CocoDatasetContext(BaseDatasetContext):
         self,
         batch_assets: MultiAsset,
         destination_path: str,
-        use_id: Optional[bool] = True,
+        use_id: bool | None = True,
     ) -> str:
         """
         Export COCO annotations for a batch of assets.
@@ -220,7 +223,7 @@ class CocoDatasetContext(BaseDatasetContext):
             assets=batch_assets,
         )
 
-    def _merge_batches(self, batch_files: List[str], final_coco_file_path: str) -> None:
+    def _merge_batches(self, batch_files: list[str], final_coco_file_path: str) -> None:
         """
         Merge multiple COCO annotation batches into a single file.
 
@@ -228,7 +231,7 @@ class CocoDatasetContext(BaseDatasetContext):
             batch_files (List[str]): Paths to the batch files.
             final_coco_file_path (str): Path to save the merged COCO file.
         """
-        merged_coco_data: Dict[str, List] = {
+        merged_coco_data: dict[str, list] = {
             "images": [],
             "annotations": [],
             "categories": [],
@@ -238,7 +241,7 @@ class CocoDatasetContext(BaseDatasetContext):
 
         with tqdm(batch_files, desc="Merging annotation batches", unit="batch") as pbar:
             for batch_file in pbar:
-                with open(batch_file, "r") as f:
+                with open(batch_file) as f:
                     batch_data = json.load(f)
 
                 for image in batch_data.get("images", []):
@@ -264,7 +267,7 @@ class CocoDatasetContext(BaseDatasetContext):
             json.dump(merged_coco_data, f, indent=4)
         logger.info(f"Merged annotations saved to {final_coco_file_path}")
 
-    def load_coco_file_data(self) -> Dict[str, Any]:
+    def load_coco_file_data(self) -> dict[str, Any]:
         """
         Load COCO annotation data from the merged annotation file.
 
@@ -280,7 +283,7 @@ class CocoDatasetContext(BaseDatasetContext):
                 "COCO file path is not set. Please download the COCO file first."
             )
         try:
-            with open(self.coco_file_path, "r") as f:
+            with open(self.coco_file_path) as f:
                 coco_data = json.load(f)
             logger.info(f"Successfully loaded COCO data from {self.coco_file_path}")
             return coco_data

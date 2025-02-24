@@ -1,7 +1,6 @@
 import logging
 import os
 import zipfile
-from typing import Dict, Optional
 
 from picsellia import DatasetVersion, Label
 from picsellia.exceptions import NoDataError
@@ -9,7 +8,7 @@ from picsellia.sdk.asset import MultiAsset
 from picsellia.types.enums import AnnotationFileType
 from tqdm import tqdm
 
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
     BaseDatasetContext,
 )
 
@@ -25,7 +24,7 @@ def remove_empty_directories(directory: str) -> None:
     Args:
         directory (str): The root directory to clean.
     """
-    for root, dirs, files in os.walk(directory, topdown=False):
+    for root, dirs, _files in os.walk(directory, topdown=False):
         for dir_ in dirs:
             dir_path = os.path.join(root, dir_)
             if not os.listdir(dir_path):  # Check if the directory is empty
@@ -45,8 +44,8 @@ class YoloDatasetContext(BaseDatasetContext):
         self,
         dataset_name: str,
         dataset_version: DatasetVersion,
-        assets: Optional[MultiAsset] = None,
-        labelmap: Optional[Dict[str, Label]] = None,
+        assets: MultiAsset | None = None,
+        labelmap: dict[str, Label] | None = None,
     ):
         """
         Initialize the YOLO dataset context.
@@ -65,7 +64,7 @@ class YoloDatasetContext(BaseDatasetContext):
         )
 
     def download_annotations(
-        self, destination_path: str, use_id: Optional[bool] = True
+        self, destination_dir: str, use_id: bool | None = True
     ) -> None:
         """
         Downloads YOLO annotations for the dataset in batches.
@@ -74,28 +73,28 @@ class YoloDatasetContext(BaseDatasetContext):
         to the specified directory.
 
         Args:
-            destination_path (str): The directory where annotations will be saved.
+            destination_dir (str): The directory where annotations will be saved.
             use_id (Optional[bool]): Whether to use asset IDs in file paths (default: True).
 
         Raises:
             FileNotFoundError: If the destination path does not exist or is invalid.
             Exception: If an error occurs during batch processing.
         """
-        os.makedirs(destination_path, exist_ok=True)
+        self.annotations_dir = destination_dir
+        os.makedirs(self.annotations_dir, exist_ok=True)
         assets_to_download = self._determine_assets_source()
 
         with tqdm(desc="Downloading YOLO annotation batches", unit="assets") as pbar:
             self._process_batches(
-                destination_path=destination_path,
+                destination_path=self.annotations_dir,
                 assets_to_download=assets_to_download,
                 pbar=pbar,
                 use_id=use_id,
             )
 
-        self.annotations_dir = destination_path
-        logger.info(f"YOLO annotations downloaded to {destination_path}")
+        logger.info(f"YOLO annotations downloaded to {self.annotations_dir}")
 
-    def _determine_assets_source(self) -> Optional[MultiAsset]:
+    def _determine_assets_source(self) -> MultiAsset | None:
         """
         Determine the source of assets (preloaded or fetched dynamically).
 
@@ -114,9 +113,9 @@ class YoloDatasetContext(BaseDatasetContext):
     def _process_batches(
         self,
         destination_path: str,
-        assets_to_download: Optional[MultiAsset],
+        assets_to_download: MultiAsset | None,
         pbar: tqdm,
-        use_id: Optional[bool] = True,
+        use_id: bool | None = True,
     ) -> None:
         """
         Process the assets in batches, exporting and unzipping YOLO annotations.
@@ -161,7 +160,7 @@ class YoloDatasetContext(BaseDatasetContext):
                 break
 
     def _get_next_batch(
-        self, assets_to_download: Optional[MultiAsset], offset: int
+        self, assets_to_download: MultiAsset | None, offset: int
     ) -> MultiAsset:
         """
         Fetch the next batch of assets.
@@ -182,7 +181,7 @@ class YoloDatasetContext(BaseDatasetContext):
         self,
         batch_assets: MultiAsset,
         destination_path: str,
-        use_id: Optional[bool] = True,
+        use_id: bool | None = True,
     ) -> str:
         """
         Export YOLO annotations for a batch.
