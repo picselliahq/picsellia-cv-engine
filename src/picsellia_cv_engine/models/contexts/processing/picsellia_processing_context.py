@@ -5,10 +5,10 @@ import picsellia  # type: ignore
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.types.enums import ProcessingType
 
-from examples.processing.augmentation.main_augmentation import Parameters
 from picsellia_cv_engine.models.contexts.common.picsellia_context import (
     PicselliaContext,
 )
+from picsellia_cv_engine.models.parameters.base_parameters import Parameters
 
 TParameters = TypeVar("TParameters", bound=Parameters)
 
