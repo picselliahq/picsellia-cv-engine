@@ -1,12 +1,12 @@
-from typing import Dict, Any
+from typing import Any
 
-from src.picsellia_cv_engine.models.contexts.processing.picsellia_processing_context import (
+from picsellia_cv_engine.models.contexts.processing.picsellia_processing_context import (
     PicselliaProcessingContext,
 )
-from src.picsellia_cv_engine.models.parameters.parameters import Parameters
+from picsellia_cv_engine.models.parameters.base_parameters import Parameters
 
 
-def retrieve_picsellia_processing_parameters(processing_parameters: Dict[str, Any]):
+def retrieve_picsellia_processing_parameters(processing_parameters: dict[str, Any]):
     class ProcessingParameters(Parameters):
         def __init__(self, log_data):
             super().__init__(log_data)
@@ -21,7 +21,7 @@ def retrieve_picsellia_processing_parameters(processing_parameters: Dict[str, An
     return ProcessingParameters
 
 
-def create_picsellia_processing_context(processing_parameters: Dict[str, Any]):
+def create_picsellia_processing_context(processing_parameters: dict[str, Any]):
     """
     Create a Picsellia processing context.
 

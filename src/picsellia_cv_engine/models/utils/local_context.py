@@ -1,9 +1,9 @@
 import dataclasses
-from typing import Dict, Any, Set
+from typing import Any
 
 from picsellia.types.enums import ProcessingType
 
-from src.picsellia_cv_engine.models.contexts.processing.local_picsellia_processing_context import (
+from picsellia_cv_engine.models.contexts.processing.local_picsellia_processing_context import (
     LocalPicselliaProcessingContext,
 )
 
@@ -19,12 +19,12 @@ def infer_type(value: str) -> Any:
             return value  # Default to string
 
 
-def create_local_processing_parameters(processing_parameters: Dict[str, Any]):
+def create_local_processing_parameters(processing_parameters: dict[str, Any]):
     """Create a parameter object with inferred types."""
 
     @dataclasses.dataclass
     class ProcessingParameters:
-        defaulted_keys: Set[str] = dataclasses.field(default_factory=set)
+        defaulted_keys: set[str] = dataclasses.field(default_factory=set)
 
         def __init__(self):
             # Dynamically add attributes and infer types
@@ -35,7 +35,7 @@ def create_local_processing_parameters(processing_parameters: Dict[str, Any]):
             # Initialize empty defaulted keys for logging purposes
             self.defaulted_keys = set()
 
-        def to_dict(self) -> Dict[str, Any]:
+        def to_dict(self) -> dict[str, Any]:
             """Convert the parameters to a dictionary."""
             filtered_dict = {
                 key: value
@@ -58,7 +58,7 @@ def create_local_processing_context(
     job_type: ProcessingType,
     input_dataset_version_id: str,
     output_dataset_version_name: str,
-    processing_parameters: Dict[str, Any],
+    processing_parameters: dict[str, Any],
 ):
     """
     Create a Picsellia processing context.
