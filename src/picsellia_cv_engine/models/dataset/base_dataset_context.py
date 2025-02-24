@@ -1,13 +1,13 @@
-from abc import abstractmethod
 import logging
 import os
-from typing import Dict, Optional, TypeVar
+from abc import abstractmethod
+from typing import TypeVar
 
 from picsellia import DatasetVersion, Label
-from picsellia.sdk.asset import MultiAsset
 from picsellia.exceptions import NoDataError
+from picsellia.sdk.asset import MultiAsset
 
-from src.picsellia_cv_engine.models.utils.dataset_logging import get_labelmap
+from picsellia_cv_engine.models.utils.dataset_logging import get_labelmap
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,8 @@ class BaseDatasetContext:
         self,
         dataset_name: str,
         dataset_version: DatasetVersion,
-        assets: Optional[MultiAsset] = None,
-        labelmap: Optional[Dict[str, Label]] = None,
+        assets: MultiAsset | None = None,
+        labelmap: dict[str, Label] | None = None,
     ):
         """
         Initializes a `BaseDatasetContext` with the dataset's metadata and configuration.
@@ -57,12 +57,12 @@ class BaseDatasetContext:
         else:
             self.labelmap = labelmap or {}
 
-        self.images_dir: Optional[str] = None
-        self.annotations_dir: Optional[str] = None
+        self.images_dir: str | None = None
+        self.annotations_dir: str | None = None
 
     @abstractmethod
     def download_annotations(
-        self, destination_path: str, use_id: Optional[bool] = True
+        self, destination_dir: str, use_id: bool | None = True
     ) -> None:
         """
         Abstract method to download annotations for the dataset.
@@ -71,7 +71,7 @@ class BaseDatasetContext:
         and stored locally.
 
         Args:
-            destination_path (str): The directory where annotations will be saved.
+            destination_dir (str): The directory where the annotations will be saved locally.
             use_id (Optional[bool]): If True, uses asset IDs for file naming. Defaults to True.
 
         Raises:
@@ -82,8 +82,8 @@ class BaseDatasetContext:
     def download_assets(
         self,
         destination_dir: str,
-        use_id: Optional[bool] = True,
-        skip_asset_listing: Optional[bool] = False,
+        use_id: bool | None = True,
+        skip_asset_listing: bool | None = False,
     ) -> None:
         """
         Downloads all assets (e.g., images) associated with the dataset to the specified directory.
@@ -93,7 +93,7 @@ class BaseDatasetContext:
         lists and downloads them from the dataset version.
 
         Args:
-            destination_path (str): The directory where the assets will be saved locally.
+            destination_dir (str): The directory where assets will be saved locally.
             use_id (Optional[bool]): If True, uses asset IDs to generate file paths. Defaults to True.
             skip_asset_listing (Optional[bool]): If True, skips listing assets after downloading.
                 Defaults to False.
