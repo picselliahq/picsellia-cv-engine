@@ -1,11 +1,12 @@
 import logging
 import time
 import uuid
-from typing import Any, Callable, Optional, TypeVar, Union, overload
+from collections.abc import Callable
+from typing import Any, Optional, TypeVar, Union, overload
 
-from src.picsellia_cv_engine import Pipeline
-from src.picsellia_cv_engine.enums import PipelineState, StepState
-from src.picsellia_cv_engine.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine.decorators.pipeline_decorator import Pipeline
+from picsellia_cv_engine.enums import PipelineState, StepState
+from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -141,7 +142,7 @@ class Step:
         )
 
     def _format_step_info(
-        self, step_index: Optional[int], total_number_of_steps: int, content: str
+        self, step_index: int | None, total_number_of_steps: int, content: str
     ) -> str:
         """Formats the step information to be logged.
 
@@ -182,14 +183,14 @@ def step(_func: F) -> Step:  # pragma: no cover
 
 @overload
 def step(
-    *, name: Optional[str] = None, continue_on_failure: bool = False
+    *, name: str | None = None, continue_on_failure: bool = False
 ) -> Callable[[F], Step]:  # pragma: no cover
     ...
 
 
 def step(
     _func: Optional["F"] = None,
-    name: Optional[str] = None,
+    name: str | None = None,
     continue_on_failure: bool = False,
 ) -> Union["Step", Callable[["F"], "Step"]]:
     """Decorator to create a step.

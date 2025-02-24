@@ -1,26 +1,27 @@
 import ast
 import inspect
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, overload
+from collections.abc import Callable
+from typing import Any, Optional, TypeVar, Union, overload
 
 from tabulate import tabulate  # type: ignore
 
-from src.picsellia_cv_engine import Colors
-from src.picsellia_cv_engine.enums import PipelineState, StepState
-from src.picsellia_cv_engine.logger import LoggerManager
-from src.picsellia_cv_engine.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine.enums import PipelineState, StepState
+from picsellia_cv_engine.logger import LoggerManager
+from picsellia_cv_engine.models.logging.colors import Colors
+from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
 class Pipeline:
     ACTIVE_PIPELINE: Optional["Pipeline"] = None
-    STEPS_REGISTRY: Dict[str, StepMetadata] = {}
+    STEPS_REGISTRY: dict[str, StepMetadata] = {}
 
     def __init__(
         self,
         context: Any,
         name: str,
-        log_folder_path: Optional[str],
+        log_folder_path: str | None,
         remove_logs_on_completion: bool,
         entrypoint: F,
     ) -> None:
@@ -45,9 +46,9 @@ class Pipeline:
 
         self._is_pipeline_initialized = False
         self._state = PipelineState.PENDING
-        self._registered_steps_metadata: List[StepMetadata] = []
+        self._registered_steps_metadata: list[StepMetadata] = []
 
-        self.initialization_log_file_path: Optional[str] = None
+        self.initialization_log_file_path: str | None = None
 
     def __call__(self, *args, **kwargs) -> Any:
         """Handles the pipeline call.
@@ -151,7 +152,7 @@ class Pipeline:
         )  # pragma: no cover
 
     @property
-    def steps_metadata(self) -> List[StepMetadata]:
+    def steps_metadata(self) -> list[StepMetadata]:
         """All the pipeline's steps' metadata.
 
         Returns:
@@ -226,8 +227,8 @@ class Pipeline:
         )
 
     def _extract_parameters_from_context_dict(
-        self, context: Dict[Any, Any]
-    ) -> Tuple[Dict[Any, Any], Dict[Any, Any]]:
+        self, context: dict[Any, Any]
+    ) -> tuple[dict[Any, Any], dict[Any, Any]]:
         """Extracts flat parameters and nested parameters from a context dictionary.
 
         For example, given the following context: `{'nested': {'learning_rate': 0.01}, 'flat': "value"}`,
@@ -242,8 +243,8 @@ class Pipeline:
         Returns:
             A tuple containing the flat parameters and the nested parameters.
         """
-        flat_parameters: Dict[Any, Any] = {}
-        nested_parameters: Dict[Any, Any] = {}
+        flat_parameters: dict[Any, Any] = {}
+        nested_parameters: dict[Any, Any] = {}
 
         for key, value in context.items():
             if isinstance(value, dict):
@@ -306,7 +307,7 @@ class Pipeline:
             markdown_table = self._compute_markdown_table(key, nested_dict)
             self.log_pipeline_info(log_content=f"{markdown_table}\n")
 
-    def _parse_context_to_dict(self, context: Any) -> Optional[Dict[Any, Any]]:
+    def _parse_context_to_dict(self, context: Any) -> dict[Any, Any] | None:
         """Parse the context to a dictionary.
 
         This method only works if the context exposes a `to_dict` method or is already a dictionary.
@@ -317,7 +318,7 @@ class Pipeline:
         Returns:
             The context as a dictionary.
         """
-        if hasattr(context, "to_dict") and callable(getattr(context, "to_dict")):
+        if hasattr(context, "to_dict") and callable(context.to_dict):
             return context.to_dict()
         elif isinstance(context, dict):
             return context
@@ -418,9 +419,9 @@ def pipeline(_func: F) -> Pipeline:  # pragma: no cover
 @overload
 def pipeline(
     *,
-    context: Optional[Any] = None,
-    name: Optional[str] = None,
-    log_folder_path: Optional[str] = None,
+    context: Any | None = None,
+    name: str | None = None,
+    log_folder_path: str | None = None,
     remove_logs_on_completion: bool = True,
 ) -> Callable[[F], Pipeline]:  # pragma: no cover
     ...
@@ -428,9 +429,9 @@ def pipeline(
 
 def pipeline(
     _func: Optional["F"] = None,
-    context: Optional[Any] = None,
-    name: Optional[str] = None,
-    log_folder_path: Optional[str] = None,
+    context: Any | None = None,
+    name: str | None = None,
+    log_folder_path: str | None = None,
     remove_logs_on_completion: bool = True,
 ) -> Union["Pipeline", Callable[["F"], "Pipeline"]]:
     """Decorator to create a pipeline.
