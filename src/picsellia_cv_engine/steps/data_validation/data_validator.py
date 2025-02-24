@@ -1,11 +1,11 @@
-from src.picsellia_cv_engine import step
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
+from picsellia_cv_engine.decorators.step_decorator import step
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
     TBaseDatasetContext,
 )
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_collection_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_collection_validator import (
     DatasetCollectionValidator,
     DatasetContextValidator,
 )

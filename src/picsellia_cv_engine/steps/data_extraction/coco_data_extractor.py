@@ -1,20 +1,20 @@
 import os
 
-from src.picsellia_cv_engine import step, Pipeline
-from src.picsellia_cv_engine.models.contexts.training.picsellia_training_context import (
+from picsellia_cv_engine.decorators.pipeline_decorator import Pipeline
+from picsellia_cv_engine.decorators.step_decorator import step
+from picsellia_cv_engine.models.contexts.training.picsellia_training_context import (
     PicselliaTrainingContext,
 )
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-from src.picsellia_cv_engine.models.steps.data_extraction.training_dataset_collection_extractor import (
+from picsellia_cv_engine.models.steps.data_extraction.training_dataset_collection_extractor import (
     TrainingDatasetCollectionExtractor,
 )
-
-from src.picsellia_cv_engine.models.utils.dataset_logging import (
+from picsellia_cv_engine.models.utils.dataset_logging import (
     log_labelmap,
 )
 
@@ -63,10 +63,10 @@ def get_coco_dataset_collection() -> DatasetCollection[CocoDatasetContext]:
     )
 
     coco_dataset_collection.download_all(
-        images_destination_path=os.path.join(
+        images_destination_dir=os.path.join(
             coco_dataset_collection.dataset_path, "images"
         ),
-        annotations_destination_path=os.path.join(
+        annotations_destination_dir=os.path.join(
             coco_dataset_collection.dataset_path, "annotations"
         ),
         use_id=True,

@@ -1,10 +1,10 @@
 import os
 
-from src.picsellia_cv_engine import step
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.decorators.step_decorator import step
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-from src.picsellia_cv_engine.models.steps.data_preparation.classification_dataset_context_preparator import (
+from picsellia_cv_engine.models.steps.data_preparation.classification_dataset_context_preparator import (
     ClassificationBaseDatasetContextPreparator,
 )
 
@@ -12,7 +12,7 @@ from src.picsellia_cv_engine.models.steps.data_preparation.classification_datase
 @step
 def prepare_classification_data(
     dataset_collection: DatasetCollection,
-    destination_path: str,
+    destination_dir: str,
 ) -> DatasetCollection:
     """
     Example:
@@ -64,9 +64,7 @@ def prepare_classification_data(
     for dataset_context in dataset_collection:
         organizer = ClassificationBaseDatasetContextPreparator(
             dataset_context=dataset_context,
-            destination_path=os.path.join(
-                destination_path, dataset_context.dataset_name
-            ),
+            destination_dir=os.path.join(destination_dir, dataset_context.dataset_name),
         )
         dataset_collection[dataset_context.dataset_name] = organizer.organize()
     return dataset_collection

@@ -1,20 +1,24 @@
 import os
-from typing import Optional
 
-from src.picsellia_cv_engine import Pipeline
-from src.picsellia_cv_engine import step
-from src.picsellia_cv_engine.models.contexts.processing.picsellia_processing_context import (
+from picsellia_cv_engine.decorators.pipeline_decorator import Pipeline
+from picsellia_cv_engine.decorators.step_decorator import step
+from picsellia_cv_engine.models.contexts.processing.picsellia_datalake_processing_context import (
+    PicselliaDatalakeProcessingContext,
+)
+from picsellia_cv_engine.models.contexts.processing.picsellia_processing_context import (
     PicselliaProcessingContext,
 )
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.datalake_collection import DatalakeCollection
+from picsellia_cv_engine.models.dataset.datalake_context import DatalakeContext
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
 
 
-def get_destination_path(job_id: Optional[str]) -> str:
+def get_destination_path(job_id: str | None) -> str:
     """
     Generates a destination path based on the current working directory and a job ID.
 
@@ -64,7 +68,7 @@ def get_processing_dataset_context(
         skip_asset_listing=skip_asset_listing,
     )
     dataset_context.download_annotations(
-        destination_path=os.path.join(
+        destination_dir=os.path.join(
             destination_path, "annotations", dataset_context.dataset_name
         ),
         use_id=True,
@@ -109,9 +113,37 @@ def get_processing_dataset_collection(
     )
     destination_path = get_destination_path(context.job_id)
     dataset_collection.download_all(
-        images_destination_path=os.path.join(destination_path, "images"),
-        annotations_destination_path=os.path.join(destination_path, "annotations"),
+        images_destination_dir=os.path.join(destination_path, "images"),
+        annotations_destination_dir=os.path.join(destination_path, "annotations"),
         use_id=True,
         skip_asset_listing=skip_asset_listing,
     )
     return dataset_collection
+
+
+@step
+def processing_datalake_extractor() -> DatalakeContext | DatalakeCollection:
+    context: PicselliaDatalakeProcessingContext = Pipeline.get_active_context()
+    input_datalake_context = DatalakeContext(
+        datalake_name="input",
+        datalake=context.input_datalake,
+        destination_path=get_destination_path(context.job_id),
+        data_ids=context.data_ids,
+        use_id=context.use_id,
+    )
+    if context.output_datalake:
+        output_datalake_context = DatalakeContext(
+            datalake_name="output",
+            datalake=context.output_datalake,
+            destination_path=get_destination_path(context.job_id),
+            use_id=context.use_id,
+        )
+        datalake_collection = DatalakeCollection(
+            input_datalake_context=input_datalake_context,
+            output_datalake_context=output_datalake_context,
+        )
+        datalake_collection.download_all()
+        return datalake_collection
+    else:
+        input_datalake_context.download_data(image_dir=input_datalake_context.image_dir)
+        return input_datalake_context

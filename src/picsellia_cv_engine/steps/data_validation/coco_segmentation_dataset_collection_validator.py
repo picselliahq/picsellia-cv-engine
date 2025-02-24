@@ -1,15 +1,15 @@
-from src.picsellia_cv_engine import step
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.decorators.step_decorator import step
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_collection_validator import (
-    DatasetCollectionValidator,
-)
-from src.picsellia_cv_engine.models.steps.data_validation.coco_segmentation_dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.coco_segmentation_dataset_context_validator import (
     CocoSegmentationDatasetContextValidator,
+)
+from picsellia_cv_engine.models.steps.data_validation.dataset_collection_validator import (
+    DatasetCollectionValidator,
 )
 
 
