@@ -1,7 +1,9 @@
 import os
-from typing import List, Generic, Optional, Any, TypeVar
+from typing import Any, Generic, TypeVar
 
-from src.picsellia_cv_engine.models.model.model_context import TModelContext
+from picsellia_cv_engine.models.model.model_context import ModelContext
+
+TModelContext = TypeVar("TModelContext", bound=ModelContext)
 
 
 class ModelCollection(Generic[TModelContext]):
@@ -16,7 +18,7 @@ class ModelCollection(Generic[TModelContext]):
         loaded_model (Optional[Any]): The currently loaded model for this collection.
     """
 
-    def __init__(self, models: List[TModelContext]):
+    def __init__(self, models: list[TModelContext]):
         """
         Initializes the collection with a list of model contexts.
 
@@ -24,7 +26,7 @@ class ModelCollection(Generic[TModelContext]):
             models (List[TModelContext]): A list of model contexts.
         """
         self.models = {model.model_name: model for model in models}
-        self._loaded_model: Optional[Any] = None
+        self._loaded_model: Any | None = None
 
     @property
     def loaded_model(self) -> Any:

@@ -1,11 +1,9 @@
 import os
-from typing import Optional, Dict, Any, TypeVar
+from typing import Any, TypeVar
 
-from picsellia import ModelVersion, Label
+from picsellia import Experiment, Label, ModelVersion
 
-from src.picsellia_cv_engine.models.model.model_downloader import ModelDownloader
-
-from picsellia import Experiment
+from picsellia_cv_engine.models.model.model_downloader import ModelDownloader
 
 
 class ModelContext:
@@ -30,11 +28,11 @@ class ModelContext:
         self,
         model_name: str,
         model_version: ModelVersion,
-        pretrained_weights_name: Optional[str] = None,
-        trained_weights_name: Optional[str] = None,
-        config_name: Optional[str] = None,
-        exported_weights_name: Optional[str] = None,
-        labelmap: Optional[Dict[str, Label]] = None,
+        pretrained_weights_name: str | None = None,
+        trained_weights_name: str | None = None,
+        config_name: str | None = None,
+        exported_weights_name: str | None = None,
+        labelmap: dict[str, Label] | None = None,
     ):
         """
         Initializes the ModelContext, which manages the paths, version, and related information for a specific model.
@@ -58,20 +56,20 @@ class ModelContext:
 
         self.labelmap = labelmap or {}
 
-        self.weights_dir: Optional[str] = None
-        self.results_dir: Optional[str] = None
+        self.weights_dir: str | None = None
+        self.results_dir: str | None = None
 
-        self.pretrained_weights_dir: Optional[str] = None
-        self.trained_weights_dir: Optional[str] = None
-        self.config_dir: Optional[str] = None
-        self.exported_weights_dir: Optional[str] = None
+        self.pretrained_weights_dir: str | None = None
+        self.trained_weights_dir: str | None = None
+        self.config_dir: str | None = None
+        self.exported_weights_dir: str | None = None
 
-        self.pretrained_weights_path: Optional[str] = None
-        self.trained_weights_path: Optional[str] = None
-        self.config_path: Optional[str] = None
-        self.exported_weights_path: Optional[str] = None
+        self.pretrained_weights_path: str | None = None
+        self.trained_weights_path: str | None = None
+        self.config_path: str | None = None
+        self.exported_weights_path: str | None = None
 
-        self._loaded_model: Optional[Any] = None
+        self._loaded_model: Any | None = None
 
     @property
     def loaded_model(self) -> Any:
@@ -99,18 +97,18 @@ class ModelContext:
         """
         self._loaded_model = model
 
-    def download_weights(self, destination_path: str) -> None:
+    def download_weights(self, destination_dir: str) -> None:
         """
         Downloads the model's weights and configuration files to the specified destination path.
 
         Args:
-            destination_path (str): The destination path where the model weights and related files will be downloaded.
+            destination_dir (str): The destination path where the model weights and related files will be downloaded.
         """
         downloader = ModelDownloader()
 
         # Set destination directories
-        self.weights_dir = os.path.join(destination_path, "weights")
-        self.results_dir = os.path.join(destination_path, "results")
+        self.weights_dir = os.path.join(destination_dir, "weights")
+        self.results_dir = os.path.join(destination_dir, "results")
         self.pretrained_weights_dir = os.path.join(
             self.weights_dir, "pretrained_weights"
         )
