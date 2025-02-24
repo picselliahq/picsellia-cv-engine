@@ -1,15 +1,15 @@
 import logging
 import os
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from picsellia import Client
 from picsellia.types.enums import TagTarget
 
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_upload.data_uploader import (
+from picsellia_cv_engine.models.steps.data_upload.data_uploader import (
     DataUploader,
 )
 
@@ -22,7 +22,7 @@ class ClassificationDatasetContextUploader(DataUploader):
         client: Client,
         dataset_context: CocoDatasetContext,
         datalake: str = "default",
-        data_tags: Optional[List[str]] = None,
+        data_tags: list[str] | None = None,
         batch_size: int = 10000,
     ):
         super().__init__(client, dataset_context.dataset_version, datalake)
@@ -63,7 +63,7 @@ class ClassificationDatasetContextUploader(DataUploader):
         )
         conversion_job.wait_for_done()
 
-    def _process_coco_data(self, coco_data: Dict[str, Any]) -> Dict[str, List[str]]:
+    def _process_coco_data(self, coco_data: dict[str, Any]) -> dict[str, list[str]]:
         """
         Process COCO data to group image paths by category name.
         """

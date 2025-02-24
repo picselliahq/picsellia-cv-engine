@@ -1,10 +1,9 @@
-from typing import List
 import os
 
-from src.picsellia_cv_engine.models.dataset.yolo_dataset_context import (
+from picsellia_cv_engine.models.dataset.yolo_dataset_context import (
     YoloDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -90,11 +89,11 @@ class YoloObjectDetectionDatasetContextValidator(
             if not annotation_file.endswith(".txt"):
                 continue
             annotation_path = os.path.join(annotations_dir, annotation_file)
-            with open(annotation_path, "r") as file:
+            with open(annotation_path) as file:
                 lines = file.readlines()
             self._validate_annotation_file(lines=lines, annotation_file=annotation_file)
 
-    def _validate_annotation_file(self, lines: List[str], annotation_file: str):
+    def _validate_annotation_file(self, lines: list[str], annotation_file: str):
         """
         Validates an individual YOLO annotation file.
 
@@ -129,7 +128,7 @@ class YoloObjectDetectionDatasetContextValidator(
             except ValueError as e:
                 raise ValueError(
                     f"Error in line {line_num} of {annotation_file}: {str(e)}"
-                )
+                ) from e
 
     def _validate_or_fix_annotation(
         self,
@@ -159,38 +158,51 @@ class YoloObjectDetectionDatasetContextValidator(
         Returns:
             None: If the annotation is valid, or if fixed, the annotation file is updated.
         """
-        if class_id < 0 or class_id >= len(self.dataset_context.labelmap):
-            self.error_count["class_id"] += 1
-            if self.fix_annotation:
-                class_id = max(
-                    0, min(len(self.dataset_context.labelmap) - 1, int(class_id))
-                )
-
-        if not (0 <= x_center <= 1):
-            self.error_count["x_center"] += 1
-            if self.fix_annotation:
-                x_center = max(0, min(1, x_center))
-
-        if not (0 <= y_center <= 1):
-            self.error_count["y_center"] += 1
-            if self.fix_annotation:
-                y_center = max(0, min(1, y_center))
-
-        if not (0 < width <= 1):
-            self.error_count["width"] += 1
-            if self.fix_annotation:
-                width = max(0.01, min(1, width))
-
-        if not (0 < height <= 1):
-            self.error_count["height"] += 1
-            if self.fix_annotation:
-                height = max(0.01, min(1, height))
+        class_id = self._validate_and_fix_class_id(class_id)
+        x_center = self._validate_and_fix_coordinate(x_center, "x_center")
+        y_center = self._validate_and_fix_coordinate(y_center, "y_center")
+        width = self._validate_and_fix_size(width, "width")
+        height = self._validate_and_fix_size(height, "height")
 
         if self.fix_annotation:
             new_line = f"{int(class_id)} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n"
             self._update_annotation_file(
                 annotation_file=annotation_file, line_num=line_num, new_line=new_line
             )
+
+    def _validate_and_fix_class_id(self, class_id: float) -> float:
+        """
+        Validates and fixes the class ID if necessary.
+        """
+        if class_id < 0 or class_id >= len(self.dataset_context.labelmap):
+            self.error_count["class_id"] += 1
+            if self.fix_annotation:
+                class_id = max(
+                    0, min(len(self.dataset_context.labelmap) - 1, int(class_id))
+                )
+        return class_id
+
+    def _validate_and_fix_coordinate(
+        self, coordinate: float, coordinate_name: str
+    ) -> float:
+        """
+        Validates and fixes a coordinate (either x_center or y_center).
+        """
+        if not (0 <= coordinate <= 1):
+            self.error_count[coordinate_name] += 1
+            if self.fix_annotation:
+                coordinate = max(0, min(1, coordinate))
+        return coordinate
+
+    def _validate_and_fix_size(self, size: float, size_name: str) -> float:
+        """
+        Validates and fixes a size (either width or height).
+        """
+        if not (0 < size <= 1):
+            self.error_count[size_name] += 1
+            if self.fix_annotation:
+                size = max(0.01, min(1, size))
+        return size
 
     def _update_annotation_file(
         self, annotation_file: str, line_num: int, new_line: str
@@ -213,7 +225,7 @@ class YoloObjectDetectionDatasetContextValidator(
         annotation_path = os.path.join(
             self.dataset_context.annotations_dir, annotation_file
         )
-        with open(annotation_path, "r") as file:
+        with open(annotation_path) as file:
             lines = file.readlines()
         lines[line_num - 1] = new_line
         with open(annotation_path, "w") as file:

@@ -1,7 +1,6 @@
-from typing import Optional
 from uuid import UUID
 
-from src.picsellia_cv_engine.enums import StepState
+from picsellia_cv_engine.enums import StepState
 
 
 class StepMetadata:
@@ -11,7 +10,7 @@ class StepMetadata:
         name: str,
         display_name: str,
         state: StepState,
-        log_file_path: Optional[str] = None,
+        log_file_path: str | None = None,
     ) -> None:
         self.id = id
         self.name = name
@@ -19,7 +18,7 @@ class StepMetadata:
         self.state = state
         self.execution_time = 0.0
         self.log_file_path = log_file_path
-        self.index: Optional[int] = None
+        self.index: int | None = None
 
     def __repr__(self):
         return (

@@ -1,11 +1,10 @@
 import logging
 from collections import defaultdict
-from typing import Dict, List
 
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -66,8 +65,8 @@ class CocoClassificationDatasetContextValidator(
         }
 
         # Count images per category
-        images_per_category: Dict[str, int] = defaultdict(int)
-        empty_classes_list: List[str] = []
+        images_per_category: dict[str, int] = defaultdict(int)
+        empty_classes_list: list[str] = []
 
         for annotation in self.dataset_context.coco_data["annotations"]:
             category_name = category_map[annotation["category_id"]]
@@ -102,7 +101,7 @@ class CocoClassificationDatasetContextValidator(
             logger.info(f" - Class '{class_name}': {count} images")
 
     def _log_and_raise_errors(
-        self, empty_classes_list: List[str], extra_classes_list: List[str]
+        self, empty_classes_list: list[str], extra_classes_list: list[str]
     ):
         """
         Logs the errors found during validation and raises a ValueError with the combined messages.

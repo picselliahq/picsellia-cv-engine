@@ -1,11 +1,13 @@
-from typing import List, Generic
+from typing import Generic, TypeVar
 
 from PIL import Image
 
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
-    TBaseDatasetContext,
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
+    BaseDatasetContext,
 )
-from src.picsellia_cv_engine.models.utils.image_file import get_images_path_list
+from picsellia_cv_engine.models.utils.image_file import get_images_path_list
+
+TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound=BaseDatasetContext)
 
 
 class DatasetContextValidator(Generic[TBaseDatasetContext]):
@@ -49,7 +51,7 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
                 f"Image directory is missing from the dataset context in {self.dataset_context.dataset_name} dataset"
             )
 
-    def validate_images_extraction(self, images_path_list: List[str]) -> None:
+    def validate_images_extraction(self, images_path_list: list[str]) -> None:
         """
         Validates that the number of extracted images matches the expected number of assets.
 
@@ -73,7 +75,7 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
                 + f"There are {len(images_path_list)} images in the directory and {len(self.dataset_context.assets)} assets in the dataset."
             )
 
-    def validate_images_format(self, images_path_list: List[str]) -> None:
+    def validate_images_format(self, images_path_list: list[str]) -> None:
         """
         Validates that all images in the dataset are in an expected format.
 
@@ -90,7 +92,7 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
                     f"Valid image formats are {self.VALID_IMAGE_EXTENSIONS}"
                 )
 
-    def validate_images_corruption(self, images_path_list: List[str]) -> None:
+    def validate_images_corruption(self, images_path_list: list[str]) -> None:
         """
         Checks for corruption in the extracted images.
 

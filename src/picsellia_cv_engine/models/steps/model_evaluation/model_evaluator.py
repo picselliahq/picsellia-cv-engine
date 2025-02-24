@@ -1,14 +1,13 @@
 import logging
-from typing import Union, List
 
 from picsellia import Experiment
 from picsellia.types.enums import AddEvaluationType, InferenceType
 
-from src.picsellia_cv_engine.models.model.picsellia_prediction import (
-    PicselliaOCRPrediction,
-    PicselliaRectanglePrediction,
+from picsellia_cv_engine.models.model.picsellia_prediction import (
     PicselliaClassificationPrediction,
+    PicselliaOCRPrediction,
     PicselliaPolygonPrediction,
+    PicselliaRectanglePrediction,
 )
 
 logger = logging.getLogger(__name__)
@@ -38,12 +37,10 @@ class ModelEvaluator:
 
     def evaluate(
         self,
-        picsellia_predictions: Union[
-            List[PicselliaClassificationPrediction],
-            List[PicselliaRectanglePrediction],
-            List[PicselliaPolygonPrediction],
-            List[PicselliaOCRPrediction],
-        ],
+        picsellia_predictions: list[PicselliaClassificationPrediction]
+        | list[PicselliaRectanglePrediction]
+        | list[PicselliaPolygonPrediction]
+        | list[PicselliaOCRPrediction],
     ) -> None:
         """
         Evaluates a list of predictions and adds them to the experiment.
@@ -62,12 +59,10 @@ class ModelEvaluator:
 
     def add_evaluation(
         self,
-        evaluation: Union[
-            PicselliaClassificationPrediction,
-            PicselliaRectanglePrediction,
-            PicselliaPolygonPrediction,
-            PicselliaOCRPrediction,
-        ],
+        evaluation: PicselliaClassificationPrediction
+        | PicselliaRectanglePrediction
+        | PicselliaPolygonPrediction
+        | PicselliaOCRPrediction,
     ) -> None:
         """
         Adds a single evaluation to the experiment based on the prediction type.
@@ -97,7 +92,10 @@ class ModelEvaluator:
                     conf.value,
                 )
                 for rectangle, label, conf in zip(
-                    evaluation.boxes, evaluation.labels, evaluation.confidences
+                    evaluation.boxes,
+                    evaluation.labels,
+                    evaluation.confidences,
+                    strict=False,
                 )
             ]
             rectangles_with_text = [
@@ -115,6 +113,7 @@ class ModelEvaluator:
                     evaluation.labels,
                     evaluation.confidences,
                     evaluation.texts,
+                    strict=False,
                 )
             ]
             logger.info(
@@ -135,7 +134,10 @@ class ModelEvaluator:
                     conf.value,
                 )
                 for rectangle, label, conf in zip(
-                    evaluation.boxes, evaluation.labels, evaluation.confidences
+                    evaluation.boxes,
+                    evaluation.labels,
+                    evaluation.confidences,
+                    strict=False,
                 )
             ]
             logger.info(
@@ -157,7 +159,10 @@ class ModelEvaluator:
             polygons = [
                 (polygon.value, label.value, conf.value)
                 for polygon, label, conf in zip(
-                    evaluation.polygons, evaluation.labels, evaluation.confidences
+                    evaluation.polygons,
+                    evaluation.labels,
+                    evaluation.confidences,
+                    strict=False,
                 )
             ]
             if not polygons:

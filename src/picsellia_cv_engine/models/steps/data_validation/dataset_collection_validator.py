@@ -1,9 +1,7 @@
-from typing import Type
-
-from src.picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.dataset.dataset_collection import (
     DatasetCollection,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -23,7 +21,7 @@ class DatasetCollectionValidator:
     def __init__(
         self,
         dataset_collection: DatasetCollection,
-        dataset_context_validator: Type[DatasetContextValidator],
+        dataset_context_validator: type[DatasetContextValidator],
     ):
         """
         Initializes the DatasetCollectionValidator with a dataset collection to validate.

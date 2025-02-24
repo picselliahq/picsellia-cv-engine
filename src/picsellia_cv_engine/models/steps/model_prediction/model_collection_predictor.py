@@ -1,9 +1,11 @@
 from abc import ABC
-from typing import Generic
+from typing import Generic, TypeVar
 
-from src.picsellia_cv_engine.models.model.model_collection import (
-    TModelCollection,
+from picsellia_cv_engine.models.model.model_collection import (
+    ModelCollection,
 )
+
+TModelCollection = TypeVar("TModelCollection", bound=ModelCollection)
 
 
 class ModelCollectionPredictor(ABC, Generic[TModelCollection]):

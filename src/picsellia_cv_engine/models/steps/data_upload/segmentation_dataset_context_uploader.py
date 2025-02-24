@@ -1,15 +1,14 @@
 import logging
 import os
-from typing import List, Optional
 
 from picsellia import Client
 from picsellia.types.enums import InferenceType
 
-from src.picsellia_cv_engine.models.steps.data_upload.data_uploader import (
-    DataUploader,
-)
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
+)
+from picsellia_cv_engine.models.steps.data_upload.data_uploader import (
+    DataUploader,
 )
 
 logger = logging.getLogger("picsellia")
@@ -35,7 +34,7 @@ class SegmentationDatasetContextUploader(DataUploader):
         client: Client,
         dataset_context: CocoDatasetContext,
         datalake: str = "default",
-        data_tags: Optional[List[str]] = None,
+        data_tags: list[str] | None = None,
         batch_size: int = 10000,
         use_id: bool = True,
         fail_on_asset_not_found: bool = False,

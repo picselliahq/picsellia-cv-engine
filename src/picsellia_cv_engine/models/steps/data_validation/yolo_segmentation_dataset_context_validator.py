@@ -1,10 +1,9 @@
-from typing import List, Optional
 import os
 
-from src.picsellia_cv_engine.models.dataset.yolo_dataset_context import (
+from picsellia_cv_engine.models.dataset.yolo_dataset_context import (
     YoloDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -90,7 +89,7 @@ class YoloSegmentationDatasetContextValidator(
             if not annotation_file.endswith(".txt"):
                 continue
             annotation_path = os.path.join(annotations_dir, annotation_file)
-            with open(annotation_path, "r") as file:
+            with open(annotation_path) as file:
                 lines = file.readlines()
             updated_lines = self._validate_annotation_file(
                 lines=lines, annotation_file=annotation_file
@@ -110,8 +109,8 @@ class YoloSegmentationDatasetContextValidator(
                     print(f"Error deleting file {annotation_path}: {e}")
 
     def _validate_annotation_file(
-        self, lines: List[str], annotation_file: str
-    ) -> List[str]:
+        self, lines: list[str], annotation_file: str
+    ) -> list[str]:
         """
         Validates a single YOLO segmentation annotation file.
 
@@ -158,17 +157,17 @@ class YoloSegmentationDatasetContextValidator(
             except ValueError as e:
                 raise ValueError(
                     f"Error in line {line_num} of {annotation_file}: {str(e)}"
-                )
+                ) from e
 
         return updated_lines
 
     def _validate_or_fix_annotation(
         self,
         class_id: int,
-        polygon_points: List[float],
+        polygon_points: list[float],
         line_num: int,
         annotation_file: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Validates or fixes a single YOLO segmentation annotation.
 

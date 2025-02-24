@@ -1,15 +1,17 @@
 from abc import ABC
-from typing import Generic
+from typing import Generic, TypeVar
 
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
     TBaseDatasetContext,
 )
-from src.picsellia_cv_engine.models.model.model_context import TModelContext
-from src.picsellia_cv_engine.models.model.picsellia_prediction import (
-    PicselliaLabel,
+from picsellia_cv_engine.models.model.model_context import ModelContext
+from picsellia_cv_engine.models.model.picsellia_prediction import (
     PicselliaConfidence,
+    PicselliaLabel,
     PicselliaRectangle,
 )
+
+TModelContext = TypeVar("TModelContext", bound=ModelContext)
 
 
 class ModelContextPredictor(ABC, Generic[TModelContext]):

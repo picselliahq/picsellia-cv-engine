@@ -1,10 +1,9 @@
-from typing import List, Optional, Dict
 import json
 
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -105,7 +104,7 @@ class CocoSegmentationDatasetContextValidator(
                     f'No COCO file path found for dataset "{self.dataset_context.dataset_name}, skipping saving.'
                 )
 
-    def _validate_or_fix_annotation(self, annotation: Dict) -> Optional[Dict]:
+    def _validate_or_fix_annotation(self, annotation: dict) -> dict | None:
         """
         Validate or fix a single COCO segmentation annotation.
 
@@ -146,8 +145,8 @@ class CocoSegmentationDatasetContextValidator(
         return annotation
 
     def _validate_polygon(
-        self, segmentation: List[float], annotation: dict
-    ) -> Optional[List[float]]:
+        self, segmentation: list[float], annotation: dict
+    ) -> list[float] | None:
         """
         Validate or fix a single polygon segmentation.
 
@@ -195,7 +194,7 @@ class CocoSegmentationDatasetContextValidator(
 
         return corrected_segmentation
 
-    def _get_image_by_id(self, image_id: int) -> Dict:
+    def _get_image_by_id(self, image_id: int) -> dict:
         """
         Retrieve the image object by its ID from the dataset context.
 

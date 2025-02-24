@@ -1,10 +1,9 @@
 import json
-from typing import List, Optional, Tuple, Dict
 
-from src.picsellia_cv_engine.models.dataset.coco_dataset_context import (
+from picsellia_cv_engine.models.dataset.coco_dataset_context import (
     CocoDatasetContext,
 )
-from src.picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
+from picsellia_cv_engine.models.steps.data_validation.dataset_context_validator import (
     DatasetContextValidator,
 )
 
@@ -115,7 +114,7 @@ class CocoObjectDetectionDatasetContextValidator(
             if modified_annotation:
                 annotation["bbox"] = modified_annotation
 
-    def _fix_or_count_errors(self, annotation: Dict) -> Optional[List[float]]:
+    def _fix_or_count_errors(self, annotation: dict) -> list[float] | None:
         """
         Fix or count errors in the bounding box coordinates for a given annotation.
 
@@ -159,8 +158,8 @@ class CocoObjectDetectionDatasetContextValidator(
         top_left_y: int,
         bottom_right_x: int,
         bottom_right_y: int,
-        image: Dict,
-    ) -> Tuple[int, int, int, int]:
+        image: dict,
+    ) -> tuple[int, int, int, int]:
         """
         Correct the bounding box coordinates if they are invalid, based on image dimensions.
 
@@ -197,7 +196,7 @@ class CocoObjectDetectionDatasetContextValidator(
 
         return top_left_x, top_left_y, bottom_right_x, bottom_right_y
 
-    def _get_image_by_id(self, image_id: int) -> Optional[Dict]:
+    def _get_image_by_id(self, image_id: int) -> dict | None:
         """
         Retrieve the image object associated with a given image ID.
 
@@ -243,7 +242,7 @@ class CocoObjectDetectionDatasetContextValidator(
         except Exception as e:
             raise RuntimeError(
                 f"Failed to save updated COCO file to {self.dataset_context.coco_file_path}: {e}"
-            )
+            ) from e
 
     def _report_errors(self):
         """
