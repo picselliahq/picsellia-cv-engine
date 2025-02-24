@@ -1,16 +1,20 @@
-import os
-from typing import Generic, List, Optional, Iterator
-
-from src.picsellia_cv_engine.models.dataset.base_dataset_context import (
-    TBaseDatasetContext,
-)
-
 import logging
+import os
+from abc import ABC
+from collections.abc import Iterator
+from typing import Generic, TypeVar
+
+from picsellia_cv_engine.models.dataset.base_dataset_context import (
+    BaseDatasetContext,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class DatasetCollection(Generic[TBaseDatasetContext]):
+TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound=BaseDatasetContext)
+
+
+class DatasetCollection(ABC, Generic[TBaseDatasetContext]):
     """
     A collection of dataset contexts for different splits of a dataset.
 
@@ -25,7 +29,7 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
         dataset_path (Optional[str]): The common file path for all dataset splits. Initialized after calling `download_all`.
     """
 
-    def __init__(self, datasets: List[TBaseDatasetContext]):
+    def __init__(self, datasets: list[TBaseDatasetContext]):
         """
         Initializes the collection with a list of dataset contexts.
 
@@ -33,7 +37,7 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
             datasets (List[TDatasetContext]): A list of dataset contexts for different splits (train, val, test).
         """
         self.datasets = {dataset.dataset_name: dataset for dataset in datasets}
-        self.dataset_path: Optional[str] = None
+        self.dataset_path: str | None = None
 
     def __getitem__(self, key: str) -> TBaseDatasetContext:
         """
@@ -71,10 +75,10 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
 
     def download_all(
         self,
-        images_destination_path: str,
-        annotations_destination_path: str,
-        use_id: Optional[bool] = True,
-        skip_asset_listing: Optional[bool] = False,
+        images_destination_dir: str,
+        annotations_destination_dir: str,
+        use_id: bool | None = True,
+        skip_asset_listing: bool | None = False,
     ) -> None:
         """
         Downloads all assets and annotations for every dataset context in the collection.
@@ -84,7 +88,8 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
         2. Downloads and builds the COCO annotation file for each dataset.
 
         Args:
-            destination_path (str): The directory where all datasets (images and annotations) will be saved.
+            images_destination_dir (str): The directory where images will be saved.
+            annotations_destination_dir (str): The directory where annotations will be saved.
             use_id (Optional[bool]): Whether to use asset IDs in the file paths. If None, the internal logic of each dataset context will handle it.
             skip_asset_listing (bool, optional): If True, skips listing the assets when downloading. Defaults to False.
 
@@ -97,7 +102,7 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
             logger.info(f"Downloading assets for {dataset_context.dataset_name}")
             dataset_context.download_assets(
                 destination_dir=os.path.join(
-                    images_destination_path, dataset_context.dataset_name
+                    images_destination_dir, dataset_context.dataset_name
                 ),
                 use_id=use_id,
                 skip_asset_listing=skip_asset_listing,
@@ -105,8 +110,8 @@ class DatasetCollection(Generic[TBaseDatasetContext]):
 
             logger.info(f"Downloading annotations for {dataset_context.dataset_name}")
             dataset_context.download_annotations(
-                destination_path=os.path.join(
-                    annotations_destination_path, dataset_context.dataset_name
+                destination_dir=os.path.join(
+                    annotations_destination_dir, dataset_context.dataset_name
                 ),
                 use_id=use_id,
             )
