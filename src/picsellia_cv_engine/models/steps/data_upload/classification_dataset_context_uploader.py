@@ -3,7 +3,7 @@ import os
 from collections import defaultdict
 from typing import Any
 
-from picsellia import Client
+from picsellia import Datalake
 from picsellia.types.enums import TagTarget
 
 from picsellia_cv_engine.models.dataset.coco_dataset_context import (
@@ -19,22 +19,20 @@ logger = logging.getLogger("picsellia")
 class ClassificationDatasetContextUploader(DataUploader):
     def __init__(
         self,
-        client: Client,
         dataset_context: CocoDatasetContext,
-        datalake: str = "default",
+    ):
+        super().__init__(dataset_context.dataset_version)
+        self.dataset_context = dataset_context
+
+    def upload_images(
+        self,
+        datalake: Datalake,
         data_tags: list[str] | None = None,
         batch_size: int = 10000,
-    ):
-        super().__init__(client, dataset_context.dataset_version, datalake)
-        self.client = client
-        self.dataset_context = dataset_context
-        self.datalake = self.client.get_datalake(name=datalake)
-        self.data_tags = data_tags
-        self.batch_size = batch_size
-
-    def upload_dataset_context(self) -> None:
+    ) -> None:
         """
-        Uploads the dataset context to Picsellia using COCO annotation file.
+        Uploads images extracted from the COCO file.
+        Iterates over images grouped by category and uploads existing ones in batches.
         """
         coco_data = self.dataset_context.load_coco_file_data()
         images_by_category = self._process_coco_data(coco_data)
@@ -43,10 +41,11 @@ class ClassificationDatasetContextUploader(DataUploader):
             existing_paths = [path for path in image_paths if os.path.exists(path)]
             if existing_paths:
                 self._add_images_to_dataset_version_in_batches(
+                    datalake=datalake,
                     images_to_upload=existing_paths,
-                    data_tags=self.data_tags,
+                    data_tags=data_tags,
                     asset_tags=[category_name],
-                    batch_size=self.batch_size,
+                    batch_size=batch_size,
                 )
 
             missing_paths = set(image_paths) - set(existing_paths)
@@ -55,6 +54,10 @@ class ClassificationDatasetContextUploader(DataUploader):
                     f"The following image files were not found for category '{category_name}': {missing_paths}"
                 )
 
+    def upload_annotations(self) -> None:
+        """
+        Uploads annotations by converting tags to classification annotations.
+        """
         conversion_job = (
             self.dataset_context.dataset_version.convert_tags_to_classification(
                 tag_type=TagTarget.ASSET,
@@ -62,6 +65,18 @@ class ClassificationDatasetContextUploader(DataUploader):
             )
         )
         conversion_job.wait_for_done()
+
+    def upload_dataset_context(
+        self,
+        datalake: Datalake,
+        data_tags: list[str] | None = None,
+        batch_size: int = 10000,
+    ) -> None:
+        """
+        Fully uploads the dataset context by calling both image and annotation uploads.
+        """
+        self.upload_images(datalake, data_tags, batch_size)
+        self.upload_annotations()
 
     def _process_coco_data(self, coco_data: dict[str, Any]) -> dict[str, list[str]]:
         """

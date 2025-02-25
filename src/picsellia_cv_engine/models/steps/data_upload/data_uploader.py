@@ -1,8 +1,7 @@
 import json
 import os
-from typing import List, Optional, Tuple
 
-from picsellia import Client, DatasetVersion, Data
+from picsellia import Data, Datalake, DatasetVersion
 from picsellia.services.error_manager import ErrorManager
 
 
@@ -14,18 +13,17 @@ class DataUploader:
     update the dataset version with the necessary information, including COCO annotations.
     """
 
-    def __init__(
-        self, client: Client, dataset_version: DatasetVersion, datalake: str = "default"
-    ):
-        self.client = client
+    def __init__(self, dataset_version: DatasetVersion):
         self.dataset_version = dataset_version
-        self.datalake = self.client.get_datalake(name=datalake)
 
     def _upload_data_with_error_manager(
-        self, images_to_upload: List[str], data_tags: Optional[List[str]] = None
-    ) -> Tuple[List[Data], List[str]]:
+        self,
+        datalake: Datalake,
+        images_to_upload: list[str],
+        data_tags: list[str] | None = None,
+    ) -> tuple[list[Data], list[str]]:
         error_manager = ErrorManager()
-        data = self.datalake.upload_data(
+        data = datalake.upload_data(
             filepaths=images_to_upload, tags=data_tags, error_manager=error_manager
         )
 
@@ -39,20 +37,21 @@ class DataUploader:
 
     def _upload_images_to_datalake(
         self,
-        images_to_upload: List[str],
-        data_tags: Optional[List[str]] = None,
+        datalake: Datalake,
+        images_to_upload: list[str],
+        data_tags: list[str] | None = None,
         max_retries: int = 5,
-    ) -> List[Data]:
+    ) -> list[Data]:
         all_uploaded_data = []
         uploaded_data, error_paths = self._upload_data_with_error_manager(
-            images_to_upload=images_to_upload, data_tags=data_tags
+            datalake=datalake, images_to_upload=images_to_upload, data_tags=data_tags
         )
         all_uploaded_data.extend(uploaded_data)
         retry_count = 0
 
         while error_paths and retry_count < max_retries:
             uploaded_data, error_paths = self._upload_data_with_error_manager(
-                images_to_upload=error_paths, data_tags=data_tags
+                datalake=datalake, images_to_upload=error_paths, data_tags=data_tags
             )
             all_uploaded_data.extend(uploaded_data)
             retry_count += 1
@@ -63,7 +62,7 @@ class DataUploader:
         return all_uploaded_data
 
     def _add_data_to_dataset_version_and_wait(
-        self, data: List[Data], asset_tags: Optional[List[str]] = None
+        self, data: list[Data], asset_tags: list[str] | None = None
     ):
         """
         Utility function to add data to dataset version and wait for job completion.
@@ -73,23 +72,26 @@ class DataUploader:
 
     def _add_images_to_dataset_version(
         self,
-        images_to_upload: List[str],
-        data_tags: Optional[List[str]] = None,
-        asset_tags: Optional[List[str]] = None,
+        datalake: Datalake,
+        images_to_upload: list[str],
+        data_tags: list[str] | None = None,
+        asset_tags: list[str] | None = None,
         max_retries: int = 5,
     ) -> None:
         data = self._upload_images_to_datalake(
+            datalake=datalake,
             images_to_upload=images_to_upload,
             data_tags=data_tags,
             max_retries=max_retries,
         )
-        self._add_data_to_dataset_version_and_wait(data, asset_tags)
+        self._add_data_to_dataset_version_and_wait(data=data, asset_tags=asset_tags)
 
     def _add_images_to_dataset_version_in_batches(
         self,
-        images_to_upload: List[str],
-        data_tags: Optional[List[str]] = None,
-        asset_tags: Optional[List[str]] = None,
+        datalake: Datalake,
+        images_to_upload: list[str],
+        data_tags: list[str] | None = None,
+        asset_tags: list[str] | None = None,
         batch_size: int = 10000,
         max_retries: int = 5,
     ) -> None:
@@ -97,6 +99,7 @@ class DataUploader:
         Uploads all images to the datalake first, then adds them to the dataset version in batches.
 
         Args:
+            datalake (Datalake): Datalake to upload images to.
             images_to_upload (List[str]): List of image file paths to upload.
             data_tags (Optional[List[str]]): Tags to associate with images (default is None).
             asset_tags (Optional[List[str]]): Tags to associate with dataset version assets (default is None).
@@ -105,6 +108,7 @@ class DataUploader:
         """
         # Step 1: Upload all images to the datalake
         uploaded_data = self._upload_images_to_datalake(
+            datalake=datalake,
             images_to_upload=images_to_upload,
             data_tags=data_tags,
             max_retries=max_retries,
@@ -138,7 +142,7 @@ class DataUploader:
         )
 
     def _split_coco_annotations(
-        self, coco_data: dict, batch_image_ids: List[str]
+        self, coco_data: dict, batch_image_ids: list[str]
     ) -> dict:
         batch_images = [
             img for img in coco_data["images"] if img["id"] in batch_image_ids
@@ -162,7 +166,7 @@ class DataUploader:
         use_id: bool = True,
         fail_on_asset_not_found: bool = True,
     ):
-        with open(annotation_path, "r") as f:
+        with open(annotation_path) as f:
             coco_data = json.load(f)
 
         # Extract unique image IDs

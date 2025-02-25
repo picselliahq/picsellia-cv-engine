@@ -83,15 +83,13 @@ class ModelCollection(Generic[TModelContext]):
         """
         return iter(self.models.values())
 
-    def download_weights(self, destination_path: str) -> None:
+    def download_weights(self, destination_dir: str) -> None:
         """
         Downloads weights for all models in the collection.
         """
         for model_context in self:
             model_context.download_weights(
-                destination_path=os.path.join(
-                    destination_path, model_context.model_name
-                )
+                destination_dir=os.path.join(destination_dir, model_context.model_name)
             )
 
 
