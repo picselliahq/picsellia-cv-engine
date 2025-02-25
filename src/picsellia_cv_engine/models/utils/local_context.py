@@ -57,8 +57,9 @@ def create_local_processing_context(
     job_id: str,
     job_type: ProcessingType,
     input_dataset_version_id: str,
-    output_dataset_version_name: str,
     processing_parameters: dict[str, Any],
+    output_dataset_version_name: str | None = None,
+    model_version_id: str | None = None,
 ):
     """
     Create a Picsellia processing context.
@@ -76,6 +77,7 @@ def create_local_processing_context(
         job_type=job_type,
         input_dataset_version_id=input_dataset_version_id,
         output_dataset_version_name=output_dataset_version_name,
+        model_version_id=model_version_id,
         processing_parameters=processing_parameters_data,
     )
     return context
