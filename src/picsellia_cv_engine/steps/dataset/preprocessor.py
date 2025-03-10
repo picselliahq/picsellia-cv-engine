@@ -1,44 +1,54 @@
 import os
 
 from picsellia_cv_engine.decorators.step_decorator import step
-from picsellia_cv_engine.models.dataset.dataset_collection import (
+from picsellia_cv_engine.models.data.dataset.dataset_collection import (
     DatasetCollection,
 )
-from picsellia_cv_engine.models.steps.data_preparation.classification_dataset_context_preparator import (
+from picsellia_cv_engine.models.steps.data.dataset.preprocessing.classification_dataset_context_preparator import (
     ClassificationBaseDatasetContextPreparator,
 )
 
 
 @step
-def prepare_classification_data(
+def prepare_classification_datasets(
     dataset_collection: DatasetCollection,
     destination_dir: str,
 ) -> DatasetCollection:
     """
-    Example:
-        Assume `dataset_collection` comprises unorganized images across training, validation, and testing splits.
-        After applying `classification_data_preparator`, the images within each split are reorganized into
-        directories named after their classification categories. This reorganization aids in simplifying dataset
-        loading and usage for training classification models.
+    Prepares a classification dataset by organizing image files into category-based subdirectories.
 
-        Before applying `classification_data_preparator`:
+    This function processes a dataset collection by sorting images into directories named after their respective
+    class labels (categories). The dataset is restructured into a format that is compatible with model training
+    for classification tasks, where each category of images is placed into its own folder.
+
+    Args:
+        dataset_collection (DatasetCollection): The dataset collection to prepare, which includes images and
+            the corresponding class labels.
+        destination_dir (str): The destination directory where the prepared dataset will be saved, with
+            category-based subdirectories for each class.
+
+    Returns:
+        DatasetCollection: A dataset collection with images organized into subdirectories, each named after the corresponding class labels.
+
+    Examples:
+        **Before Preparation:**
         ```
         dataset/
         ├── train/
         │   ├── image1.jpg
         │   ├── image2.jpg
-        │   └── image3.jpg
+        │   ├── image3.jpg
         ├── val/
         │   ├── image4.jpg
         │   ├── image5.jpg
-        │   └── image6.jpg
+        │   ├── image6.jpg
         └── test/
             ├── image7.jpg
             ├── image8.jpg
             └── image9.jpg
         ```
 
-        After applying `classification_data_preparator`:
+        **After Preparation:**
         ```
         dataset/
         ├── train/
