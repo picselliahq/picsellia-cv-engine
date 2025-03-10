@@ -1,6 +1,6 @@
 from typing import Any
 
-from picsellia_cv_engine.models.contexts.processing.picsellia_processing_context import (
+from picsellia_cv_engine.models.contexts.processing.dataset.picsellia_processing_context import (
     PicselliaProcessingContext,
 )
 from picsellia_cv_engine.models.parameters.base_parameters import Parameters
