@@ -1,0 +1,128 @@
+site_name: Picsellia CV Engine
+repo_url: https://github.com/picselliahq/picsellia-cv-engine
+theme:
+  name: material
+  features:
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+    - announce.dismiss
+    - navigation.tabs
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.preview
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - toc.follow
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+nav:
+- Home: index.md
+- Installation: installation.md
+- Usage Guide: usage.md
+- API Reference:
+  - Decorators:
+    - Pipeline Decorator: api/decorators/pipeline_decorator.md
+    - Step Decorator: api/decorators/step_decorator.md
+  - Models:
+    - Contexts:
+      - Common:
+        - Picsellia Context: api/models/contexts/common/picsellia_context.md
+      - Processing:
+        - Datalake:
+          - Local Picsellia Datalake Processing Context: api/models/contexts/processing/datalake/local_picsellia_datalake_processing_context.md
+          - Picsellia Datalake Processing Context: api/models/contexts/processing/datalake/picsellia_datalake_processing_context.md
+        - Dataset:
+          - Local Picsellia Processing Context: api/models/contexts/processing/dataset/local_picsellia_processing_context.md
+          - Picsellia Dataset Processing Context: api/models/contexts/processing/dataset/picsellia_dataset_processing_context.md
+          - Picsellia Processing Context: api/models/contexts/processing/dataset/picsellia_processing_context.md
+        - Model:
+          - Picsellia Model Processing Context: api/models/contexts/processing/model/picsellia_model_processing_context.md
+      - Training:
+        - Local Picsellia Training Context: api/models/contexts/training/local_picsellia_training_context.md
+        - Picsellia Training Context: api/models/contexts/training/picsellia_training_context.md
+    - Data:
+      - Datalake:
+        - Datalake Collection: api/models/data/datalake/datalake_collection.md
+        - Datalake Context: api/models/data/datalake/datalake_context.md
+      - Dataset:
+        - Base Dataset Context: api/models/data/dataset/base_dataset_context.md
+        - Coco Dataset Context: api/models/data/dataset/coco_dataset_context.md
+        - Dataset Collection: api/models/data/dataset/dataset_collection.md
+        - Yolo Dataset Context: api/models/data/dataset/yolo_dataset_context.md
+    - Model:
+      - Model Collection: api/models/model/model_collection.md
+      - Model Context: api/models/model/model_context.md
+      - Model Downloader: api/models/model/model_downloader.md
+      - Picsellia Prediction: api/models/model/picsellia_prediction.md
+    - Parameters:
+      - Augmentation Parameters: api/models/parameters/augmentation_parameters.md
+      - Base Parameters: api/models/parameters/base_parameters.md
+      - Export Parameters: api/models/parameters/export_parameters.md
+      - Hyper Parameters: api/models/parameters/hyper_parameters.md
+  - Steps:
+    - Datalake:
+      - Loader: api/steps/datalake/loader.md
+    - Dataset:
+      - Loader: api/steps/dataset/loader.md
+      - Preprocessor: api/steps/dataset/preprocessor.md
+      - Uploader: api/steps/dataset/uploader.md
+      - Validator: api/steps/dataset/validator.md
+    - Model:
+      - Loader: api/steps/model/loader.md
+plugins:
+- search
+- mkdocstrings:
+    handlers:
+      python:
+        paths:
+        - .
+        options:
+          members_order: source
+          docstring_options:
+            ignore_init_summary: true
+          docstring_section_style: list
+          filters: ["!^_", "!^T", "!^logger$"]
+          heading_level: 1
+          inherited_members: true
+          merge_init_into_class: true
+          parameter_headings: true
+          preload_modules: [mkdocstrings]
+          relative_crossrefs: true
+          scoped_crossrefs: true
+          separate_signature: true
+          show_bases: true
+          show_inheritance_diagram: true
+          show_root_heading: true
+          show_root_full_path: false
+          show_signature_annotations: true
+          show_source: false
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          signature_crossrefs: true
+          summary: true
+          unwrap_annotated: true
+          extra:
+            module: picsellia_cv_engine
+
+markdown_extensions:
+- tables
+- toc:
+    permalink: true
+    title: Page contents
+- admonition
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.highlight:
+    pygments_lang_class: true
+- pymdownx.extra
+- pymdownx.tabbed:
+    alternate_style: true
