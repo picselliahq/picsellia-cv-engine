@@ -68,11 +68,7 @@ class CocoDatasetContext(BaseDatasetContext):
             use_id (Optional[bool]): Whether to use asset IDs in file paths (default: True).
         """
         self.annotations_dir = destination_dir
-        self.coco_file_path = os.path.join(
-            self.annotations_dir, "coco_annotations.json"
-        )
         os.makedirs(self.annotations_dir, exist_ok=True)
-
         assets_to_download = self._determine_assets_source()
 
         with tqdm(desc="Downloading COCO annotation batches", unit="assets") as pbar:
@@ -87,6 +83,9 @@ class CocoDatasetContext(BaseDatasetContext):
             logger.warning("No batches were successfully downloaded.")
             return None
 
+        self.coco_file_path = os.path.join(
+            self.annotations_dir, "coco_annotations.json"
+        )
         if len(batch_files) == 1:
             moved_file_path = shutil.move(src=batch_files[0], dst=self.annotations_dir)
             os.rename(src=moved_file_path, dst=self.coco_file_path)
