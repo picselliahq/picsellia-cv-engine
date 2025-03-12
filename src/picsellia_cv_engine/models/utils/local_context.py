@@ -3,7 +3,7 @@ from typing import Any
 
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.models.contexts.processing.local_picsellia_processing_context import (
+from picsellia_cv_engine.models.contexts.processing.dataset.local_picsellia_processing_context import (
     LocalPicselliaProcessingContext,
 )
 

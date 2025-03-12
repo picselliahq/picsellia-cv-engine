@@ -1,4 +1,9 @@
-# Picsellia CV Engine
+# 📦 Installation
+
+## Prerequisites
+- Python **>=3.10**
+- [Poetry](https://python-poetry.org/docs/) installed
+- [Git](https://git-scm.com/downloads) installed
 
 ## Installation & Setup guide
 
@@ -38,36 +43,3 @@ This installs:
 - Picsellia SDK
 - Pipeline CLI (linked in dev mode)
 - NumPy, Tabulate, and other required packages
-
-### 3. Running the docs
-
-To explore the documentation, run:
-
-```bash
-poetry run mkdocs serve -a 127.0.0.1:8080
-```
-
-Then open `http://127.0.0.1:8080/` in your browser to see all available documentation.
-
-### 4. Start building your pipeline
-
-Once everything is set up, you can create your first pipeline:
-
-```bash
-pipeline-cli init my_custom_pipeline
-```
-
-Modify the process_dataset.py file inside your pipeline folder, add any necessary dependencies to requirements.txt, and test your pipeline locally:
-
-```python
-pipeline-cli test my_custom_pipeline
-```
-
-If everything works correctly, deploy your pipeline to Picsellia:
-
-```bash
-pipeline-cli deploy my_custom_pipeline
-```
-
-### Need More Info?
-For a detailed guide on building your pipeline, visit http://127.0.0.1:8080/usage once the docs are running.

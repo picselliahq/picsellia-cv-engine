@@ -10,18 +10,9 @@ class ModelContext:
     """
     Manages the context of a specific model version, including paths, weights, configuration, and labels.
 
-    This class handles the organization of model-related files, such as pretrained weights, trained weights,
-    configuration files, and exported weights. It also provides functionality for downloading these files
-    and managing the model's runtime instance.
-
-    Attributes:
-        model_name (str): The name of the model.
-        model_version (ModelVersion): The version of the model from Picsellia.
-        pretrained_weights_name (Optional[str]): The name of the pretrained weights file attached to the model version in Picsellia.
-        trained_weights_name (Optional[str]): The name of the trained weights file attached to the model version in Picsellia.
-        config_name (Optional[str]): The name of the configuration file attached to the model version in Picsellia.
-        exported_weights_name (Optional[str]): The name of the exported weights file attached to the model version in Picsellia.
-        labelmap (Optional[Dict[str, Label]]): A dictionary mapping category names to labels.
+    This class handles the organization of model-related files such as pretrained weights, trained weights,
+    configuration files, and exported weights. It provides methods for downloading these files, managing
+    the model's runtime instance, and storing model artifacts in an experiment.
     """
 
     def __init__(
@@ -47,29 +38,58 @@ class ModelContext:
             labelmap (Optional[Dict[str, Label]], optional): A dictionary mapping category names to labels. Defaults to None.
         """
         self.model_name = model_name
+        """The name of the model."""
+
         self.model_version = model_version
+        """The version of the model from Picsellia."""
 
         self.pretrained_weights_name = pretrained_weights_name
+        """The name of the pretrained weights file attached to the model version in Picsellia."""
+
         self.trained_weights_name = trained_weights_name
+        """The name of the trained weights file attached to the model version in Picsellia."""
+
         self.config_name = config_name
+        """The name of the configuration file attached to the model version in Picsellia."""
+
         self.exported_weights_name = exported_weights_name
+        """The name of the exported weights file attached to the model version in Picsellia."""
 
         self.labelmap = labelmap or {}
+        """A dictionary mapping category names to labels."""
 
         self.weights_dir: str | None = None
+        """The directory where model weights are stored."""
+
         self.results_dir: str | None = None
+        """The directory where model results are stored."""
 
         self.pretrained_weights_dir: str | None = None
+        """The directory where pretrained weights are stored."""
+
         self.trained_weights_dir: str | None = None
+        """The directory where trained weights are stored."""
+
         self.config_dir: str | None = None
+        """The directory where model configuration files are stored."""
+
         self.exported_weights_dir: str | None = None
+        """The directory where exported weights are stored."""
 
         self.pretrained_weights_path: str | None = None
+        """The path to the pretrained weights file."""
+
         self.trained_weights_path: str | None = None
+        """The path to the trained weights file."""
+
         self.config_path: str | None = None
+        """The path to the model configuration file."""
+
         self.exported_weights_path: str | None = None
+        """The path to the exported weights file."""
 
         self._loaded_model: Any | None = None
+        """The loaded model instance."""
 
     @property
     def loaded_model(self) -> Any:
@@ -100,6 +120,9 @@ class ModelContext:
     def download_weights(self, destination_dir: str) -> None:
         """
         Downloads the model's weights and configuration files to the specified destination path.
+
+        This method organizes the model weights into separate directories for pretrained weights, trained weights,
+        and configuration files. It then downloads the corresponding files from the model version.
 
         Args:
             destination_dir (str): The destination path where the model weights and related files will be downloaded.
@@ -151,6 +174,19 @@ class ModelContext:
     def save_artifact_to_experiment(
         self, experiment: Experiment, artifact_name: str, artifact_path: str
     ) -> None:
+        """
+        Saves the specified artifact to the provided experiment.
+
+        This method stores the artifact (e.g., model weights or configuration) to the experiment.
+
+        Args:
+            experiment (Experiment): The experiment to which the artifact will be saved.
+            artifact_name (str): The name to assign to the artifact in the experiment.
+            artifact_path (str): The path to the artifact file.
+
+        Raises:
+            ValueError: If the artifact path does not exist.
+        """
         if not os.path.exists(artifact_path):
             raise ValueError(f"Artifact path {artifact_path} does not exist.")
         experiment.store(
