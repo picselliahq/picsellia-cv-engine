@@ -39,21 +39,6 @@ This installs:
 - Pipeline CLI (linked in dev mode)
 - NumPy, Tabulate, and other required packages
 
-3. Linking picsellia-pipelines-cli
-
-Since picsellia-pipelines-cli is a separate repository, it’s linked as a local dependency in pyproject.toml:
-
-```toml
-[tool.poetry.dependencies]
-picsellia-pipelines-cli = {path = "../picsellia-pipelines-cli/", develop = true}
-```
-
-Make sure it’s correctly installed in your environment:
-
-```bash
-poetry show picsellia-pipelines-cli
-```
-
 ### 4. Running the docs
 
 To explore the documentation, run:
