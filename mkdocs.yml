@@ -29,6 +29,8 @@ nav:
 - Installation: installation.md
 - Usage Guide: usage.md
 - API Reference:
+  - Introduction:
+     api.md
   - Decorators:
     - Pipeline Decorator: api/decorators/pipeline_decorator.md
     - Step Decorator: api/decorators/step_decorator.md
