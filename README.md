@@ -39,7 +39,7 @@ This installs:
 - Pipeline CLI (linked in dev mode)
 - NumPy, Tabulate, and other required packages
 
-### 4. Running the docs
+### 3. Running the docs
 
 To explore the documentation, run:
 
@@ -49,7 +49,7 @@ poetry run mkdocs serve -a 127.0.0.1:8080
 
 Then open `http://127.0.0.1:8080/` in your browser to see all available documentation.
 
-### 5. Start building your pipeline
+### 4. Start building your pipeline
 
 Once everything is set up, you can create your first pipeline:
 
