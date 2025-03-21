@@ -34,11 +34,14 @@ from picsellia_cv_engine.models.steps.data.dataset.validator.segmentation.yolo_s
 logger = logging.getLogger(__name__)
 
 
-def get_validator_for_dataset_context(dataset_context: TBaseDatasetContext) -> Any:
+def get_validator_for_dataset_context(
+    dataset_context: TBaseDatasetContext, fix_annotation: bool = True
+) -> Any:
     """Retrieves the appropriate validator for a given dataset context.
 
     Args:
         dataset_context (TBaseDatasetContext): The dataset context to validate.
+        fix_annotation (bool, optional): A flag to indicate whether to automatically fix errors (default is True).
 
     Returns:
         Any: The validator instance or None if the dataset type is unsupported.
@@ -79,4 +82,6 @@ def get_validator_for_dataset_context(dataset_context: TBaseDatasetContext) -> A
         )
         return None
 
-    return validator_class(dataset_context=dataset_context)
+    return validator_class(
+        dataset_context=dataset_context, fix_annotation=fix_annotation
+    )
