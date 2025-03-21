@@ -1,6 +1,6 @@
 from picsellia import Experiment
 
-from picsellia_cv_engine.models.steps.model.logging.base_logger import (
+from picsellia_cv_engine.models.steps.model.logging import (
     BaseLogger,
     Metric,
     MetricMapping,

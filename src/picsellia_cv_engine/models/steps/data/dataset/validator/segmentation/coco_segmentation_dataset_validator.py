@@ -1,32 +1,26 @@
 import json
 
-from picsellia_cv_engine.models.data.dataset.coco_dataset_context import (
-    CocoDatasetContext,
-)
-from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_context_validator import (
-    DatasetContextValidator,
-)
+from picsellia_cv_engine.models import CocoDataset
+from picsellia_cv_engine.models.steps.data.dataset.validator import DatasetValidator
 
 
-class CocoSegmentationDatasetContextValidator(
-    DatasetContextValidator[CocoDatasetContext]
-):
+class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
     """
     Validator for COCO Segmentation format annotations.
     """
 
-    def __init__(self, dataset_context: CocoDatasetContext, fix_annotation=True):
+    def __init__(self, dataset: CocoDataset, fix_annotation=True):
         """
-        Initialize the validator for a COCO segmentation dataset context.
+        Initialize the validator for a COCO segmentation dataset.
 
         Args:
-            dataset_context (CocoDatasetContext): The dataset context containing the COCO segmentation data to validate.
+            dataset (CocoDataset): The dataset containing the COCO segmentation data to validate.
             fix_annotation (bool): A flag to indicate whether to automatically fix errors (default is True).
 
         Attributes:
             error_count (dict): A dictionary to track the count of different types of errors found during validation.
         """
-        super().__init__(dataset_context=dataset_context, fix_annotation=fix_annotation)
+        super().__init__(dataset=dataset, fix_annotation=fix_annotation)
         self.error_count = {
             "class_id": 0,
             "polygon_points": 0,
@@ -35,13 +29,13 @@ class CocoSegmentationDatasetContextValidator(
 
     def validate(self):
         """
-        Validate the COCO segmentation dataset context.
+        Validate the COCO segmentation dataset.
 
         Ensures all COCO segmentation annotations are correctly formatted, within bounds, and valid.
         If any issues are found, they are reported, and optionally fixed.
 
         Returns:
-            CocoDatasetContext: The validated (or fixed) dataset context.
+            CocoDataset: The validated (or fixed) dataset.
 
         Raises:
             ValueError: If errors are detected in the annotations and `fix_annotation` is False.
@@ -51,38 +45,36 @@ class CocoSegmentationDatasetContextValidator(
         self._validate_coco_segmentation_annotations()
         if any(self.error_count.values()):
             self._report_errors()
-        return self.dataset_context
+        return self.dataset
 
     def _validate_labelmap(self):
         """
-        Validate that the labelmap for the dataset context is valid.
+        Validate that the labelmap for the dataset is valid.
 
         A valid COCO labelmap must contain at least one class.
 
         Raises:
             ValueError: If the labelmap does not contain at least one class.
         """
-        if len(self.dataset_context.labelmap) < 1:
+        if len(self.dataset.labelmap) < 1:
             raise ValueError(
-                f"Labelmap for dataset {self.dataset_context.dataset_name} is not valid. "
+                f"Labelmap for dataset {self.dataset.name} is not valid. "
                 f"A COCO labelmap must have at least 1 class."
             )
 
     def _validate_coco_segmentation_annotations(self):
         """
-        Validate the COCO segmentation annotations in the dataset context.
+        Validate the COCO segmentation annotations in the dataset.
 
         Ensures that all annotations are valid, well-formed, and within bounds. Invalid annotations
         are either fixed or deleted.
 
         Raises:
-            ValueError: If no valid COCO data is found in the dataset context.
+            ValueError: If no valid COCO data is found in the dataset.
         """
-        if not self.dataset_context.coco_data:
-            raise ValueError(
-                f"COCO not found for dataset {self.dataset_context.dataset_name}"
-            )
-        annotations = self.dataset_context.coco_data.get("annotations", [])
+        if not self.dataset.coco_data:
+            raise ValueError(f"COCO not found for dataset {self.dataset.name}")
+        annotations = self.dataset.coco_data.get("annotations", [])
         updated_annotations = []
 
         for annotation in annotations:
@@ -95,13 +87,13 @@ class CocoSegmentationDatasetContextValidator(
 
         # Overwrite the annotations file if fix_annotation is enabled
         if self.fix_annotation:
-            self.dataset_context.coco_data["annotations"] = updated_annotations
-            if self.dataset_context.coco_file_path:
-                with open(self.dataset_context.coco_file_path, "w") as file:
-                    json.dump(self.dataset_context.coco_data, file, indent=4)
+            self.dataset.coco_data["annotations"] = updated_annotations
+            if self.dataset.coco_file_path:
+                with open(self.dataset.coco_file_path, "w") as file:
+                    json.dump(self.dataset.coco_data, file, indent=4)
             else:
                 print(
-                    f'No COCO file path found for dataset "{self.dataset_context.dataset_name}, skipping saving.'
+                    f'No COCO file path found for dataset "{self.dataset.name}, skipping saving.'
                 )
 
     def _validate_or_fix_annotation(self, annotation: dict) -> dict | None:
@@ -116,7 +108,7 @@ class CocoSegmentationDatasetContextValidator(
         """
         # Validate class_id
         class_id = annotation["category_id"]
-        if class_id < 0 or class_id >= len(self.dataset_context.labelmap):
+        if class_id < 0 or class_id >= len(self.dataset.labelmap):
             self.error_count["class_id"] += 1
             print(
                 f"Deleting annotation {annotation['id']} for image {annotation['image_id']}: "
@@ -196,7 +188,7 @@ class CocoSegmentationDatasetContextValidator(
 
     def _get_image_by_id(self, image_id: int) -> dict:
         """
-        Retrieve the image object by its ID from the dataset context.
+        Retrieve the image object by its ID from the dataset.
 
         Args:
             image_id (int): The ID of the image to retrieve.
@@ -205,13 +197,11 @@ class CocoSegmentationDatasetContextValidator(
             Dict: The image object that corresponds to the given image ID.
 
         Raises:
-            ValueError: If no image with the given ID is found in the dataset context.
+            ValueError: If no image with the given ID is found in the dataset.
         """
-        if not self.dataset_context.coco_data:
-            raise ValueError(
-                f"COCO file not found for dataset {self.dataset_context.dataset_name}"
-            )
-        images = self.dataset_context.coco_data.get("images", [])
+        if not self.dataset.coco_data:
+            raise ValueError(f"COCO file not found for dataset {self.dataset.name}")
+        images = self.dataset.coco_data.get("images", [])
         for image in images:
             if image["id"] == image_id:
                 return image
@@ -224,7 +214,7 @@ class CocoSegmentationDatasetContextValidator(
         This method prints out the number of issues detected for each error type.
         """
         print(
-            f"⚠️ Found {sum(self.error_count.values())} COCO segmentation annotation issues in dataset {self.dataset_context.dataset_name}:"
+            f"⚠️ Found {sum(self.error_count.values())} COCO segmentation annotation issues in dataset {self.dataset.name}:"
         )
         for error_type, count in self.error_count.items():
             print(f" - {error_type}: {count} issues")

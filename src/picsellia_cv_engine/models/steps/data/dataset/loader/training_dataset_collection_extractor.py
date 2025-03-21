@@ -5,12 +5,8 @@ from picsellia.exceptions import ResourceNotFoundError
 from picsellia.types.enums import LogType
 
 from picsellia_cv_engine.enums import DatasetSplitName
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    TBaseDatasetContext,
-)
-from picsellia_cv_engine.models.data.dataset.dataset_collection import (
-    DatasetCollection,
-)
+from picsellia_cv_engine.models import DatasetCollection
+from picsellia_cv_engine.models.data import TBaseDataset
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +16,7 @@ class TrainingDatasetCollectionExtractor:
     Manages dataset versions attached to an experiment and prepares dataset collections for processing.
 
     This class provides functionality to retrieve dataset versions from an experiment,
-    organize them into dataset contexts based on training, validation, and testing splits,
+    organize them into datasets based on training, validation, and testing splits,
     and assemble these contexts into a DatasetCollection for convenient access and use.
 
     Attributes:
@@ -40,16 +36,16 @@ class TrainingDatasetCollectionExtractor:
         self.train_set_split_ratio = train_set_split_ratio
 
     def get_dataset_collection(
-        self, context_class: type[TBaseDatasetContext], random_seed=None
-    ) -> DatasetCollection[TBaseDatasetContext]:
+        self, context_class: type[TBaseDataset], random_seed=None
+    ) -> DatasetCollection[TBaseDataset]:
         """
         Retrieves dataset versions attached to the experiment and organizes them into a DatasetCollection.
 
         This method handles different scenarios based on the number of attached datasets: one, two, or three.
-        It prepares dataset contexts for each scenario and assembles them into a DatasetCollection.
+        It prepares datasets for each scenario and assembles them into a DatasetCollection.
 
         Returns:
-            - DatasetCollection: A collection of dataset contexts prepared based on the attached dataset versions.
+            - DatasetCollection: A collection of datasets prepared based on the attached dataset versions.
 
         Raises:
             - ResourceNotFoundError: If the expected dataset splits are not found in the experiment.
@@ -121,11 +117,11 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_three_datasets(
         self,
-        context_class: type[TBaseDatasetContext],
+        context_class: type[TBaseDataset],
         train_dataset_version: DatasetVersion,
         val_dataset_version: DatasetVersion,
         test_dataset_version: DatasetVersion,
-    ) -> DatasetCollection[TBaseDatasetContext]:
+    ) -> DatasetCollection[TBaseDataset]:
         """
         Handles the scenario where three distinct datasets (train, validation, and test) are attached to the experiment.
 
@@ -153,19 +149,19 @@ class TrainingDatasetCollectionExtractor:
         return DatasetCollection(
             [
                 context_class(
-                    dataset_name=DatasetSplitName.TRAIN.value,
+                    name=DatasetSplitName.TRAIN.value,
                     dataset_version=train_dataset_version,
                     assets=train_dataset_version.list_assets(),
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.VAL.value,
+                    name=DatasetSplitName.VAL.value,
                     dataset_version=val_dataset_version,
                     assets=val_dataset_version.list_assets(),
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.TEST.value,
+                    name=DatasetSplitName.TEST.value,
                     dataset_version=test_dataset_version,
                     assets=test_dataset_version.list_assets(),
                     labelmap=None,
@@ -175,11 +171,11 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_two_datasets(
         self,
-        context_class: type[TBaseDatasetContext],
+        context_class: type[TBaseDataset],
         train_dataset_version: DatasetVersion,
         test_dataset_version: DatasetVersion,
         random_seed=None,
-    ) -> DatasetCollection[TBaseDatasetContext]:
+    ) -> DatasetCollection[TBaseDataset]:
         """
         Handles the scenario where two datasets are attached to the experiment, requiring a split of the first for training and validation.
 
@@ -211,19 +207,19 @@ class TrainingDatasetCollectionExtractor:
         return DatasetCollection(
             [
                 context_class(
-                    dataset_name=DatasetSplitName.TRAIN.value,
+                    name=DatasetSplitName.TRAIN.value,
                     dataset_version=train_dataset_version,
                     assets=train_assets,
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.VAL.value,
+                    name=DatasetSplitName.VAL.value,
                     dataset_version=train_dataset_version,
                     assets=val_assets,
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.TEST.value,
+                    name=DatasetSplitName.TEST.value,
                     dataset_version=test_dataset_version,
                     assets=test_dataset_version.list_assets(),
                     labelmap=None,
@@ -233,10 +229,10 @@ class TrainingDatasetCollectionExtractor:
 
     def _handle_one_dataset(
         self,
-        context_class: type[TBaseDatasetContext],
+        context_class: type[TBaseDataset],
         train_dataset_version: DatasetVersion,
         random_seed=None,
-    ) -> DatasetCollection[TBaseDatasetContext]:
+    ) -> DatasetCollection[TBaseDataset]:
         """
         Handles the scenario where a single dataset is attached to the experiment, requiring splitting into training, validation, and test splits.
 
@@ -264,19 +260,19 @@ class TrainingDatasetCollectionExtractor:
         return DatasetCollection(
             [
                 context_class(
-                    dataset_name=DatasetSplitName.TRAIN.value,
+                    name=DatasetSplitName.TRAIN.value,
                     dataset_version=train_dataset_version,
                     assets=train_assets,
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.VAL.value,
+                    name=DatasetSplitName.VAL.value,
                     dataset_version=train_dataset_version,
                     assets=val_assets,
                     labelmap=None,
                 ),
                 context_class(
-                    dataset_name=DatasetSplitName.TEST.value,
+                    name=DatasetSplitName.TEST.value,
                     dataset_version=train_dataset_version,
                     assets=test_assets,
                     labelmap=None,

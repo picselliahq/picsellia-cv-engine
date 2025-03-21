@@ -13,7 +13,7 @@ from typing import (
 
 from picsellia.types.schemas import LogDataType  # type: ignore
 
-from picsellia_cv_engine.models.logging.colors import Colors
+from picsellia_cv_engine.models import Colors
 
 logger = logging.getLogger("picsellia-engine")
 T = TypeVar("T")

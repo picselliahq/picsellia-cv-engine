@@ -1,13 +1,28 @@
 import logging
+import os
 
+import pandas as pd
 from picsellia import Experiment
+from picsellia.sdk.asset import Asset, MultiAsset
 from picsellia.types.enums import AddEvaluationType, InferenceType
+from pycocotools.coco import COCO
 
-from picsellia_cv_engine.models.model.picsellia_prediction import (
+from picsellia_cv_engine.models.model import (
     PicselliaClassificationPrediction,
     PicselliaOCRPrediction,
     PicselliaPolygonPrediction,
     PicselliaRectanglePrediction,
+)
+from picsellia_cv_engine.models.steps.model.evaluator.utils.coco_converter import (
+    create_coco_files_from_experiment,
+)
+from picsellia_cv_engine.models.steps.model.evaluator.utils.coco_utils import (
+    evaluate_category,
+    fix_coco_ids,
+    match_image_ids,
+)
+from picsellia_cv_engine.models.steps.model.evaluator.utils.log_metrics import (
+    upload_metrics_to_picsellia,
 )
 
 logger = logging.getLogger(__name__)
@@ -186,3 +201,56 @@ class ModelEvaluator:
 
         else:
             raise TypeError("Unsupported prediction type")
+
+    def compute_coco_metrics(
+        self, experiment: Experiment, assets: list[Asset] | MultiAsset, output_dir: str
+    ) -> None:
+        """
+        Computes COCO metrics for the given experiment and assets and saves the results to a CSV file.
+
+        Args:
+            experiment (Experiment): The Picsellia experiment to which evaluations will be added.
+            assets (list[Asset] | MultiAsset): The assets to be evaluated.
+            output_dir (str): The directory where the evaluation results will be saved.
+        """
+
+        os.makedirs(output_dir, exist_ok=True)
+        gt_coco_path = os.path.join(output_dir, "gt.json")
+        pred_coco_path = os.path.join(output_dir, "pred.json")
+        output_path = os.path.join(output_dir, "output.csv")
+
+        create_coco_files_from_experiment(
+            experiment=experiment,
+            assets=assets,
+            gt_coco_path=gt_coco_path,
+            pred_coco_path=pred_coco_path,
+            inference_type=self.inference_type,
+        )
+
+        gt_path_fixed = fix_coco_ids(gt_coco_path)
+        pred_path_fixed = fix_coco_ids(pred_coco_path)
+        matched_prediction_file = pred_path_fixed.replace(".json", "_matched.json")
+        match_image_ids(gt_path_fixed, pred_path_fixed, matched_prediction_file)
+        coco_gt = COCO(gt_path_fixed)
+        coco_pred = COCO(matched_prediction_file)
+        categories = {
+            cat["id"]: cat["name"] for cat in coco_gt.loadCats(coco_gt.getCatIds())
+        }
+        results = [
+            evaluate_category(
+                coco_gt=coco_gt,
+                coco_pred=coco_pred,
+                cat_id=cat_id,
+                cat_name=cat_name,
+                inference_type=self.inference_type,
+            )
+            for cat_id, cat_name in categories.items()
+        ]
+        df = pd.DataFrame(results)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Results saved to: {output_path}")
+
+        upload_metrics_to_picsellia(
+            experiment=experiment,
+            csv_path=output_path,
+        )

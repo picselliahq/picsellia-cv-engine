@@ -12,7 +12,7 @@ from picsellia_cv_engine.models.utils.dataset_logging import get_labelmap
 logger = logging.getLogger(__name__)
 
 
-class BaseDatasetContext:
+class BaseDataset:
     """
     A base class to manage the context of a dataset, including metadata, paths,
     assets, and annotation management.
@@ -24,23 +24,23 @@ class BaseDatasetContext:
 
     def __init__(
         self,
-        dataset_name: str,
+        name: str,
         dataset_version: DatasetVersion,
         assets: MultiAsset | None = None,
         labelmap: dict[str, Label] | None = None,
     ):
         """
-        Initializes a `BaseDatasetContext` with the dataset's metadata and configuration.
+        Initializes a `BaseDataset` with the dataset's metadata and configuration.
 
         Args:
-            dataset_name (str): The name of the dataset.
+            name (str): The name of the dataset.
             dataset_version (DatasetVersion): The version of the dataset as managed by Picsellia.
             assets (Optional[MultiAsset]): A preloaded collection of assets. If not provided, assets
                 will be listed dynamically as needed.
             labelmap (Optional[Dict[str, Label]]): A preloaded mapping of labels. If not provided,
                 the labelmap will be fetched from the `DatasetVersion`.
         """
-        self.dataset_name = dataset_name
+        self.name = name
         """The name of the dataset."""
 
         self.dataset_version = dataset_version
@@ -146,4 +146,4 @@ class BaseDatasetContext:
         return self.dataset_version.list_assets(limit=limit, offset=offset)
 
 
-TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound=BaseDatasetContext)
+TBaseDataset = TypeVar("TBaseDataset", bound=BaseDataset)

@@ -1,14 +1,10 @@
 import logging
 
-from picsellia_cv_engine.decorators.step_decorator import step
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    TBaseDatasetContext,
-)
-from picsellia_cv_engine.models.data.dataset.dataset_collection import (
-    DatasetCollection,
-)
+from picsellia_cv_engine import step
+from picsellia_cv_engine.models import DatasetCollection
+from picsellia_cv_engine.models.data import TBaseDataset
 from picsellia_cv_engine.models.steps.data.dataset.validator.utils import (
-    get_validator_for_dataset_context,
+    get_dataset_validator,
 )
 
 logger = logging.getLogger(__name__)
@@ -16,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 @step
 def validate_dataset(
-    dataset: TBaseDatasetContext | DatasetCollection, fix_annotation: bool = False
+    dataset: TBaseDataset | DatasetCollection, fix_annotation: bool = False
 ):
     """
     Validates a dataset or a dataset collection to ensure data integrity and correctness.
@@ -26,7 +22,7 @@ def validate_dataset(
     an error is logged. The validation process is skipped for datasets without a validator.
 
     Args:
-        dataset (Union[TBaseDatasetContext, DatasetCollection]):
+        dataset (Union[TBaseDataset, DatasetCollection]):
             The dataset or dataset collection to validate. If a `DatasetCollection` is provided, each individual dataset
             within the collection will be validated.
         fix_annotation (bool, optional):
@@ -39,17 +35,23 @@ def validate_dataset(
     validators = {}
 
     if not isinstance(dataset, DatasetCollection):
-        validator = get_validator_for_dataset_context(dataset)
+        validator = get_dataset_validator(
+            dataset=dataset, fix_annotation=fix_annotation
+        )
         if validator:
-            validator.validate(fix_annotation=fix_annotation)
+            validator.validate()
+    else:
+        dataset_collection = dataset
 
-    for dataset_name, dataset_context in dataset.items():
-        try:
-            validator = get_validator_for_dataset_context(dataset_context)
-            if validator:
-                validator.validate(fix_annotation=fix_annotation)
-                validators[dataset_name] = validator
-            else:
-                logger.info(f"Skipping validation for dataset '{dataset_name}'.")
-        except Exception as e:
-            logger.error(f"Validation failed for dataset '{dataset_name}': {str(e)}")
+        for name, dataset in dataset_collection.datasets.items():
+            try:
+                validator = get_dataset_validator(
+                    dataset=dataset, fix_annotation=fix_annotation
+                )
+                if validator:
+                    validator.validate()
+                    validators[name] = validator
+                else:
+                    logger.info(f"Skipping validation for dataset '{name}'.")
+            except Exception as e:
+                logger.error(f"Validation failed for dataset '{name}': {str(e)}")

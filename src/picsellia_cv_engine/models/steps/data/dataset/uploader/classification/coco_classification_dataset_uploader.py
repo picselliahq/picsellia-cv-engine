@@ -6,23 +6,19 @@ from typing import Any
 from picsellia import Datalake
 from picsellia.types.enums import TagTarget
 
-from picsellia_cv_engine.models.data.dataset.coco_dataset_context import (
-    CocoDatasetContext,
-)
-from picsellia_cv_engine.models.steps.data.dataset.uploader.common.data_uploader import (
-    DataUploader,
-)
+from picsellia_cv_engine.models import CocoDataset
+from picsellia_cv_engine.models.steps.data.dataset.uploader import DatasetUploader
 
 logger = logging.getLogger("picsellia")
 
 
-class ClassificationDatasetContextUploader(DataUploader):
+class ClassificationDatasetUploader(DatasetUploader):
     def __init__(
         self,
-        dataset_context: CocoDatasetContext,
+        dataset: CocoDataset,
     ):
-        super().__init__(dataset_context.dataset_version)
-        self.dataset_context = dataset_context
+        super().__init__(dataset.dataset_version)
+        self.dataset = dataset
 
     def upload_images(
         self,
@@ -34,7 +30,7 @@ class ClassificationDatasetContextUploader(DataUploader):
         Uploads images extracted from the COCO file.
         Iterates over images grouped by category and uploads existing ones in batches.
         """
-        coco_data = self.dataset_context.load_coco_file_data()
+        coco_data = self.dataset.load_coco_file_data()
         images_by_category = self._process_coco_data(coco_data)
 
         for category_name, image_paths in images_by_category.items():
@@ -58,22 +54,20 @@ class ClassificationDatasetContextUploader(DataUploader):
         """
         Uploads annotations by converting tags to classification annotations.
         """
-        conversion_job = (
-            self.dataset_context.dataset_version.convert_tags_to_classification(
-                tag_type=TagTarget.ASSET,
-                tags=self.dataset_context.dataset_version.list_asset_tags(),
-            )
+        conversion_job = self.dataset.dataset_version.convert_tags_to_classification(
+            tag_type=TagTarget.ASSET,
+            tags=self.dataset.dataset_version.list_asset_tags(),
         )
         conversion_job.wait_for_done()
 
-    def upload_dataset_context(
+    def upload_dataset(
         self,
         datalake: Datalake,
         data_tags: list[str] | None = None,
         batch_size: int = 10000,
     ) -> None:
         """
-        Fully uploads the dataset context by calling both image and annotation uploads.
+        Fully uploads the dataset by calling both image and annotation uploads.
         """
         self.upload_images(datalake, data_tags, batch_size)
         self.upload_annotations()
@@ -82,8 +76,8 @@ class ClassificationDatasetContextUploader(DataUploader):
         """
         Process COCO data to group image paths by category name.
         """
-        if not self.dataset_context.images_dir:
-            raise ValueError("No images directory found in the dataset context.")
+        if not self.dataset.images_dir:
+            raise ValueError("No images directory found in the dataset.")
         category_id_to_name = {
             cat["id"]: cat["name"] for cat in coco_data["categories"]
         }
@@ -93,9 +87,7 @@ class ClassificationDatasetContextUploader(DataUploader):
         for annotation in coco_data["annotations"]:
             image_info = image_id_to_info[annotation["image_id"]]
             category_name = category_id_to_name[annotation["category_id"]]
-            image_path = os.path.join(
-                self.dataset_context.images_dir, image_info["file_name"]
-            )
+            image_path = os.path.join(self.dataset.images_dir, image_info["file_name"])
 
             images_by_category[category_name].append(image_path)
 

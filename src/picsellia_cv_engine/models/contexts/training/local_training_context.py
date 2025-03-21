@@ -2,18 +2,12 @@ from typing import Any, Generic, TypeVar
 
 from picsellia import Experiment
 
-from picsellia_cv_engine.models.contexts.common.picsellia_context import (
-    PicselliaContext,
-)
-from picsellia_cv_engine.models.parameters.augmentation_parameters import (
+from picsellia_cv_engine.models.contexts import PicselliaContext
+from picsellia_cv_engine.models.parameters import (
     AugmentationParameters,
-)
-from picsellia_cv_engine.models.parameters.export_parameters import (
-    TExportParameters,
-)
-from picsellia_cv_engine.models.parameters.hyper_parameters import (
     HyperParameters,
 )
+from picsellia_cv_engine.models.parameters.export_parameters import TExportParameters
 
 THyperParameters = TypeVar("THyperParameters", bound=HyperParameters)
 TAugmentationParameters = TypeVar(
@@ -21,7 +15,7 @@ TAugmentationParameters = TypeVar(
 )
 
 
-class LocalPicselliaTrainingContext(
+class LocalTrainingContext(
     PicselliaContext, Generic[THyperParameters, TAugmentationParameters]
 ):
     """

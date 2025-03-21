@@ -3,49 +3,54 @@ import os
 import re
 from abc import abstractmethod
 from pathlib import Path
+from typing import Any
 
 from picsellia import Experiment, ModelFile, ModelVersion
 
-from picsellia_cv_engine.models.model.model_context import ModelContext
+from picsellia_cv_engine.models import Model
 
 logger = logging.getLogger("picsellia-engine")
 
 
-class ModelContextExporter:
+class ModelExporter:
     """
-    Base class for exporting and saving a model context.
+    Base class for exporting and saving a model.
 
     This class serves as a base for exporting a model and saving it to an experiment.
-    It provides an abstract method `export_model_context` for subclasses to implement
+    It provides an abstract method `export_model` for subclasses to implement
     specific export logic, and a concrete method `save_model_to_experiment` for saving
     the exported model to the experiment.
 
     Attributes:
-        model_context (ModelContext): The context of the model to be exported.
+        model (Model): The context of the model to be exported.
     """
 
-    def __init__(self, model_context: ModelContext):
+    def __init__(self, model: Model):
         """
-        Initializes the ModelContextExporter with the given model context and experiment.
+        Initializes the ModelExporter with the given model and experiment.
 
         Args:
-            model_context (ModelContext): The model context containing the model's details.
+            model (Model): The model containing the model's details.
         """
-        self.model_context = model_context
+        self.model = model
 
     @abstractmethod
-    def export_model_context(
-        self, exported_model_destination_path: str, export_format: str
+    def export_model(
+        self,
+        exported_model_destination_path: str,
+        export_format: str,
+        hyperparameters: Any,
     ):
         """
-        Abstract method to export the model context.
+        Abstract method to export the model.
 
         This method should be implemented by subclasses to define the logic for exporting
-        the model context in the specified format.
+        the model in the specified format.
 
         Args:
             exported_model_destination_path (str): The destination path where the exported model will be saved.
             export_format (str): The format in which the model should be exported.
+            hyperparameters (Any):
         """
         pass
 
@@ -169,11 +174,12 @@ class ModelContextExporter:
         if not exported_files:
             raise ValueError(f"No model files found in: {weights_dir}")
 
-        exported_weights_name = self._get_unique_file_name(
-            exported_weights_name, target.list_files()
-        )
+        if isinstance(target, ModelVersion):
+            exported_weights_name = self._get_unique_file_name(
+                exported_weights_name, target.list_files()
+            )
 
-        if len(exported_files) > 1 or weights_dir.is_dir():
+        if len(exported_files) > 1:
             target.store(
                 name=exported_weights_name,
                 path=exported_weights_path,

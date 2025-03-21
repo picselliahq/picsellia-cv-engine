@@ -3,12 +3,12 @@ from typing import Any
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.models.contexts.common.picsellia_context import (
+from picsellia_cv_engine.models.contexts import (
     PicselliaContext,
 )
 
 
-class LocalPicselliaProcessingContext(PicselliaContext):
+class LocalProcessingContext(PicselliaContext):
     """
     This class is used to test a processing pipeline without a real job execution on Picsellia (without giving a real job ID).
     """

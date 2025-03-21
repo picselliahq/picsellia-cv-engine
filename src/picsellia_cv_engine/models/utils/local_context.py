@@ -3,9 +3,7 @@ from typing import Any
 
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.models.contexts.processing.dataset.local_picsellia_processing_context import (
-    LocalPicselliaProcessingContext,
-)
+from picsellia_cv_engine.models.contexts import LocalProcessingContext
 
 
 def infer_type(value: str) -> Any:
@@ -70,7 +68,7 @@ def create_local_processing_context(
     processing_parameters_data = create_local_processing_parameters(
         processing_parameters
     )
-    context = LocalPicselliaProcessingContext(
+    context = LocalProcessingContext(
         api_token=api_token,
         organization_id=organization_id,
         job_id=job_id,

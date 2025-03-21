@@ -10,9 +10,7 @@ from picsellia.sdk.asset import MultiAsset
 from picsellia.types.enums import AnnotationFileType
 from tqdm import tqdm
 
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    BaseDatasetContext,
-)
+from picsellia_cv_engine.models import BaseDataset
 from picsellia_cv_engine.models.data.dataset.utils import remove_empty_directories
 
 logger = logging.getLogger(__name__)
@@ -20,9 +18,9 @@ logger = logging.getLogger(__name__)
 BATCH_SIZE = 1000
 
 
-class CocoDatasetContext(BaseDatasetContext):
+class CocoDataset(BaseDataset):
     """
-    A specialized dataset context for managing COCO annotations, enabling downloading, batching,
+    A specialized dataset for managing COCO annotations, enabling downloading, batching,
     and merging of annotation files.
 
     This class provides methods for downloading annotations in batches, merging them into a single
@@ -31,22 +29,22 @@ class CocoDatasetContext(BaseDatasetContext):
 
     def __init__(
         self,
-        dataset_name: str,
+        name: str,
         dataset_version: DatasetVersion,
         assets: MultiAsset | None = None,
         labelmap: dict[str, Label] | None = None,
     ):
         """
-        Initialize the COCO dataset context.
+        Initialize the COCO dataset.
 
         Args:
-            dataset_name (str): The name of the dataset.
+            name (str): The name of the dataset.
             dataset_version (DatasetVersion): The version of the dataset to work with.
             assets (Optional[MultiAsset]): Preloaded assets, if available.
             labelmap (Optional[Dict[str, Label]]): Mapping of labels for the dataset.
         """
         super().__init__(
-            dataset_name=dataset_name,
+            name=name,
             dataset_version=dataset_version,
             assets=assets,
             labelmap=labelmap,

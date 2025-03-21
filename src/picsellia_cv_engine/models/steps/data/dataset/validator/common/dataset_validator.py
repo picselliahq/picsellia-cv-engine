@@ -2,53 +2,47 @@ from typing import Generic, TypeVar
 
 from PIL import Image
 
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    BaseDatasetContext,
-)
+from picsellia_cv_engine.models import BaseDataset
 from picsellia_cv_engine.models.utils.image_file import get_images_path_list
 
-TBaseDatasetContext = TypeVar("TBaseDatasetContext", bound=BaseDatasetContext)
+TBaseDataset = TypeVar("TBaseDataset", bound=BaseDataset)
 
 
-class DatasetContextValidator(Generic[TBaseDatasetContext]):
+class DatasetValidator(Generic[TBaseDataset]):
     """
-    Validates various aspects of a dataset context.
+    Validates various aspects of a dataset.
 
-    This class performs common validation tasks for dataset contexts, including checking for image extraction
+    This class performs common validation tasks for datasets, including checking for image extraction
     completeness, image format, image corruption, and annotation integrity.
 
     Attributes:
-        dataset_context (DatasetContext): The dataset context to validate.
+        dataset (Dataset): The dataset to validate.
     """
 
     VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
-    def __init__(
-        self, dataset_context: TBaseDatasetContext, fix_annotation: bool = False
-    ):
+    def __init__(self, dataset: TBaseDataset, fix_annotation: bool = False):
         """
-        Initializes the DatasetContextValidator with a dataset context to validate.
+        Initializes the DatasetValidator with a dataset to validate.
 
         Parameters:
-            dataset_context (DatasetContext): The dataset context to validate.
+            dataset (Dataset): The dataset to validate.
         """
-        self.dataset_context = dataset_context
+        self.dataset = dataset
         self.fix_annotation = fix_annotation
 
     def validate(self):
         """
-        Validates the dataset context.
+        Validates the dataset.
         """
-        if self.dataset_context.images_dir:
-            images_path_list = get_images_path_list(
-                images_dir=self.dataset_context.images_dir
-            )
+        if self.dataset.images_dir:
+            images_path_list = get_images_path_list(images_dir=self.dataset.images_dir)
             self.validate_images_extraction(images_path_list=images_path_list)
             self.validate_images_format(images_path_list=images_path_list)
             self.validate_images_corruption(images_path_list=images_path_list)
         else:
             raise ValueError(
-                f"Image directory is missing from the dataset context in {self.dataset_context.dataset_name} dataset"
+                f"Image directory is missing from the dataset in {self.dataset.name} dataset"
             )
 
     def validate_images_extraction(self, images_path_list: list[str]) -> None:
@@ -61,18 +55,18 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
         Raises:
             ValueError: If the number of extracted images does not match the expected number of assets.
         """
-        if self.dataset_context.assets is None:
+        if self.dataset.assets is None:
             return
 
-        if len(images_path_list) < len(self.dataset_context.assets):
+        if len(images_path_list) < len(self.dataset.assets):
             raise ValueError(
-                f"Some images have not been extracted in the image directory: {self.dataset_context.images_dir}. "
-                + f"There are {len(images_path_list)} images in the directory and {len(self.dataset_context.assets)} assets in the dataset."
+                f"Some images have not been extracted in the image directory: {self.dataset.images_dir}. "
+                + f"There are {len(images_path_list)} images in the directory and {len(self.dataset.assets)} assets in the dataset."
             )
-        if len(images_path_list) > len(self.dataset_context.assets):
+        if len(images_path_list) > len(self.dataset.assets):
             raise ValueError(
-                f"There are more images than expected in the image directory: {self.dataset_context.images_dir}. "
-                + f"There are {len(images_path_list)} images in the directory and {len(self.dataset_context.assets)} assets in the dataset."
+                f"There are more images than expected in the image directory: {self.dataset.images_dir}. "
+                + f"There are {len(images_path_list)} images in the directory and {len(self.dataset.assets)} assets in the dataset."
             )
 
     def validate_images_format(self, images_path_list: list[str]) -> None:
@@ -88,7 +82,7 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
         for image_path in images_path_list:
             if not image_path.lower().endswith(self.VALID_IMAGE_EXTENSIONS):
                 raise ValueError(
-                    f"Invalid image format for image {image_path} in {self.dataset_context.dataset_name} dataset. "
+                    f"Invalid image format for image {image_path} in {self.dataset.name} dataset. "
                     f"Valid image formats are {self.VALID_IMAGE_EXTENSIONS}"
                 )
 
@@ -108,5 +102,5 @@ class DatasetContextValidator(Generic[TBaseDatasetContext]):
                     img.verify()  # Verify that this is a valid image
             except Exception as e:
                 raise ValueError(
-                    f"Image {image_path} is corrupted in {self.dataset_context.dataset_name} dataset and cannot be used."
+                    f"Image {image_path} is corrupted in {self.dataset.name} dataset and cannot be used."
                 ) from e

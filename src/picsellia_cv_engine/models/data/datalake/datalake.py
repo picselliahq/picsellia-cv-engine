@@ -2,12 +2,12 @@ import logging
 import os
 from uuid import UUID
 
-from picsellia import Datalake
+from picsellia import Datalake as PicselliaDatalake
 
 logger = logging.getLogger(__name__)
 
 
-class DatalakeContext:
+class Datalake:
     """
     Manages the context for downloading data from a Datalake.
 
@@ -18,24 +18,24 @@ class DatalakeContext:
 
     def __init__(
         self,
-        datalake_name: str,
-        datalake: Datalake,
+        name: str,
+        datalake: PicselliaDatalake,
         data_ids: list[UUID] | None = None,
         use_id: bool | None = True,
     ):
         """
-        Initializes a DatalakeContext object.
+        Initializes a Datalake object.
 
         Args:
-            datalake_name (str): The name of the Datalake.
-            datalake (Datalake): The Datalake instance from which data will be downloaded.
+            name (str): The name of the Datalake.
+            datalake (PicselliaDatalake): The Datalake instance from which data will be downloaded.
             data_ids (list[UUID] | None, optional): A list of data IDs to download, or None to download all data.
             use_id (bool | None, optional): A flag indicating whether to use the IDs during data download. Default is True.
         """
-        self.datalake_name: str = datalake_name
+        self.name: str = name
         """The name of the Datalake."""
 
-        self.datalake: Datalake = datalake
+        self.datalake: PicselliaDatalake = datalake
         """The Datalake instance from which data will be downloaded."""
 
         self.data_ids: list[UUID] | None = data_ids
