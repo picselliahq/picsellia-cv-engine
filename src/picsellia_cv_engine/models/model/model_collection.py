@@ -1,7 +1,7 @@
 import os
 from typing import Any, Generic, TypeVar
 
-from picsellia_cv_engine.models import Model
+from .model import Model
 
 TModel = TypeVar("TModel", bound=Model)
 

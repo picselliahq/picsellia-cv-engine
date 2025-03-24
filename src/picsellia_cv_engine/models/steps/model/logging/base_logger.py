@@ -153,7 +153,7 @@ class BaseLogger:
         self.experiment.log(log_name, image_path, LogType.IMAGE)
 
     def log_confusion_matrix(
-        self, labelmap: dict, matrix: np.ndarray, phase: str | None = None
+        self, name: str, labelmap: dict, matrix: np.ndarray, phase: str | None = None
     ):
         """
         Logs a confusion matrix as a heatmap.
@@ -163,8 +163,8 @@ class BaseLogger:
             matrix (np.ndarray): The confusion matrix data.
             phase (Optional[str]): The phase in which the confusion matrix is logged (e.g., 'test').
         """
-        log_name = self.get_log_name(metric_name="confusion_matrix", phase=phase)
-        confusion_data = self._format_confusion_matrix(labelmap, matrix)
+        log_name = self.get_log_name(metric_name=name, phase=phase)
+        confusion_data = self._format_confusion_matrix(labelmap=labelmap, matrix=matrix)
         self.experiment.log(log_name, confusion_data, LogType.HEATMAP)
 
     def _format_confusion_matrix(self, labelmap: dict, matrix: np.ndarray) -> dict:
@@ -179,6 +179,19 @@ class BaseLogger:
             dict: A dictionary with the categories and matrix values.
         """
         return {"categories": list(labelmap.values()), "values": matrix.tolist()}
+
+    def log_table(self, name: str, data: dict, phase: str | None = None):
+        """
+        Logs a dictionary as a table to the experiment.
+
+        Args:
+            name (str): The name of the table.
+            data (dict): The dictionary containing table data.
+            phase (Optional[str]): The phase in which the table is logged (e.g., 'train', 'val', 'test').
+        """
+        log_name = self.get_log_name(metric_name=name, phase=phase)
+        data = sanitize_table_data(data)
+        self.experiment.log(name=log_name, data=data, type=LogType.TABLE)
 
     def get_log_name(self, metric_name: str, phase: str | None = None) -> str:
         """
@@ -195,3 +208,16 @@ class BaseLogger:
             metric_name, metric_name
         )
         return f"{phase}/{mapped_name}" if phase else mapped_name
+
+
+def sanitize_table_data(data: dict) -> dict:
+    """Converts all values to JSON-serializable native types."""
+    sanitized = {}
+    for key, value in data.items():
+        if isinstance(value, (np.integer, np.floating)):
+            sanitized[key] = value.item()
+        elif isinstance(value, (int, float, str)):
+            sanitized[key] = value
+        else:
+            sanitized[key] = str(value)  # fallback (just in case)
+    return sanitized

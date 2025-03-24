@@ -12,7 +12,7 @@ from picsellia_cv_engine.models.data.dataset.coco_dataset import (
 from picsellia_cv_engine.models.data.dataset.yolo_dataset import (
     YoloDataset,
 )
-from picsellia_cv_engine.models.steps.data.dataset.validator.classification.coco_classification_dataset_validator import (
+from picsellia_cv_engine.models.steps.data.dataset.validator.classification.coco_classification_dataset_context_validator import (
     CocoClassificationDatasetValidator,
 )
 from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_validator import (

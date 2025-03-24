@@ -4,7 +4,7 @@ from abc import ABC
 from collections.abc import Iterator
 from typing import Generic, TypeVar
 
-from picsellia_cv_engine.models import BaseDataset
+from .base_dataset import BaseDataset
 
 logger = logging.getLogger(__name__)
 

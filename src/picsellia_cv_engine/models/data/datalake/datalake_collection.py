@@ -1,6 +1,6 @@
 import os
 
-from picsellia_cv_engine.models import Datalake
+from .datalake import Datalake
 
 
 class DatalakeCollection:

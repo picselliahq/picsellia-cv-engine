@@ -10,8 +10,9 @@ from picsellia.sdk.asset import MultiAsset
 from picsellia.types.enums import AnnotationFileType
 from tqdm import tqdm
 
-from picsellia_cv_engine.models import BaseDataset
 from picsellia_cv_engine.models.data.dataset.utils import remove_empty_directories
+
+from .base_dataset import BaseDataset
 
 logger = logging.getLogger(__name__)
 
