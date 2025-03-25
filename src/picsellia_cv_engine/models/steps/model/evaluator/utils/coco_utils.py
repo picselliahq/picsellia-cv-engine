@@ -244,18 +244,26 @@ def evaluate_category(
     fn = detection_metrics[cat_id]["FN"]
     precision, recall, f1_score = calculate_metrics(tp=tp, fp=fp, fn=fn)
 
-    return {
-        "Category": cat_name,
-        "TP": tp,
-        "FP": fp,
-        "FN": fn,
-        "Precision": precision,
-        "Recall": recall,
-        "F1-Score": f1_score,
-        "AP @[ IoU=0.50:0.95 | area= all | maxDets=100 ]": stats[0],
-        "AP @[ IoU=0.50 | area= all | maxDets=100 ]": stats[1],
-        "AP @[ IoU=0.75 | area= all | maxDets=100 ]": stats[2],
-        "AR @[ IoU=0.50:0.95 | area= all | maxDets= 1 ]": stats[6],
-        "AR @[ IoU=0.50:0.95 | area= all | maxDets= 10 ]": stats[7],
-        "AR @[ IoU=0.50:0.95 | area= all | maxDets=100 ]": stats[8],
-    }
+    num_images = len(coco_gt.getImgIds(catIds=[cat_id]))
+    num_instances = tp + fn
+
+    if iouType == "bbox":
+        return {
+            "Class": cat_name,
+            "Images": num_images,
+            "Instances": num_instances,
+            "Box(P)": precision,
+            "Box(R)": recall,
+            "Box(mAP50-95)": stats[0],
+            "Box(mAP50)": stats[1],
+        }
+    else:
+        return {
+            "Class": cat_name,
+            "Images": num_images,
+            "Instances": num_instances,
+            "Mask(P)": precision,
+            "Mask(R)": recall,
+            "Mask(mAP50-95)": stats[0],
+            "Mask(mAP50)": stats[1],
+        }

@@ -287,7 +287,7 @@ class ModelEvaluator:
         label_map[len(label_map)] = "background"
 
         self.experiment_logger.log_confusion_matrix(
-            name="confusion-matrix-coco",
+            name="confusion-matrix",
             labelmap=label_map,
             matrix=conf_matrix,
             phase="test",
@@ -379,7 +379,6 @@ class ModelEvaluator:
                 "Precision": round(metrics["precision"], 3),
                 "Recall": round(metrics["recall"], 3),
                 "F1-score": round(metrics["f1-score"], 3),
-                "Support": int(metrics["support"]),
             }
 
             self.experiment_logger.log_table(
@@ -391,7 +390,7 @@ class ModelEvaluator:
             "Accuracy": round(accuracy, 3),
             "Precision": round(precision, 3),
             "Recall": round(recall, 3),
-            "F1": round(f1, 3),
+            "F1-score": round(f1, 3),
         }
 
         self.experiment_logger.log_table(
