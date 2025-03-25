@@ -10,6 +10,7 @@ from pycocotools.coco import COCO
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
+    confusion_matrix,
     f1_score,
     precision_score,
     recall_score,
@@ -29,9 +30,10 @@ from picsellia_cv_engine.models.steps.model.evaluator.utils.coco_utils import (
     fix_coco_ids,
     match_image_ids,
 )
-from picsellia_cv_engine.models.steps.model.evaluator.utils.log_metrics import (
-    upload_metrics_to_picsellia,
+from picsellia_cv_engine.models.steps.model.evaluator.utils.compute_metrics import (
+    compute_full_confusion_matrix,
 )
+from picsellia_cv_engine.models.steps.model.logging import BaseLogger, MetricMapping
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +59,9 @@ class ModelEvaluator:
         """
         self.experiment = experiment
         self.inference_type = inference_type
+        self.experiment_logger = BaseLogger(
+            experiment=experiment, metric_mapping=MetricMapping()
+        )
 
     def evaluate(
         self,
@@ -258,9 +263,34 @@ class ModelEvaluator:
         df.to_csv(output_path, index=False)
         logger.info(f"Results saved to: {output_path}")
 
-        upload_metrics_to_picsellia(
-            experiment=self.experiment,
-            csv_path=output_path,
+        df = pd.read_csv(output_path).round(3)
+
+        for _, row in df.iterrows():
+            category = row["Category"]
+            metrics_dict = row.drop("Category").to_dict()
+            self.experiment_logger.log_table(
+                name=f"{category}-metrics", data=metrics_dict, phase="test"
+            )
+
+        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+        cat_ids = list(categories.keys())
+
+        conf_matrix = compute_full_confusion_matrix(
+            gt_annotations=gt_anns,
+            pred_annotations=pred_anns,
+            category_ids=cat_ids,
+            iou_threshold=0.5,
+        )
+
+        label_map = dict(enumerate(categories.values()))
+        label_map[len(label_map)] = "background"
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix-coco",
+            labelmap=label_map,
+            matrix=conf_matrix,
+            phase="test",
         )
 
     def compute_classification_metrics(
@@ -352,8 +382,8 @@ class ModelEvaluator:
                 "Support": int(metrics["support"]),
             }
 
-            self.experiment.log(
-                name=f"test/{class_name}-metrics", data=row, type="TABLE"
+            self.experiment_logger.log_table(
+                name=f"{class_name}-metrics", data=row, phase="test"
             )
 
         # Global summary
@@ -364,6 +394,13 @@ class ModelEvaluator:
             "F1": round(f1, 3),
         }
 
-        self.experiment.log(
-            name="test/average-metrics", data=global_metrics, type="TABLE"
+        self.experiment_logger.log_table(
+            name="average-metrics", data=global_metrics, phase="test"
+        )
+
+        cm = confusion_matrix(y_true, y_pred, labels=sorted(id_to_name.keys()))
+        label_map = {i: id_to_name[i] for i in sorted(id_to_name.keys())}
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
         )
