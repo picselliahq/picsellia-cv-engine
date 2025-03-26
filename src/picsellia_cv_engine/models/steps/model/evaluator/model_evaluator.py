@@ -266,8 +266,8 @@ class ModelEvaluator:
         df = pd.read_csv(output_path).round(3)
 
         for _, row in df.iterrows():
-            category = row["Category"]
-            metrics_dict = row.drop("Category").to_dict()
+            category = row["Class"]
+            metrics_dict = row.drop("Class").to_dict()
             self.experiment_logger.log_table(
                 name=f"{category}-metrics", data=metrics_dict, phase="test"
             )
