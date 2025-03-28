@@ -1,28 +1,22 @@
 import json
 
-from picsellia_cv_engine.models.data.dataset.coco_dataset_context import (
-    CocoDatasetContext,
-)
-from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_context_validator import (
-    DatasetContextValidator,
-)
+from picsellia_cv_engine.models import CocoDataset
+from picsellia_cv_engine.models.steps.data.dataset.validator import DatasetValidator
 
 
-class CocoObjectDetectionDatasetContextValidator(
-    DatasetContextValidator[CocoDatasetContext]
-):
-    def __init__(self, dataset_context: CocoDatasetContext, fix_annotation=True):
+class CocoObjectDetectionDatasetValidator(DatasetValidator[CocoDataset]):
+    def __init__(self, dataset: CocoDataset, fix_annotation=True):
         """
-        Initialize the validator for a COCO object detection dataset context.
+        Initialize the validator for a COCO object detection dataset.
 
         Args:
-            dataset_context (CocoDatasetContext): The dataset context containing the COCO data to validate.
+            dataset (CocoDataset): The dataset containing the COCO data to validate.
             fix_annotation (bool): Flag to indicate whether to automatically fix issues (default is True).
 
         Attributes:
             error_count (Dict): A dictionary to track the count of different types of errors found during validation.
         """
-        super().__init__(dataset_context=dataset_context, fix_annotation=fix_annotation)
+        super().__init__(dataset=dataset, fix_annotation=fix_annotation)
         self.error_count = {
             "top_left_x": 0,
             "top_left_y": 0,
@@ -32,18 +26,18 @@ class CocoObjectDetectionDatasetContextValidator(
 
     def validate(self):
         """
-        Validate the COCO object detection dataset context.
+        Validate the COCO object detection dataset.
 
-        Ensures the dataset context has:
+        Ensures the dataset has:
         - At least one class in the labelmap.
         - At least one image with bounding boxes.
         - Valid bounding box coordinates for all annotations.
 
         Returns:
-            CocoDatasetContext: The validated (or fixed) dataset context.
+            CocoDataset: The validated (or fixed) dataset.
 
         Raises:
-            ValueError: If the dataset context is invalid and `fix_annotation` is set to False.
+            ValueError: If the dataset is invalid and `fix_annotation` is set to False.
         """
         super().validate()
         self._validate_labelmap()
@@ -56,20 +50,20 @@ class CocoObjectDetectionDatasetContextValidator(
         if self.fix_annotation:
             self._save_updated_coco_file()
 
-        return self.dataset_context
+        return self.dataset
 
     def _validate_labelmap(self):
         """
-        Validate that the labelmap for the dataset context is valid.
+        Validate that the labelmap for the dataset is valid.
 
         An object detection labelmap must have at least one class to be considered valid.
 
         Raises:
             ValueError: If the labelmap does not contain at least one class.
         """
-        if len(self.dataset_context.labelmap) < 1:
+        if len(self.dataset.labelmap) < 1:
             raise ValueError(
-                f"Labelmap for dataset {self.dataset_context.dataset_name} is not valid. "
+                f"Labelmap for dataset {self.dataset.name} is not valid. "
                 f"An object detection labelmap must have at least 1 class."
             )
 
@@ -82,18 +76,16 @@ class CocoObjectDetectionDatasetContextValidator(
         Raises:
             ValueError: If no images with bounding boxes are found in the dataset.
         """
-        if not self.dataset_context.coco_data:
+        if not self.dataset.coco_data:
+            raise ValueError(f"Dataset {self.dataset.name} has no COCO data loaded.")
+        if not self.dataset.coco_data.get("annotations"):
             raise ValueError(
-                f"Dataset {self.dataset_context.dataset_name} has no COCO data loaded."
-            )
-        if not self.dataset_context.coco_data.get("annotations"):
-            raise ValueError(
-                f"Dataset {self.dataset_context.dataset_name} must have at least 1 image with bounding boxes."
+                f"Dataset {self.dataset.name} must have at least 1 image with bounding boxes."
             )
 
     def _validate_bounding_boxes_coordinates(self):
         """
-        Validate the bounding box coordinates for all annotations in the dataset context.
+        Validate the bounding box coordinates for all annotations in the dataset.
 
         Checks that:
         - Coordinates are greater than or equal to 0.
@@ -102,14 +94,11 @@ class CocoObjectDetectionDatasetContextValidator(
         Raises:
             ValueError: If any annotation has invalid bounding box coordinates and `fix_annotation` is False.
         """
-        if (
-            not self.dataset_context.coco_data
-            or "annotations" not in self.dataset_context.coco_data
-        ):
+        if not self.dataset.coco_data or "annotations" not in self.dataset.coco_data:
             raise ValueError(
-                f"Dataset {self.dataset_context.dataset_name} has no annotations in COCO data."
+                f"Dataset {self.dataset.name} has no annotations in COCO data."
             )
-        for annotation in self.dataset_context.coco_data["annotations"]:
+        for annotation in self.dataset.coco_data["annotations"]:
             modified_annotation = self._fix_or_count_errors(annotation)
             if modified_annotation:
                 annotation["bbox"] = modified_annotation
@@ -209,16 +198,11 @@ class CocoObjectDetectionDatasetContextValidator(
         Raises:
             ValueError: If the image ID is not found in the dataset.
         """
-        if (
-            not self.dataset_context.coco_data
-            or "images" not in self.dataset_context.coco_data
-        ):
-            raise ValueError(
-                f"Dataset {self.dataset_context.dataset_name} has no images in COCO data."
-            )
+        if not self.dataset.coco_data or "images" not in self.dataset.coco_data:
+            raise ValueError(f"Dataset {self.dataset.name} has no images in COCO data.")
         return next(
             image
-            for image in self.dataset_context.coco_data["images"]
+            for image in self.dataset.coco_data["images"]
             if image["id"] == image_id
         )
 
@@ -230,18 +214,18 @@ class CocoObjectDetectionDatasetContextValidator(
             ValueError: If the COCO file path is not set.
             RuntimeError: If there is an error while saving the updated COCO file.
         """
-        if not self.dataset_context.coco_file_path:
+        if not self.dataset.coco_file_path:
             raise ValueError(
                 "COCO file path is not set. Cannot save updated annotations."
             )
 
         try:
-            with open(self.dataset_context.coco_file_path, "w") as coco_file:
-                json.dump(self.dataset_context.coco_data, coco_file, indent=4)
-            print(f"Updated COCO file saved to {self.dataset_context.coco_file_path}")
+            with open(self.dataset.coco_file_path, "w") as coco_file:
+                json.dump(self.dataset.coco_data, coco_file, indent=4)
+            print(f"Updated COCO file saved to {self.dataset.coco_file_path}")
         except Exception as e:
             raise RuntimeError(
-                f"Failed to save updated COCO file to {self.dataset_context.coco_file_path}: {e}"
+                f"Failed to save updated COCO file to {self.dataset.coco_file_path}: {e}"
             ) from e
 
     def _report_errors(self):

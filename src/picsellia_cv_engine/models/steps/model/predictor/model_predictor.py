@@ -1,49 +1,45 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    TBaseDatasetContext,
-)
-from picsellia_cv_engine.models.model.model_context import ModelContext
-from picsellia_cv_engine.models.model.picsellia_prediction import (
+from picsellia_cv_engine.models import Model
+from picsellia_cv_engine.models.data import TBaseDataset
+from picsellia_cv_engine.models.model import (
     PicselliaConfidence,
     PicselliaLabel,
     PicselliaRectangle,
 )
 
-TModelContext = TypeVar("TModelContext", bound=ModelContext)
+TModel = TypeVar("TModel", bound=Model)
 
 
-class ModelContextPredictor(ABC, Generic[TModelContext]):
-    def __init__(self, model_context: TModelContext):
+class ModelPredictor(ABC, Generic[TModel]):
+    def __init__(self, model: TModel):
         """
-        Initializes the base class for performing inference using a model context.
+        Initializes the base class for performing inference using a model.
 
         Args:
-            model_context (TModelContext): The context containing the loaded model and configurations.
+            model (TModel): The context containing the loaded model and configurations.
         """
-        self.model_context: TModelContext = model_context
+        self.model: TModel = model
 
-        if not hasattr(self.model_context, "loaded_model"):
-            raise ValueError(
-                "The model context does not have a loaded model attribute."
-            )
+        if not hasattr(self.model, "loaded_model"):
+            raise ValueError("The model does not have a loaded model attribute.")
 
     def get_picsellia_label(
-        self, category_name: str, dataset_context: TBaseDatasetContext
+        self, category_name: str, dataset: TBaseDataset
     ) -> PicselliaLabel:
         """
-        Retrieves or creates a label for a given category name within the dataset context.
+        Retrieves or creates a label for a given category name within the dataset.
 
         Args:
             category_name (str): The name of the category to retrieve the label for.
-            dataset_context (TBaseDatasetContext): The dataset context containing the label information.
+            dataset (TBaseDataset): The dataset containing the label information.
 
         Returns:
             PicselliaLabel: The corresponding Picsellia label for the given category.
         """
         return PicselliaLabel(
-            dataset_context.dataset_version.get_or_create_label(category_name)
+            dataset.dataset_version.get_or_create_label(category_name)
         )
 
     def get_picsellia_confidence(self, confidence: float) -> PicselliaConfidence:

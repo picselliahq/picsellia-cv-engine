@@ -1,29 +1,23 @@
 import os
 
-from picsellia_cv_engine.models.data.dataset.yolo_dataset_context import (
-    YoloDatasetContext,
-)
-from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_context_validator import (
-    DatasetContextValidator,
-)
+from picsellia_cv_engine.models import YoloDataset
+from picsellia_cv_engine.models.steps.data.dataset.validator import DatasetValidator
 
 
-class YoloObjectDetectionDatasetContextValidator(
-    DatasetContextValidator[YoloDatasetContext]
-):
+class YoloObjectDetectionDatasetValidator(DatasetValidator[YoloDataset]):
     """
     Validator for YOLO format annotations.
     """
 
-    def __init__(self, dataset_context: YoloDatasetContext, fix_annotation=True):
+    def __init__(self, dataset: YoloDataset, fix_annotation=True):
         """
-        Initializes the YOLO object detection dataset context validator.
+        Initializes the YOLO object detection dataset validator.
 
         Args:
-            dataset_context (YoloDatasetContext): The context object containing dataset information and annotations.
+            dataset (YoloDataset): The context object containing dataset information and annotations.
             fix_annotation (bool): Flag indicating whether to automatically fix the detected issues.
         """
-        super().__init__(dataset_context=dataset_context, fix_annotation=fix_annotation)
+        super().__init__(dataset=dataset, fix_annotation=fix_annotation)
         self.error_count = {
             "class_id": 0,
             "x_center": 0,
@@ -34,7 +28,7 @@ class YoloObjectDetectionDatasetContextValidator(
 
     def validate(self):
         """
-        Validates the YOLO object detection dataset context.
+        Validates the YOLO object detection dataset.
 
         This method performs the following validation checks:
         - Verifies that the labelmap contains at least one class.
@@ -42,7 +36,7 @@ class YoloObjectDetectionDatasetContextValidator(
         - Reports any issues found during the validation process.
 
         Returns:
-            YoloDatasetContext: The validated or updated dataset context.
+            YoloDataset: The validated or updated dataset.
 
         Raises:
             ValueError: If validation errors are found and `fix_annotation` is set to False.
@@ -52,20 +46,20 @@ class YoloObjectDetectionDatasetContextValidator(
         self._validate_yolo_annotations()
         if any(self.error_count.values()):
             self._report_errors()
-        return self.dataset_context
+        return self.dataset
 
     def _validate_labelmap(self):
         """
-        Validates the labelmap of the dataset context.
+        Validates the labelmap of the dataset.
 
         Ensures that the labelmap contains at least one class ID.
 
         Raises:
             ValueError: If the labelmap is empty or contains no classes.
         """
-        if len(self.dataset_context.labelmap) < 1:
+        if len(self.dataset.labelmap) < 1:
             raise ValueError(
-                f"Labelmap for dataset {self.dataset_context.dataset_name} is not valid. "
+                f"Labelmap for dataset {self.dataset.name} is not valid. "
                 f"A YOLO labelmap must have at least 1 class."
             )
 
@@ -79,10 +73,10 @@ class YoloObjectDetectionDatasetContextValidator(
         Raises:
             ValueError: If the annotations directory does not exist or is missing.
         """
-        annotations_dir = self.dataset_context.annotations_dir
+        annotations_dir = self.dataset.annotations_dir
         if not annotations_dir or not os.path.exists(annotations_dir):
             raise ValueError(
-                f"Annotations directory is missing for dataset {self.dataset_context.dataset_name}."
+                f"Annotations directory is missing for dataset {self.dataset.name}."
             )
 
         for annotation_file in os.listdir(annotations_dir):
@@ -174,12 +168,10 @@ class YoloObjectDetectionDatasetContextValidator(
         """
         Validates and fixes the class ID if necessary.
         """
-        if class_id < 0 or class_id >= len(self.dataset_context.labelmap):
+        if class_id < 0 or class_id >= len(self.dataset.labelmap):
             self.error_count["class_id"] += 1
             if self.fix_annotation:
-                class_id = max(
-                    0, min(len(self.dataset_context.labelmap) - 1, int(class_id))
-                )
+                class_id = max(0, min(len(self.dataset.labelmap) - 1, int(class_id)))
         return class_id
 
     def _validate_and_fix_coordinate(
@@ -217,14 +209,12 @@ class YoloObjectDetectionDatasetContextValidator(
             line_num (int): The line number to update.
             new_line (str): The updated line content.
         """
-        if not self.dataset_context.annotations_dir:
+        if not self.dataset.annotations_dir:
             print(
-                f"Annotations directory is missing for dataset {self.dataset_context.dataset_name}, skipping update."
+                f"Annotations directory is missing for dataset {self.dataset.name}, skipping update."
             )
             return
-        annotation_path = os.path.join(
-            self.dataset_context.annotations_dir, annotation_file
-        )
+        annotation_path = os.path.join(self.dataset.annotations_dir, annotation_file)
         with open(annotation_path) as file:
             lines = file.readlines()
         lines[line_num - 1] = new_line

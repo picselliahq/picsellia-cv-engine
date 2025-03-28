@@ -4,11 +4,8 @@ from typing import Any, Generic, TypeVar
 import picsellia  # type: ignore
 from picsellia import ModelVersion
 
-from picsellia_cv_engine.models.contexts.common.picsellia_context import (
-    PicselliaContext,
-)
-from picsellia_cv_engine.models.parameters.base_parameters import Parameters
-from picsellia_cv_engine.models.parameters.export_parameters import ExportParameters
+from picsellia_cv_engine.models.contexts import PicselliaContext
+from picsellia_cv_engine.models.parameters import ExportParameters, Parameters
 
 TParameters = TypeVar("TParameters", bound=Parameters)
 TExportParameters = TypeVar("TExportParameters", bound=ExportParameters)

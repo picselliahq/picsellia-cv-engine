@@ -5,9 +5,7 @@ import orjson
 from picsellia import Client, Datalake, Job, ModelVersion
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.models.contexts.common.picsellia_context import (
-    PicselliaContext,
-)
+from picsellia_cv_engine.models.contexts import PicselliaContext
 
 
 def create_processing(
@@ -74,7 +72,7 @@ def launch_processing(
     return Job(client.connexion, r, version=2)
 
 
-class LocalPicselliaDatalakeProcessingContext(PicselliaContext):
+class LocalDatalakeProcessingContext(PicselliaContext):
     """
     This class is used to test a processing pipeline without a real job execution on Picsellia (without giving a real job ID).
     """

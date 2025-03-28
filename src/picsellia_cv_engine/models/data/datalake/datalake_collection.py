@@ -1,14 +1,16 @@
-from picsellia_cv_engine.models.data.datalake.datalake_context import DatalakeContext
+import os
+
+from .datalake import Datalake
 
 
 class DatalakeCollection:
     def __init__(
         self,
-        input_datalake_context: DatalakeContext,
-        output_datalake_context: DatalakeContext,
+        input_datalake: Datalake,
+        output_datalake: Datalake,
     ):
-        self.input = input_datalake_context
-        self.output = output_datalake_context
+        self.input = input_datalake
+        self.output = output_datalake
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -19,6 +21,8 @@ class DatalakeCollection:
     def __iter__(self):
         return iter([self.input, self.output])
 
-    def download_all(self, des):
-        for datalake_context in self:
-            datalake_context.download_data(image_dir=datalake_context.image_dir)
+    def download_all(self, images_destination_dir):
+        for datalake in self:
+            datalake.download_data(
+                destination_dir=os.path.join(images_destination_dir, datalake.name)
+            )

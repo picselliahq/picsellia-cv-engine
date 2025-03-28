@@ -1,17 +1,13 @@
-from picsellia_cv_engine.decorators.pipeline_decorator import Pipeline
-from picsellia_cv_engine.decorators.step_decorator import step
-from picsellia_cv_engine.models.contexts.processing.datalake.picsellia_datalake_processing_context import (
-    PicselliaDatalakeProcessingContext,
-)
-from picsellia_cv_engine.models.data.datalake.datalake_collection import (
-    DatalakeCollection,
-)
-from picsellia_cv_engine.models.data.datalake.datalake_context import DatalakeContext
+import os
+
+from picsellia_cv_engine import Pipeline, step
+from picsellia_cv_engine.models import Datalake, DatalakeCollection
+from picsellia_cv_engine.models.contexts import PicselliaDatalakeProcessingContext
 from picsellia_cv_engine.models.steps.data.utils import get_destination_path
 
 
 @step
-def load_datalake() -> DatalakeContext | DatalakeCollection:
+def load_datalake() -> Datalake | DatalakeCollection:
     """
     Loads and prepares data from a Picsellia Datalake.
 
@@ -25,7 +21,7 @@ def load_datalake() -> DatalakeContext | DatalakeCollection:
     - Ideal for **data processing tasks requiring images from a Datalake**.
 
     Behavior:
-    - If only an **input datalake** is available, it downloads and returns `DatalakeContext`.
+    - If only an **input datalake** is available, it downloads and returns `Datalake`.
     - If both **input and output datalakes** exist, it returns a `DatalakeCollection`,
       allowing access to both datasets.
 
@@ -35,7 +31,7 @@ def load_datalake() -> DatalakeContext | DatalakeCollection:
     - Data assets should be **stored in the Picsellia Datalake**.
 
     Returns:
-        - `DatalakeContext`: If only an **input datalake** is available.
+        - `Datalake`: If only an **input datalake** is available.
         - `DatalakeCollection`: If both **input and output datalakes** exist.
 
     Example:
@@ -56,26 +52,29 @@ def load_datalake() -> DatalakeContext | DatalakeCollection:
     ```
     """
     context: PicselliaDatalakeProcessingContext = Pipeline.get_active_context()
-    input_datalake_context = DatalakeContext(
-        datalake_name="input",
+    input_datalake = Datalake(
+        name="input",
         datalake=context.input_datalake,
-        destination_path=get_destination_path(context.job_id),
         data_ids=context.data_ids,
         use_id=context.use_id,
     )
+    destination_dir = get_destination_path(job_id=context.job_id)
     if context.output_datalake:
-        output_datalake_context = DatalakeContext(
-            datalake_name="output",
+        output_datalake = Datalake(
+            name="output",
             datalake=context.output_datalake,
-            destination_path=get_destination_path(context.job_id),
             use_id=context.use_id,
         )
         datalake_collection = DatalakeCollection(
-            input_datalake_context=input_datalake_context,
-            output_datalake_context=output_datalake_context,
+            input_datalake=input_datalake,
+            output_datalake=output_datalake,
         )
-        datalake_collection.download_all()
+        datalake_collection.download_all(
+            images_destination_dir=os.path.join(destination_dir, "images")
+        )
         return datalake_collection
     else:
-        input_datalake_context.download_data(image_dir=input_datalake_context.image_dir)
-        return input_datalake_context
+        input_datalake.download_data(
+            destination_dir=os.path.join(destination_dir, "images")
+        )
+        return input_datalake

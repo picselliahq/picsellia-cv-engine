@@ -1,29 +1,23 @@
 import os
 
-from picsellia_cv_engine.models.data.dataset.yolo_dataset_context import (
-    YoloDatasetContext,
-)
-from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_context_validator import (
-    DatasetContextValidator,
-)
+from picsellia_cv_engine.models import YoloDataset
+from picsellia_cv_engine.models.steps.data.dataset.validator import DatasetValidator
 
 
-class YoloSegmentationDatasetContextValidator(
-    DatasetContextValidator[YoloDatasetContext]
-):
+class YoloSegmentationDatasetValidator(DatasetValidator[YoloDataset]):
     """
     Validator for YOLO Segmentation format annotations.
     """
 
-    def __init__(self, dataset_context: YoloDatasetContext, fix_annotation=True):
+    def __init__(self, dataset: YoloDataset, fix_annotation=True):
         """
-        Initializes the YOLO segmentation dataset context validator.
+        Initializes the YOLO segmentation dataset validator.
 
         Args:
-            dataset_context (YoloDatasetContext): The context of the YOLO dataset containing annotation data.
+            dataset (YoloDataset): The context of the YOLO dataset containing annotation data.
             fix_annotation (bool): Flag to indicate whether to automatically fix the detected issues.
         """
-        super().__init__(dataset_context=dataset_context, fix_annotation=fix_annotation)
+        super().__init__(dataset=dataset, fix_annotation=fix_annotation)
         self.error_count = {
             "class_id": 0,
             "polygon_points": 0,
@@ -32,14 +26,14 @@ class YoloSegmentationDatasetContextValidator(
 
     def validate(self):
         """
-        Validates the YOLO segmentation dataset context.
+        Validates the YOLO segmentation dataset.
 
         This method checks whether the annotation files are correctly formatted,
         validates class IDs and polygon points, and optionally fixes issues.
         It also reports the number of errors detected during validation.
 
         Returns:
-            YoloDatasetContext: The validated or updated dataset context.
+            YoloDataset: The validated or updated dataset.
 
         Raises:
             ValueError: If any errors are found and `fix_annotation` is set to False.
@@ -49,20 +43,20 @@ class YoloSegmentationDatasetContextValidator(
         self._validate_yolo_segmentation_annotations()
         if any(self.error_count.values()):
             self._report_errors()
-        return self.dataset_context
+        return self.dataset
 
     def _validate_labelmap(self):
         """
-        Validates the labelmap of the dataset context.
+        Validates the labelmap of the dataset.
 
         Ensures that the YOLO dataset has at least one class in its labelmap.
 
         Raises:
             ValueError: If the labelmap is empty or contains no classes.
         """
-        if len(self.dataset_context.labelmap) < 1:
+        if len(self.dataset.labelmap) < 1:
             raise ValueError(
-                f"Labelmap for dataset {self.dataset_context.dataset_name} is not valid. "
+                f"Labelmap for dataset {self.dataset.name} is not valid. "
                 f"A YOLO labelmap must have at least 1 class."
             )
 
@@ -79,10 +73,10 @@ class YoloSegmentationDatasetContextValidator(
         Raises:
             ValueError: If the annotations directory does not exist or is missing.
         """
-        annotations_dir = self.dataset_context.annotations_dir
+        annotations_dir = self.dataset.annotations_dir
         if not annotations_dir or not os.path.exists(annotations_dir):
             raise ValueError(
-                f"Annotations directory is missing for dataset {self.dataset_context.dataset_name}."
+                f"Annotations directory is missing for dataset {self.dataset.name}."
             )
 
         for annotation_file in os.listdir(annotations_dir):
@@ -189,7 +183,7 @@ class YoloSegmentationDatasetContextValidator(
         object_has_error = False  # Track if this object has at least one error
 
         # Validate class_id
-        if class_id < 0 or class_id >= len(self.dataset_context.labelmap):
+        if class_id < 0 or class_id >= len(self.dataset.labelmap):
             print(
                 f"Deleting object in {annotation_file} on line {line_num} due to invalid class_id {class_id}"
             )
@@ -243,7 +237,7 @@ class YoloSegmentationDatasetContextValidator(
         otherwise, it raises a `ValueError`.
         """
         print(
-            f"⚠️ Found {sum(self.error_count.values())} YOLO segmentation annotation issues in dataset {self.dataset_context.dataset_name}:"
+            f"⚠️ Found {sum(self.error_count.values())} YOLO segmentation annotation issues in dataset {self.dataset.name}:"
         )
         for error_type, count in self.error_count.items():
             print(f" - {error_type}: {count} issues")

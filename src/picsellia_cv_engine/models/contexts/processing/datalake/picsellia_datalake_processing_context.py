@@ -7,10 +7,8 @@ import requests
 from picsellia import Datalake, ModelVersion
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.models.contexts.common.picsellia_context import (
-    PicselliaContext,
-)
-from picsellia_cv_engine.models.parameters.base_parameters import Parameters
+from picsellia_cv_engine.models.contexts import PicselliaContext
+from picsellia_cv_engine.models.parameters import Parameters
 
 TParameters = TypeVar("TParameters", bound=Parameters)
 

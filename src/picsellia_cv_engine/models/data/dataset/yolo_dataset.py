@@ -8,19 +8,18 @@ from picsellia.sdk.asset import MultiAsset
 from picsellia.types.enums import AnnotationFileType
 from tqdm import tqdm
 
-from picsellia_cv_engine.models.data.dataset.base_dataset_context import (
-    BaseDatasetContext,
-)
 from picsellia_cv_engine.models.data.dataset.utils import remove_empty_directories
+
+from .base_dataset import BaseDataset
 
 logger = logging.getLogger(__name__)
 
 BATCH_SIZE = 1000
 
 
-class YoloDatasetContext(BaseDatasetContext):
+class YoloDataset(BaseDataset):
     """
-    A specialized dataset context for handling YOLO-formatted annotations.
+    A specialized dataset for handling YOLO-formatted annotations.
 
     This class provides methods to download, process, and unzip YOLO annotations in batches,
     making it easier to handle large datasets for object detection tasks.
@@ -28,22 +27,22 @@ class YoloDatasetContext(BaseDatasetContext):
 
     def __init__(
         self,
-        dataset_name: str,
+        name: str,
         dataset_version: DatasetVersion,
         assets: MultiAsset | None = None,
         labelmap: dict[str, Label] | None = None,
     ):
         """
-        Initialize the YOLO dataset context.
+        Initialize the YOLO dataset.
 
         Args:
-            dataset_name (str): The name of the dataset.
+            name (str): The name of the dataset.
             dataset_version (DatasetVersion): The version of the dataset to work with.
             assets (Optional[MultiAsset]): Preloaded assets, if available.
             labelmap (Optional[Dict[str, Label]]): Mapping of labels for the dataset.
         """
         super().__init__(
-            dataset_name=dataset_name,
+            name=name,
             dataset_version=dataset_version,
             assets=assets,
             labelmap=labelmap,

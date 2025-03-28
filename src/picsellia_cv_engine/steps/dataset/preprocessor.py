@@ -1,11 +1,9 @@
 import os
 
-from picsellia_cv_engine.decorators.step_decorator import step
-from picsellia_cv_engine.models.data.dataset.dataset_collection import (
-    DatasetCollection,
-)
-from picsellia_cv_engine.models.steps.data.dataset.preprocessing.classification_dataset_context_preparator import (
-    ClassificationBaseDatasetContextPreparator,
+from picsellia_cv_engine import step
+from picsellia_cv_engine.models import DatasetCollection
+from picsellia_cv_engine.models.steps.data.dataset.preprocessing.classification_dataset_preparator import (
+    ClassificationBaseDatasetPreparator,
 )
 
 
@@ -71,10 +69,10 @@ def prepare_classification_datasets(
                 └── image9.jpg
         ```
     """
-    for dataset_context in dataset_collection:
-        organizer = ClassificationBaseDatasetContextPreparator(
-            dataset_context=dataset_context,
-            destination_dir=os.path.join(destination_dir, dataset_context.dataset_name),
+    for dataset in dataset_collection:
+        organizer = ClassificationBaseDatasetPreparator(
+            dataset=dataset,
+            destination_dir=os.path.join(destination_dir, dataset.name),
         )
-        dataset_collection[dataset_context.dataset_name] = organizer.organize()
+        dataset_collection[dataset.name] = organizer.organize()
     return dataset_collection

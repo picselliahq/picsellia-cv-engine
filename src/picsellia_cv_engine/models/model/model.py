@@ -3,10 +3,10 @@ from typing import Any, TypeVar
 
 from picsellia import Experiment, Label, ModelVersion
 
-from picsellia_cv_engine.models.model.model_downloader import ModelDownloader
+from .model_downloader import ModelDownloader
 
 
-class ModelContext:
+class Model:
     """
     Manages the context of a specific model version, including paths, weights, configuration, and labels.
 
@@ -17,7 +17,7 @@ class ModelContext:
 
     def __init__(
         self,
-        model_name: str,
+        name: str,
         model_version: ModelVersion,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
@@ -26,10 +26,10 @@ class ModelContext:
         labelmap: dict[str, Label] | None = None,
     ):
         """
-        Initializes the ModelContext, which manages the paths, version, and related information for a specific model.
+        Initializes the Model, which manages the paths, version, and related information for a specific model.
 
         Args:
-            model_name (str): The name of the model.
+            name (str): The name of the model.
             model_version (ModelVersion): The version of the model, which contains the pretrained model and configuration.
             pretrained_weights_name (Optional[str], optional): The name of the pretrained weights file attached to the model version in Picsellia. Defaults to None.
             trained_weights_name (Optional[str], optional): The name of the trained weights file attached to the model version in Picsellia. Defaults to None.
@@ -37,7 +37,7 @@ class ModelContext:
             exported_weights_name (Optional[str], optional): The name of the exported weights file attached to the model version in Picsellia. Defaults to None.
             labelmap (Optional[Dict[str, Label]], optional): A dictionary mapping category names to labels. Defaults to None.
         """
-        self.model_name = model_name
+        self.name = name
         """The name of the model."""
 
         self.model_version = model_version
@@ -195,4 +195,4 @@ class ModelContext:
         )
 
 
-TModelContext = TypeVar("TModelContext", bound=ModelContext)
+TModel = TypeVar("TModel", bound=Model)

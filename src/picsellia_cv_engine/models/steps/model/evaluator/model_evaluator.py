@@ -1,14 +1,39 @@
 import logging
+import os
 
+import numpy as np
+import pandas as pd
 from picsellia import Experiment
+from picsellia.sdk.asset import Asset, MultiAsset
 from picsellia.types.enums import AddEvaluationType, InferenceType
+from pycocotools.coco import COCO
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
-from picsellia_cv_engine.models.model.picsellia_prediction import (
+from picsellia_cv_engine.models.model import (
     PicselliaClassificationPrediction,
     PicselliaOCRPrediction,
     PicselliaPolygonPrediction,
     PicselliaRectanglePrediction,
 )
+from picsellia_cv_engine.models.steps.model.evaluator.utils.coco_converter import (
+    create_coco_files_from_experiment,
+)
+from picsellia_cv_engine.models.steps.model.evaluator.utils.coco_utils import (
+    evaluate_category,
+    fix_coco_ids,
+    match_image_ids,
+)
+from picsellia_cv_engine.models.steps.model.evaluator.utils.compute_metrics import (
+    compute_full_confusion_matrix,
+)
+from picsellia_cv_engine.models.steps.model.logging import BaseLogger, MetricMapping
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +59,9 @@ class ModelEvaluator:
         """
         self.experiment = experiment
         self.inference_type = inference_type
+        self.experiment_logger = BaseLogger(
+            experiment=experiment, metric_mapping=MetricMapping()
+        )
 
     def evaluate(
         self,
@@ -186,3 +214,192 @@ class ModelEvaluator:
 
         else:
             raise TypeError("Unsupported prediction type")
+
+    def compute_coco_metrics(
+        self, assets: list[Asset] | MultiAsset, output_dir: str
+    ) -> None:
+        """
+        Computes COCO metrics for the given experiment and assets and saves the results to a CSV file.
+
+        Args:
+            experiment (Experiment): The Picsellia experiment to which evaluations will be added.
+            assets (list[Asset] | MultiAsset): The assets to be evaluated.
+            output_dir (str): The directory where the evaluation results will be saved.
+        """
+
+        os.makedirs(output_dir, exist_ok=True)
+        gt_coco_path = os.path.join(output_dir, "gt.json")
+        pred_coco_path = os.path.join(output_dir, "pred.json")
+        output_path = os.path.join(output_dir, "output.csv")
+
+        create_coco_files_from_experiment(
+            experiment=self.experiment,
+            assets=assets,
+            gt_coco_path=gt_coco_path,
+            pred_coco_path=pred_coco_path,
+            inference_type=self.inference_type,
+        )
+
+        gt_path_fixed = fix_coco_ids(gt_coco_path)
+        pred_path_fixed = fix_coco_ids(pred_coco_path)
+        matched_prediction_file = pred_path_fixed.replace(".json", "_matched.json")
+        match_image_ids(gt_path_fixed, pred_path_fixed, matched_prediction_file)
+        coco_gt = COCO(gt_path_fixed)
+        coco_pred = COCO(matched_prediction_file)
+        categories = {
+            cat["id"]: cat["name"] for cat in coco_gt.loadCats(coco_gt.getCatIds())
+        }
+        results = [
+            evaluate_category(
+                coco_gt=coco_gt,
+                coco_pred=coco_pred,
+                cat_id=cat_id,
+                cat_name=cat_name,
+                inference_type=self.inference_type,
+            )
+            for cat_id, cat_name in categories.items()
+        ]
+        df = pd.DataFrame(results)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Results saved to: {output_path}")
+
+        df = pd.read_csv(output_path).round(3)
+
+        for _, row in df.iterrows():
+            category = row["Class"]
+            metrics_dict = row.drop("Class").to_dict()
+            self.experiment_logger.log_table(
+                name=f"{category}-metrics", data=metrics_dict, phase="test"
+            )
+
+        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+        cat_ids = list(categories.keys())
+
+        conf_matrix = compute_full_confusion_matrix(
+            gt_annotations=gt_anns,
+            pred_annotations=pred_anns,
+            category_ids=cat_ids,
+            iou_threshold=0.5,
+        )
+
+        label_map = dict(enumerate(categories.values()))
+        label_map[len(label_map)] = "background"
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix",
+            labelmap=label_map,
+            matrix=conf_matrix,
+            phase="test",
+        )
+
+    def compute_classification_metrics(
+        self, assets: list[Asset] | MultiAsset, output_dir: str
+    ) -> None:
+        """
+        Compute classification metrics (accuracy, precision, recall, F1...) using COCO formatted GT and prediction files.
+        """
+
+        os.makedirs(output_dir, exist_ok=True)
+        gt_coco_path = os.path.join(output_dir, "gt.json")
+        pred_coco_path = os.path.join(output_dir, "pred.json")
+
+        # Generate files
+        create_coco_files_from_experiment(
+            experiment=self.experiment,
+            assets=assets,
+            gt_coco_path=gt_coco_path,
+            pred_coco_path=pred_coco_path,
+            inference_type=self.inference_type,
+        )
+
+        # Sanitize IDs and match predictions
+        gt_path_fixed = fix_coco_ids(gt_coco_path)
+        pred_path_fixed = fix_coco_ids(pred_coco_path)
+        matched_pred_path = pred_path_fixed.replace(".json", "_matched.json")
+        match_image_ids(gt_path_fixed, pred_path_fixed, matched_pred_path)
+
+        # Load COCO objects
+        coco_gt = COCO(gt_path_fixed)
+        coco_pred = COCO(matched_pred_path)
+
+        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+
+        y_true = []
+        y_pred = []
+
+        image_to_gt = {}
+        for ann in gt_anns:
+            image_to_gt[ann["image_id"]] = ann["category_id"]
+
+        for ann in pred_anns:
+            img_id = ann["image_id"]
+            if img_id in image_to_gt:
+                y_true.append(image_to_gt[img_id])
+                y_pred.append(ann["category_id"])
+
+        if not y_true:
+            logger.warning("No matching ground truth and predictions found.")
+            return
+
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+
+        # Load class names
+        id_to_name = {
+            cat["id"]: cat["name"] for cat in coco_gt.loadCats(coco_gt.getCatIds())
+        }
+
+        # Metrics
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred, average="macro", zero_division=0)
+        recall = recall_score(y_true, y_pred, average="macro", zero_division=0)
+        f1 = f1_score(y_true, y_pred, average="macro", zero_division=0)
+
+        logger.info(
+            f"[Classification] Accuracy={accuracy:.3f} | Precision={precision:.3f} | Recall={recall:.3f} | F1={f1:.3f}"
+        )
+
+        # Per-class metrics
+        class_report = classification_report(
+            y_true,
+            y_pred,
+            target_names=[id_to_name[i] for i in sorted(id_to_name.keys())],
+            output_dict=True,
+            zero_division=0,
+        )
+
+        for class_name, metrics in class_report.items():
+            if class_name in ["accuracy", "macro avg", "weighted avg"]:
+                continue
+
+            row = {
+                "Class": class_name,
+                "Precision": round(metrics["precision"], 3),
+                "Recall": round(metrics["recall"], 3),
+                "F1-score": round(metrics["f1-score"], 3),
+            }
+
+            self.experiment_logger.log_table(
+                name=f"{class_name}-metrics", data=row, phase="test"
+            )
+
+        # Global summary
+        global_metrics = {
+            "Accuracy": round(accuracy, 3),
+            "Precision": round(precision, 3),
+            "Recall": round(recall, 3),
+            "F1-score": round(f1, 3),
+        }
+
+        self.experiment_logger.log_table(
+            name="average-metrics", data=global_metrics, phase="test"
+        )
+
+        cm = confusion_matrix(y_true, y_pred, labels=sorted(id_to_name.keys()))
+        label_map = {i: id_to_name[i] for i in sorted(id_to_name.keys())}
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
+        )

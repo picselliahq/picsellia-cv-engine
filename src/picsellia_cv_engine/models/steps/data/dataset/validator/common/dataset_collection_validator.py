@@ -1,8 +1,6 @@
-from picsellia_cv_engine.models.data.dataset.dataset_collection import (
-    DatasetCollection,
-)
-from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_context_validator import (
-    DatasetContextValidator,
+from picsellia_cv_engine.models import DatasetCollection
+from picsellia_cv_engine.models.steps.data.dataset.validator.common.dataset_validator import (
+    DatasetValidator,
 )
 
 
@@ -15,33 +13,33 @@ class DatasetCollectionValidator:
 
     Attributes:
         dataset_collection (DatasetCollection): The dataset collection to validate.
-        dataset_context_validator (Type[DatasetContextValidator]): The validator class for individual dataset contexts.
+        dataset_validator (Type[DatasetValidator]): The validator class for individual datasets.
     """
 
     def __init__(
         self,
         dataset_collection: DatasetCollection,
-        dataset_context_validator: type[DatasetContextValidator],
+        dataset_validator: type[DatasetValidator],
     ):
         """
         Initializes the DatasetCollectionValidator with a dataset collection to validate.
 
         Parameters:
             dataset_collection (DatasetCollection): The dataset collection to validate.
-            dataset_context_validator (Type[DatasetContextValidator]): The class used to validate individual dataset contexts.
+            dataset_validator (Type[DatasetValidator]): The class used to validate individual datasets.
         """
         self.dataset_collection = dataset_collection
-        self.dataset_context_validator = dataset_context_validator
+        self.dataset_validator = dataset_validator
 
     def validate(self, fix_annotation: bool = False) -> None:
         """
         Validates the dataset collection.
 
-        Iterates through the dataset contexts in the collection and applies the context validator
+        Iterates through the datasets in the collection and applies the context validator
         for each dataset.
         """
-        for dataset_context in self.dataset_collection:
-            validator = self.dataset_context_validator(
-                dataset_context=dataset_context, fix_annotation=fix_annotation
+        for dataset in self.dataset_collection:
+            validator = self.dataset_validator(
+                dataset=dataset, fix_annotation=fix_annotation
             )
             validator.validate()

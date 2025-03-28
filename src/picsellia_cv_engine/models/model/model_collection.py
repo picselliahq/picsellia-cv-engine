@@ -1,31 +1,31 @@
 import os
 from typing import Any, Generic, TypeVar
 
-from picsellia_cv_engine.models.model.model_context import ModelContext
+from .model import Model
 
-TModelContext = TypeVar("TModelContext", bound=ModelContext)
+TModel = TypeVar("TModel", bound=Model)
 
 
-class ModelCollection(Generic[TModelContext]):
+class ModelCollection(Generic[TModel]):
     """
-    A collection of model contexts for managing multiple models in a sequential manner.
+    A collection of models for managing multiple models in a sequential manner.
 
-    This class holds multiple model contexts and allows managing a single 'loaded' model
+    This class holds multiple models and allows managing a single 'loaded' model
     at a time for the collection.
 
     Attributes:
-        models (dict): A dictionary containing model contexts, where keys are model names.
+        models (dict): A dictionary containing models, where keys are model names.
         loaded_model (Optional[Any]): The currently loaded model for this collection.
     """
 
-    def __init__(self, models: list[TModelContext]):
+    def __init__(self, models: list[TModel]):
         """
-        Initializes the collection with a list of model contexts.
+        Initializes the collection with a list of models.
 
         Args:
-            models (List[TModelContext]): A list of model contexts.
+            models (List[TModel]): A list of models.
         """
-        self.models = {model.model_name: model for model in models}
+        self.models = {model.name: model for model in models}
         self._loaded_model: Any | None = None
 
     @property
@@ -52,34 +52,34 @@ class ModelCollection(Generic[TModelContext]):
         """
         self._loaded_model = model
 
-    def __getitem__(self, key: str) -> TModelContext:
+    def __getitem__(self, key: str) -> TModel:
         """
-        Retrieves a model context by its name.
+        Retrieves a model by its name.
 
         Args:
-            key (str): The name of the model context.
+            key (str): The name of the model.
 
         Returns:
-            TModelContext: The model context corresponding to the given name.
+            TModel: The model corresponding to the given name.
         """
         return self.models[key]
 
-    def __setitem__(self, key: str, value: TModelContext):
+    def __setitem__(self, key: str, value: TModel):
         """
-        Sets or updates a model context in the collection.
+        Sets or updates a model in the collection.
 
         Args:
-            key (str): The name of the model context to update or add.
-            value (TModelContext): The model context object to associate with the given name.
+            key (str): The name of the model to update or add.
+            value (TModel): The model object to associate with the given name.
         """
         self.models[key] = value
 
     def __iter__(self):
         """
-        Iterates over all model contexts in the collection.
+        Iterates over all models in the collection.
 
         Returns:
-            Iterator: An iterator over the model contexts.
+            Iterator: An iterator over the models.
         """
         return iter(self.models.values())
 
@@ -87,9 +87,9 @@ class ModelCollection(Generic[TModelContext]):
         """
         Downloads weights for all models in the collection.
         """
-        for model_context in self:
-            model_context.download_weights(
-                destination_dir=os.path.join(destination_dir, model_context.model_name)
+        for model in self:
+            model.download_weights(
+                destination_dir=os.path.join(destination_dir, model.name)
             )
 
 
