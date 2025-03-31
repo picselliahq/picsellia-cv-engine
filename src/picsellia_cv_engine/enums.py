@@ -27,9 +27,9 @@ class DatasetSplitName(Enum):
     such as training, validation, and testing.
 
     Attributes:
-        TRAIN (str): Represents the training split, used for training models.
-        VAL (str): Represents the validation split, used for tuning model hyperparameters and preventing overfitting.
-        TEST (str): Represents the test split, used for evaluating the final model performance on unseen data.
+        TRAIN (str): Represents the training split, used for training core.
+        VAL (str): Represents the validation split, used for tuning models hyperparameters and preventing overfitting.
+        TEST (str): Represents the test split, used for evaluating the final models performance on unseen data.
     """
 
     TRAIN = "train"

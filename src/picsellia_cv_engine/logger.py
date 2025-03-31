@@ -7,8 +7,8 @@ import tempfile
 from datetime import datetime
 from typing import TextIO, cast
 
-from picsellia_cv_engine.models.logging.stream_to_logger import StreamToLogger
-from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
+from picsellia_cv_engine.core.logging.stream_to_logger import StreamToLogger
+from picsellia_cv_engine.decorators import StepMetadata
 
 
 class LoggerManager:
