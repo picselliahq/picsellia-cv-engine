@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Callable
 from typing import Any, Optional, TypeVar, Union, overload
 
-from picsellia_cv_engine.decorators import StepMetadata
+from picsellia_cv_engine.core.step_metadata import StepMetadata
 from picsellia_cv_engine.decorators.pipeline_decorator import Pipeline
 from picsellia_cv_engine.enums import PipelineState, StepState
 

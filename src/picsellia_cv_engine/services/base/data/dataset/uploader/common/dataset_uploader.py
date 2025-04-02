@@ -3,9 +3,7 @@ import os
 
 from picsellia import Data, Datalake, DatasetVersion
 
-from picsellia_cv_engine.services.base.data.dataset.uploader import (
-    DataUploader,
-)
+from picsellia_cv_engine.services.base.data.dataset.uploader.common import DataUploader
 
 
 class DatasetUploader(DataUploader):

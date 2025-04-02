@@ -66,7 +66,7 @@ def create_local_processing_context(
     processing_parameters: dict[str, Any],
     output_dataset_version_name: str | None = None,
     model_version_id: str | None = None,
-):
+) -> LocalProcessingContext:
     """
     Create a Picsellia processing context.
 

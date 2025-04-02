@@ -10,10 +10,16 @@ from picsellia_cv_engine.core.contexts.processing.dataset.picsellia_processing_c
 from picsellia_cv_engine.core.data import (
     CocoDataset,
 )
-from picsellia_cv_engine.services.base.data.dataset.uploader import (
+from picsellia_cv_engine.services.base.data.dataset.uploader.classification import (
     ClassificationDatasetUploader,
+)
+from picsellia_cv_engine.services.base.data.dataset.uploader.common import (
     DatasetUploader,
+)
+from picsellia_cv_engine.services.base.data.dataset.uploader.object_detection import (
     ObjectDetectionDatasetUploader,
+)
+from picsellia_cv_engine.services.base.data.dataset.uploader.segmentation import (
     SegmentationDatasetUploader,
 )
 
@@ -70,7 +76,7 @@ def configure_dataset_type(dataset: CocoDataset, annotations):
 
 
 def upload_images(dataset: CocoDataset, datalake: Datalake, data_tag: str):
-    """Upload images to the datalake."""
+    """Upload images to the dataset."""
     uploader = DatasetUploader(dataset_version=dataset.dataset_version)
     image_paths = [
         os.path.join(dataset.images_dir, img) for img in os.listdir(dataset.images_dir)

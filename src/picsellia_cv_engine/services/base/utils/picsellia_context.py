@@ -27,7 +27,9 @@ def retrieve_picsellia_processing_parameters(processing_parameters: dict[str, An
     return ProcessingParameters
 
 
-def create_picsellia_processing_context(processing_parameters: dict[str, Any]):
+def create_picsellia_processing_context(
+    processing_parameters: dict[str, Any],
+) -> PicselliaProcessingContext:
     """
     Create a Picsellia processing context.
 

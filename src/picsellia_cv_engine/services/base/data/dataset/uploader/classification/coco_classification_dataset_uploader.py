@@ -7,7 +7,9 @@ from picsellia import Datalake
 from picsellia.types.enums import TagTarget
 
 from picsellia_cv_engine.core import CocoDataset
-from picsellia_cv_engine.services.base.data.dataset.uploader import DatasetUploader
+from picsellia_cv_engine.services.base.data.dataset.uploader.common import (
+    DatasetUploader,
+)
 
 logger = logging.getLogger("picsellia")
 

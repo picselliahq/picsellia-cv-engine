@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import TextIO, cast
 
 from picsellia_cv_engine.core.logging.stream_to_logger import StreamToLogger
-from picsellia_cv_engine.decorators import StepMetadata
+from picsellia_cv_engine.core.step_metadata import StepMetadata
 
 
 class LoggerManager:
