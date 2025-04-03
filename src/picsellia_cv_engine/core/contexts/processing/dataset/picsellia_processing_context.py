@@ -46,10 +46,12 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
         self.input_dataset_version = self.get_dataset_version(
             self.input_dataset_version_id
         )
-        if self._output_dataset_version_id:
+
+        if self.output_dataset_version_id:
             self.output_dataset_version = self.get_dataset_version(
-                self._output_dataset_version_id
+                self.output_dataset_version_id
             )
+
         if self._model_version_id:
             self.model_version = self.get_model_version()
 
