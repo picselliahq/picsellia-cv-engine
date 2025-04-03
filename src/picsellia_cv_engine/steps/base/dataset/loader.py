@@ -88,7 +88,12 @@ def load_coco_datasets(
     # Processing Context Handling
     elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
         # If both input and output datasets are available
-        if context.input_dataset_version_id and context.output_dataset_version_id:
+        if (
+            context.input_dataset_version_id
+            and context.output_dataset_version_id
+            and not context.input_dataset_version_id
+            == context.output_dataset_version_id
+        ):
             input_dataset = CocoDataset(
                 name="input",
                 dataset_version=context.input_dataset_version,
@@ -114,7 +119,10 @@ def load_coco_datasets(
             return dataset_collection
 
         # If only input dataset is available
-        elif context.input_dataset_version_id:
+        elif (
+            context.input_dataset_version_id
+            and context.input_dataset_version_id == context.output_dataset_version_id
+        ):
             dataset = CocoDataset(
                 name="input",
                 dataset_version=context.input_dataset_version,
@@ -188,7 +196,12 @@ def load_yolo_datasets(
     # Processing Context Handling
     elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
         # If both input and output datasets are available
-        if context.input_dataset_version_id and context.output_dataset_version_id:
+        if (
+            context.input_dataset_version_id
+            and context.output_dataset_version_id
+            and not context.input_dataset_version_id
+            == context.output_dataset_version_id
+        ):
             input_dataset = YoloDataset(
                 name="input",
                 dataset_version=context.input_dataset_version,
@@ -212,7 +225,10 @@ def load_yolo_datasets(
             return dataset_collection
 
         # If only input dataset is available
-        elif context.input_dataset_version_id:
+        elif (
+            context.input_dataset_version_id
+            and context.input_dataset_version_id == context.output_dataset_version_id
+        ):
             dataset = YoloDataset(
                 name="input",
                 dataset_version=context.input_dataset_version,
