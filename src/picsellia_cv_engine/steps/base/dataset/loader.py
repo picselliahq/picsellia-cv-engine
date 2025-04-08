@@ -122,6 +122,8 @@ def load_coco_datasets(
         elif (
             context.input_dataset_version_id
             and context.input_dataset_version_id == context.output_dataset_version_id
+        ) or (
+            context.input_dataset_version_id and not context.output_dataset_version_id
         ):
             dataset = CocoDataset(
                 name="input",
@@ -228,6 +230,8 @@ def load_yolo_datasets(
         elif (
             context.input_dataset_version_id
             and context.input_dataset_version_id == context.output_dataset_version_id
+        ) or (
+            context.input_dataset_version_id and not context.output_dataset_version_id
         ):
             dataset = YoloDataset(
                 name="input",
