@@ -2,6 +2,7 @@ import json
 import os
 
 from picsellia import Data, Datalake, DatasetVersion
+from picsellia.types.enums import ImportAnnotationMode
 
 from picsellia_cv_engine.services.base.data.dataset.uploader.common import DataUploader
 
@@ -83,11 +84,17 @@ class DatasetUploader(DataUploader):
         annotation_path: str,
         use_id: bool = True,
         fail_on_asset_not_found: bool = True,
+        replace_annotations: bool = False,
     ):
+        if replace_annotations:
+            mode = ImportAnnotationMode.REPLACE
+        else:
+            mode = ImportAnnotationMode.KEEP
         self.dataset_version.import_annotations_coco_file(
             file_path=annotation_path,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            mode=mode,
         )
 
     def _split_coco_annotations(
@@ -114,6 +121,7 @@ class DatasetUploader(DataUploader):
         batch_size: int = 10000,
         use_id: bool = True,
         fail_on_asset_not_found: bool = True,
+        replace_annotations: bool = False,
     ):
         with open(annotation_path) as f:
             coco_data = json.load(f)
@@ -140,6 +148,7 @@ class DatasetUploader(DataUploader):
                 annotation_path=batch_annotation_path,
                 use_id=use_id,
                 fail_on_asset_not_found=fail_on_asset_not_found,
+                replace_annotations=replace_annotations,
             )
 
         # Remove temporary file

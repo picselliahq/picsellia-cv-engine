@@ -92,6 +92,7 @@ def upload_dataset_based_on_type(
     data_tag: str,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
+    replace_annotations: bool = False,
 ):
     """
     Upload dataset based on inference type.
@@ -115,6 +116,7 @@ def upload_dataset_based_on_type(
             data_tags=data_tags,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )
 
     elif dataset.dataset_version.type == InferenceType.SEGMENTATION:
@@ -126,6 +128,7 @@ def upload_dataset_based_on_type(
             data_tags=data_tags,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )
 
 
@@ -133,6 +136,7 @@ def upload_annotations_based_on_inference_type(
     dataset: CocoDataset,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
+    replace_annotations: bool = False,
 ) -> None:
     """
     Upload annotations based on inference type.
@@ -150,7 +154,9 @@ def upload_annotations_based_on_inference_type(
             dataset=dataset,
         )
         object_detection_uploader.upload_annotations(
-            use_id=use_id, fail_on_asset_not_found=fail_on_asset_not_found
+            use_id=use_id,
+            fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )
 
     elif dataset.dataset_version.type == InferenceType.SEGMENTATION:
@@ -158,5 +164,7 @@ def upload_annotations_based_on_inference_type(
             dataset=dataset,
         )
         segmentation_uploader.upload_annotations(
-            use_id=use_id, fail_on_asset_not_found=fail_on_asset_not_found
+            use_id=use_id,
+            fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )

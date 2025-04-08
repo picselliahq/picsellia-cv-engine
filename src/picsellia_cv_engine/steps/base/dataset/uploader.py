@@ -1,3 +1,5 @@
+from typing import Optional
+
 from picsellia import Datalake
 
 from picsellia_cv_engine import Pipeline, step
@@ -20,6 +22,7 @@ def upload_full_dataset(
     data_tag: str | None = None,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
+    replace_annotations: Optional[bool] = None,
 ) -> None:
     """
     Upload both images and annotations for a dataset.
@@ -45,6 +48,13 @@ def upload_full_dataset(
     annotations = dataset.coco_data.get("annotations", [])
 
     if annotations:
+        if not replace_annotations:
+            context = Pipeline.get_active_context()
+            if hasattr(context.processing_parameters, "replace_annotations"):
+                replace_annotations = context.processing_parameters.replace_annotations
+            else:
+                replace_annotations = False
+                print("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
         upload_dataset_based_on_type(
             dataset=dataset,
@@ -52,6 +62,7 @@ def upload_full_dataset(
             data_tag=data_tag,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )
     else:
         upload_images(dataset=dataset, datalake=datalake, data_tag=data_tag)
@@ -86,6 +97,7 @@ def upload_dataset_annotations(
     dataset: CocoDataset,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
+    replace_annotations: Optional[bool] = None,
 ) -> None:
     """
     Upload only the annotations for a dataset.
@@ -98,14 +110,21 @@ def upload_dataset_annotations(
         use_id (bool): Flag to indicate whether to use asset IDs during upload. Defaults to True.
         fail_on_asset_not_found (bool): Flag to determine if the upload should fail if an asset is not found. Defaults to True.
     """
-
     dataset = initialize_coco_data(dataset=dataset)
     annotations = dataset.coco_data.get("annotations", [])
 
     if annotations:
+        if not replace_annotations:
+            context = Pipeline.get_active_context()
+            if hasattr(context.processing_parameters, "replace_annotations"):
+                replace_annotations = context.processing_parameters.replace_annotations
+            else:
+                replace_annotations = False
+                print("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
         upload_annotations_based_on_inference_type(
             dataset=dataset,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )

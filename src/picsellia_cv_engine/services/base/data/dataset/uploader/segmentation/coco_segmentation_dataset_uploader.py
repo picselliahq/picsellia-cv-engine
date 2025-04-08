@@ -62,6 +62,7 @@ class SegmentationDatasetUploader(DatasetUploader):
         batch_size: int = 10000,
         use_id: bool = True,
         fail_on_asset_not_found: bool = True,
+        replace_annotations: bool = False,
     ) -> None:
         if (
             self.dataset.dataset_version.type != InferenceType.NOT_CONFIGURED
@@ -72,6 +73,7 @@ class SegmentationDatasetUploader(DatasetUploader):
                 batch_size=batch_size,
                 use_id=use_id,
                 fail_on_asset_not_found=fail_on_asset_not_found,
+                replace_annotations=replace_annotations,
             )
         else:
             logger.info(
@@ -86,6 +88,7 @@ class SegmentationDatasetUploader(DatasetUploader):
         batch_size: int = 10000,
         use_id: bool = True,
         fail_on_asset_not_found: bool = True,
+        replace_annotations: bool = False,
     ) -> None:
         """
         Uploads the dataset to Picsellia, including images and annotations.
@@ -101,4 +104,5 @@ class SegmentationDatasetUploader(DatasetUploader):
             batch_size=batch_size,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
+            replace_annotations=replace_annotations,
         )
