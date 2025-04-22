@@ -32,6 +32,12 @@ def validate_dataset(
     Raises:
         Exception: If validation fails for a dataset in the collection, an error is logged, but the process continues.
     """
+    return validate_dataset_impl(dataset=dataset, fix_annotation=fix_annotation)
+
+
+def validate_dataset_impl(
+    dataset: TBaseDataset | DatasetCollection, fix_annotation: bool = False
+):
     validators = {}
 
     if not isinstance(dataset, DatasetCollection):

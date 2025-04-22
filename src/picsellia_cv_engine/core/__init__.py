@@ -6,6 +6,7 @@ from picsellia_cv_engine.core.data import (
     DatasetCollection,
     YoloDataset,
 )
+from picsellia_cv_engine.core.models import Model, ModelCollection
 
 from .logging.colors import Colors
 

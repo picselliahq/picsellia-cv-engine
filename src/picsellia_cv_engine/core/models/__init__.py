@@ -1,7 +1,10 @@
-from .model import Model
-from .model_collection import ModelCollection, TModelCollection
-from .model_downloader import ModelDownloader
-from .picsellia_prediction import (
+from picsellia_cv_engine.core.models.base.model import Model
+from picsellia_cv_engine.core.models.base.model_collection import (
+    ModelCollection,
+    TModelCollection,
+)
+from picsellia_cv_engine.core.models.base.model_downloader import ModelDownloader
+from picsellia_cv_engine.core.models.base.picsellia_prediction import (
     PicselliaClassificationPrediction,
     PicselliaConfidence,
     PicselliaLabel,

@@ -49,7 +49,24 @@ def load_coco_datasets(
         - In a **Processing Context**, it loads the input and output datasets (if available) or just the input dataset.
     """
     context = Pipeline.get_active_context()
+    return load_coco_datasets_impl(
+        context=context, skip_asset_listing=skip_asset_listing
+    )
 
+
+@step
+def load_yolo_datasets(
+    skip_asset_listing: bool = False,
+) -> DatasetCollection[YoloDataset] | YoloDataset:
+    context = Pipeline.get_active_context()
+    return load_yolo_datasets_impl(
+        context=context, skip_asset_listing=skip_asset_listing
+    )
+
+
+def load_coco_datasets_impl(
+    context, skip_asset_listing: bool
+) -> DatasetCollection[CocoDataset] | CocoDataset:
     # Training Context Handling
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
         dataset_collection_extractor = TrainingDatasetCollectionExtractor(
@@ -154,12 +171,9 @@ def load_coco_datasets(
         raise ValueError(f"Unsupported context type: {type(context)}")
 
 
-@step
-def load_yolo_datasets(
-    skip_asset_listing: bool = False,
+def load_yolo_datasets_impl(
+    context, skip_asset_listing: bool
 ) -> DatasetCollection[YoloDataset] | YoloDataset:
-    context = Pipeline.get_active_context()
-
     # Training Context Handling
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
         dataset_collection_extractor = TrainingDatasetCollectionExtractor(
