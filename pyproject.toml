@@ -16,6 +16,8 @@ picsellia-pipelines-cli = {path = "../picsellia-pipelines-cli/", develop = true}
 pandas = "^2.2.3"
 pycocotools = "^2.0.8"
 scikit-learn = "^1.6.1"
+torch = "^2.6.0"
+ultralytics = "^8.3.113"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.6.1"
