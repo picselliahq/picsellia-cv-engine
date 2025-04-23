@@ -182,16 +182,44 @@ class BaseLogger:
 
     def log_table(self, name: str, data: dict, phase: str | None = None):
         """
-        Logs a dictionary as a table to the experiment.
+        Logs a dictionary or matrix as a table to the experiment.
+
+        - If the input has 'data', 'rows', and 'columns', it is treated as a 2D matrix.
+        - Otherwise, it is treated as a 1D key-value dictionary.
 
         Args:
             name (str): The name of the table.
-            data (dict): The dictionary containing table data.
-            phase (Optional[str]): The phase in which the table is logged (e.g., 'train', 'val', 'test').
+            data (dict): The table data, either a key-value dict or a 2D matrix.
+            phase (Optional[str]): The phase in which the table is logged.
+
+        Raises:
+            ValueError: If 2D matrix dimensions do not match rows/columns.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
-        data = sanitize_table_data(data)
-        self.experiment.log(name=log_name, data=data, type=LogType.TABLE)
+
+        if all(k in data for k in ["data", "rows", "columns"]):
+            # Matrix case
+            matrix = data["data"]
+            rows = data["rows"]
+            columns = data["columns"]
+
+            if len(matrix) != len(rows):
+                raise ValueError(
+                    f"Number of rows ({len(rows)}) does not match matrix height ({len(matrix)})."
+                )
+            if any(len(row) != len(columns) for row in matrix):
+                raise ValueError("Matrix width does not match number of columns.")
+
+            sanitized_data = {
+                "data": matrix,
+                "rows": rows,
+                "columns": columns,
+            }
+        else:
+            # Simple key-value table case
+            sanitized_data = sanitize_table_data(data)
+
+        self.experiment.log(name=log_name, data=sanitized_data, type=LogType.TABLE)
 
     def get_log_name(self, metric_name: str, phase: str | None = None) -> str:
         """
@@ -211,13 +239,16 @@ class BaseLogger:
 
 
 def sanitize_table_data(data: dict) -> dict:
-    """Converts all values to JSON-serializable native types."""
-    sanitized = {}
-    for key, value in data.items():
-        if isinstance(value, (np.integer, np.floating)):
-            sanitized[key] = value.item()
-        elif isinstance(value, (int, float, str)):
-            sanitized[key] = value
-        else:
-            sanitized[key] = str(value)  # fallback (just in case)
-    return sanitized
+    """
+    Sanitizes the input data for logging as a table.
+
+    Args:
+        data (dict): The input data to sanitize.
+
+    Returns:
+        dict: The sanitized data.
+    """
+    return {
+        key: value if isinstance(value, (int, float, str)) else str(value)
+        for key, value in data.items()
+    }

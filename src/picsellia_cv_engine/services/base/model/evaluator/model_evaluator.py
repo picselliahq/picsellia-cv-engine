@@ -265,12 +265,30 @@ class ModelEvaluator:
 
         df = pd.read_csv(output_path).round(3)
 
-        for _, row in df.iterrows():
-            category = row["Class"]
-            metrics_dict = row.drop("Class").to_dict()
+        if not df.empty:
+            row_labels = df["Class"].tolist()
+            columns = df.columns.drop("Class").tolist()
+            matrix = df.drop(columns=["Class"]).values.tolist()
+
             self.experiment_logger.log_table(
-                name=f"{category}-metrics", data=metrics_dict, phase="test"
+                name="metrics",
+                data={"data": matrix, "rows": row_labels, "columns": columns},
+                phase="test",
             )
+
+            key_name_map = {
+                "Box(mAP50)": "mAP50(B)",
+                "Box(mAP50-95)": "mAP50-95(B)",
+                "Mask(mAP50)": "mAP50(M)",
+                "Mask(mAP50-95)": "mAP50-95(M)",
+            }
+
+            for original_key, log_name in key_name_map.items():
+                if original_key in df.columns:
+                    mean_value = df[original_key].mean()
+                    self.experiment_logger.log_value(
+                        name=log_name, value=round(mean_value, 3), phase="test"
+                    )
 
         gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
         pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
@@ -370,32 +388,42 @@ class ModelEvaluator:
             zero_division=0,
         )
 
+        rows = []
+        row_labels = []
+
         for class_name, metrics in class_report.items():
-            if class_name in ["accuracy", "macro avg", "weighted avg"]:
-                continue
-
-            row = {
-                "Class": class_name,
-                "Precision": round(metrics["precision"], 3),
-                "Recall": round(metrics["recall"], 3),
-                "F1-score": round(metrics["f1-score"], 3),
-            }
-
-            self.experiment_logger.log_table(
-                name=f"{class_name}-metrics", data=row, phase="test"
+            row_labels.append(class_name)
+            rows.append(
+                [
+                    round(metrics["accuracy"], 3),
+                    round(metrics["precision"], 3),
+                    round(metrics["recall"], 3),
+                    round(metrics["f1-score"], 3),
+                ]
             )
 
-        # Global summary
+        self.experiment_logger.log_table(
+            name="test/metrics",
+            data={
+                "data": rows,
+                "rows": row_labels,
+                "columns": ["Precision", "Recall", "F1-score"],
+            },
+            phase="test",
+        )
+
+        # Global summary as individual scalar values
         global_metrics = {
-            "Accuracy": round(accuracy, 3),
-            "Precision": round(precision, 3),
-            "Recall": round(recall, 3),
-            "F1-score": round(f1, 3),
+            "accuracy": round(accuracy, 3),
+            "precision": round(precision, 3),
+            "recall": round(recall, 3),
+            "f1-score": round(f1, 3),
         }
 
-        self.experiment_logger.log_table(
-            name="average-metrics", data=global_metrics, phase="test"
-        )
+        for metric_name, metric_value in global_metrics.items():
+            self.experiment_logger.log_value(
+                name=metric_name, value=metric_value, phase="test"
+            )
 
         cm = confusion_matrix(y_true, y_pred, labels=sorted(id_to_name.keys()))
         label_map = {i: id_to_name[i] for i in sorted(id_to_name.keys())}

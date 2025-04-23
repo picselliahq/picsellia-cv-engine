@@ -128,35 +128,47 @@ class UltralyticsCallbacks:
 
         if hasattr(validator, "metrics") and hasattr(
             validator.metrics, "ap_class_index"
-        ):  # Detection or Segmentation
+        ):
+            table_data = []
+            row_labels = []
+
             for i, c in enumerate(validator.metrics.ap_class_index):
                 class_name = validator.names[c]
-                row = {
-                    "Class": class_name,
-                    "Images": int(validator.nt_per_image[c]),
-                    "Instances": int(validator.nt_per_class[c]),
-                }
+                row_labels.append(class_name)
+
+                row = [
+                    int(validator.nt_per_image[c]),
+                    int(validator.nt_per_class[c]),
+                ]
 
                 metrics = validator.metrics.class_result(i)
-                for j, col in enumerate(
-                    column_names[3:]
-                ):  # Skip Class, Images, Instances
-                    row[col] = round(metrics[j], 3)
+                row += [round(m, 3) for m in metrics]
 
-                # Log one table per class
-                self.logger.log_table(
-                    name=f"{class_name}-metrics", data=row, phase="val"
-                )
+                table_data.append(row)
+
+            columns = column_names[
+                1:
+            ]  # Skip 'Class', because we use row_labels instead
+
+            self.logger.log_table(
+                name="metrics",
+                data={
+                    "data": table_data,
+                    "rows": row_labels,
+                    "columns": columns,
+                },
+                phase="val",
+            )
 
         elif hasattr(validator, "metrics") and hasattr(
             validator.metrics, "top1"
         ):  # Classification
-            row = {
+            classif_row = {
                 "classes": "all",
                 "top1_acc": round(validator.metrics.top1, 3),
                 "top5_acc": round(validator.metrics.top5, 3),
             }
-            self.logger.log_table(name="classification-metrics", data=row, phase="val")
+            self.logger.log_table(name="metrics", data=classif_row, phase="val")
 
         if (
             hasattr(validator, "confusion_matrix")
