@@ -19,6 +19,11 @@ class UltralyticsSegmentationMetricMapping(UltralyticsObjectDetectionMetricMappi
             phase="train",
             metric=Metric(standard_name="seg_loss", framework_name="train/seg_loss"),
         )
+
+        self.add_metric(
+            phase="val",
+            metric=Metric(standard_name="seg_loss", framework_name="val/seg_loss"),
+        )
         self.add_metric(
             phase="val",
             metric=Metric(
