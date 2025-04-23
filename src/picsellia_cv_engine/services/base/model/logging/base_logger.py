@@ -138,7 +138,8 @@ class BaseLogger:
             precision (int): The precision to which the value will be rounded (default is 4).
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
-        self.experiment.log(log_name, round(value, precision), LogType.VALUE)
+        sanitized_value = Sanitizer.sanitize_value(round(value, precision))
+        self.experiment.log(log_name, sanitized_value, LogType.VALUE)
 
     def log_image(self, name: str, image_path: str, phase: str | None = None):
         """
@@ -164,8 +165,10 @@ class BaseLogger:
             phase (Optional[str]): The phase in which the confusion matrix is logged (e.g., 'test').
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
-        confusion_data = self._format_confusion_matrix(labelmap=labelmap, matrix=matrix)
-        self.experiment.log(log_name, confusion_data, LogType.HEATMAP)
+        sanitized_confusion = Sanitizer.sanitize_confusion_matrix(
+            list(labelmap.values()), matrix
+        )
+        self.experiment.log(log_name, sanitized_confusion, LogType.HEATMAP)
 
     def _format_confusion_matrix(self, labelmap: dict, matrix: np.ndarray) -> dict:
         """
@@ -198,26 +201,22 @@ class BaseLogger:
         log_name = self.get_log_name(metric_name=name, phase=phase)
 
         if all(k in data for k in ["data", "rows", "columns"]):
-            # Matrix case
             matrix = data["data"]
             rows = data["rows"]
             columns = data["columns"]
 
             if len(matrix) != len(rows):
-                raise ValueError(
-                    f"Number of rows ({len(rows)}) does not match matrix height ({len(matrix)})."
-                )
+                raise ValueError(f"Row count mismatch: {len(rows)} vs {len(matrix)}")
             if any(len(row) != len(columns) for row in matrix):
-                raise ValueError("Matrix width does not match number of columns.")
+                raise ValueError("Column count mismatch.")
 
             sanitized_data = {
-                "data": matrix,
+                "data": Sanitizer.sanitize_matrix(matrix),
                 "rows": rows,
                 "columns": columns,
             }
         else:
-            # Simple key-value table case
-            sanitized_data = sanitize_table_data(data)
+            sanitized_data = Sanitizer.sanitize_dict(data)
 
         self.experiment.log(name=log_name, data=sanitized_data, type=LogType.TABLE)
 
@@ -238,17 +237,31 @@ class BaseLogger:
         return f"{phase}/{mapped_name}" if phase else mapped_name
 
 
-def sanitize_table_data(data: dict) -> dict:
-    """
-    Sanitizes the input data for logging as a table.
+class Sanitizer:
+    @staticmethod
+    def sanitize_value(value):
+        """Sanitize a single value for JSON serialization."""
+        if isinstance(value, (np.integer, np.floating)):
+            return value.item()
+        elif isinstance(value, (int, float, str)):
+            return value
+        else:
+            return str(value)  # fallback
 
-    Args:
-        data (dict): The input data to sanitize.
+    @classmethod
+    def sanitize_dict(cls, data: dict) -> dict:
+        """Sanitize a dictionary of key-value pairs."""
+        return {k: cls.sanitize_value(v) for k, v in data.items()}
 
-    Returns:
-        dict: The sanitized data.
-    """
-    return {
-        key: value if isinstance(value, (int, float, str)) else str(value)
-        for key, value in data.items()
-    }
+    @classmethod
+    def sanitize_matrix(cls, matrix: list[list]) -> list[list]:
+        """Sanitize each element of a 2D matrix."""
+        return [[cls.sanitize_value(v) for v in row] for row in matrix]
+
+    @classmethod
+    def sanitize_confusion_matrix(cls, categories: list, matrix: np.ndarray) -> dict:
+        """Sanitize confusion matrix for logging."""
+        return {
+            "categories": list(categories),
+            "values": cls.sanitize_matrix(matrix.tolist()),
+        }
