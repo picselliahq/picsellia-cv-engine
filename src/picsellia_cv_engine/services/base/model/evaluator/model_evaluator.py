@@ -392,6 +392,8 @@ class ModelEvaluator:
         row_labels = []
 
         for class_name, metrics in class_report.items():
+            if class_name in ["accuracy", "macro avg", "weighted avg"]:
+                continue
             row_labels.append(class_name)
             rows.append(
                 [
