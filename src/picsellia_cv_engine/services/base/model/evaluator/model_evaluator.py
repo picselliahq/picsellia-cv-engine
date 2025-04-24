@@ -404,7 +404,7 @@ class ModelEvaluator:
             )
 
         self.experiment_logger.log_table(
-            name="test/metrics",
+            name="metrics",
             data={
                 "data": rows,
                 "rows": row_labels,
