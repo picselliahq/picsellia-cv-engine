@@ -83,6 +83,8 @@ class UltralyticsCallbacks:
             from ultralytics.utils.torch_utils import model_info_for_loggers
 
             for info_key, info_value in model_info_for_loggers(trainer).items():
+                if info_value == "model/parameters":
+                    continue
                 self.logger.log_value(name=info_key, value=info_value)
 
         train_output_directory = Path(trainer.save_dir)
