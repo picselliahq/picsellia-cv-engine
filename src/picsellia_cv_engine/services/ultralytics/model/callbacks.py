@@ -163,12 +163,20 @@ class UltralyticsCallbacks:
         elif hasattr(validator, "metrics") and hasattr(
             validator.metrics, "top1"
         ):  # Classification
-            classif_row = {
-                "classes": "all",
-                "top1_acc": round(validator.metrics.top1, 3),
-                "top5_acc": round(validator.metrics.top5, 3),
-            }
-            self.logger.log_table(name="metrics", data=classif_row, phase="val")
+            self.logger.log_table(
+                name="metrics",
+                data={
+                    "columns": ["top1_acc", "top5_acc"],
+                    "rows": ["all"],
+                    "data": [
+                        [
+                            round(validator.metrics.top1, 3),
+                            round(validator.metrics.top5, 3),
+                        ]
+                    ],
+                },
+                phase="val",
+            )
 
         if (
             hasattr(validator, "confusion_matrix")
