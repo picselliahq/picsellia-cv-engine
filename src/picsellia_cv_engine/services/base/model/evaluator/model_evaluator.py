@@ -395,7 +395,6 @@ class ModelEvaluator:
             row_labels.append(class_name)
             rows.append(
                 [
-                    round(metrics["accuracy"], 3),
                     round(metrics["precision"], 3),
                     round(metrics["recall"], 3),
                     round(metrics["f1-score"], 3),
