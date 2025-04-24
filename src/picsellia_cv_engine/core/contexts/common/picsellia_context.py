@@ -4,6 +4,8 @@ from typing import Any, Optional
 
 import picsellia  # type: ignore
 
+from picsellia_cv_engine.core.logging.colors import Colors
+
 
 class PicselliaContext(ABC):
     def __init__(
@@ -49,8 +51,8 @@ class PicselliaContext(ABC):
             The value formatted as a string with appropriate color coding and suffix.
         """
         suffix = " (default)" if key in defaulted_keys else ""
-        color_code = "\033[33m" if suffix else "\033[34m"
-        return f"{color_code}{value}\033[0m{suffix}"
+        color_code = Colors.YELLOW if suffix else Colors.CYAN
+        return f"{color_code}{value}{Colors.ENDC}{suffix}"
 
     def _process_parameters(self, parameters_dict: dict, defaulted_keys: set) -> dict:
         """
