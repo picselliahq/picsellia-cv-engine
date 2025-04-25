@@ -28,76 +28,131 @@ def box_iou(box1, box2, eps=1e-7):
 
 
 def compute_full_confusion_matrix(
-    gt_annotations, pred_annotations, category_ids, iou_threshold=0.5
-):
+    gt_annotations: list[dict],
+    pred_annotations: list[dict],
+    label_map: dict[int, str],
+    iou_threshold: float = 0.5,
+) -> np.ndarray:
     """
     Compute a confusion matrix for object detection with a background class.
 
     Args:
         gt_annotations (List[dict]): Ground truth annotations from COCO GT (coco.loadAnns()).
         pred_annotations (List[dict]): Predicted annotations from COCO Pred (coco.loadAnns()).
-        category_ids (List[int]): List of class IDs.
+        label_map (dict): Mapping of category indices (as int) to class names.
         iou_threshold (float): IoU threshold for matching.
 
     Returns:
         np.ndarray: Confusion matrix of shape (num_classes+1, num_classes+1)
                     where the last index represents 'background'.
     """
-    num_classes = len(category_ids)
+    label_name_to_index = {name: int(idx) for idx, name in label_map.items()}
+    num_classes = len(label_name_to_index)
     confusion = np.zeros((num_classes + 1, num_classes + 1), dtype=int)
-    cat_id_to_index = {cat_id: idx for idx, cat_id in enumerate(sorted(category_ids))}
 
-    # Convert GT and Preds to array form
-    gt_by_image: dict[str, list] = {}
-    for ann in gt_annotations:
-        gt_by_image.setdefault(ann["image_id"], []).append(ann)
+    gt_cat_id_to_index = _build_cat_id_to_index(gt_annotations, label_name_to_index)
+    pred_cat_id_to_index = _build_cat_id_to_index(pred_annotations, label_name_to_index)
 
-    pred_by_image: dict[str, list] = {}
-    for ann in pred_annotations:
-        pred_by_image.setdefault(ann["image_id"], []).append(ann)
+    gt_by_image = _organize_annotations_by_image(gt_annotations, gt_cat_id_to_index)
+    pred_by_image = _organize_annotations_by_image(
+        pred_annotations, pred_cat_id_to_index
+    )
 
     for image_id in set(gt_by_image) | set(pred_by_image):
         gts = gt_by_image.get(image_id, [])
         preds = pred_by_image.get(image_id, [])
-
-        gt_boxes = torch.tensor([g["bbox"] for g in gts])  # xywh
-        gt_labels = torch.tensor([cat_id_to_index[g["category_id"]] for g in gts])
-
-        pred_boxes = (
-            torch.tensor([p["bbox"] for p in preds]) if preds else torch.empty((0, 4))
+        _update_confusion_matrix_for_image(
+            gts=gts,
+            preds=preds,
+            gt_cat_id_to_index=gt_cat_id_to_index,
+            pred_cat_id_to_index=pred_cat_id_to_index,
+            confusion=confusion,
+            num_classes=num_classes,
+            iou_threshold=iou_threshold,
         )
-        pred_labels = (
-            torch.tensor([cat_id_to_index[p["category_id"]] for p in preds])
-            if preds
-            else torch.empty(0, dtype=int)
-        )
-
-        matched_gt = set()
-        if len(gt_boxes) and len(pred_boxes):
-            # Convert to xyxy
-            gt_boxes[:, 2:] += gt_boxes[:, :2]
-            pred_boxes[:, 2:] += pred_boxes[:, :2]
-
-            ious = box_iou(gt_boxes, pred_boxes)
-            i, j = torch.where(ious > iou_threshold)
-
-            matches = []
-            for gt_idx, pred_idx in zip(i.tolist(), j.tolist()):
-                if gt_idx not in matched_gt:
-                    confusion[pred_labels[pred_idx], gt_labels[gt_idx]] += 1
-                    matched_gt.add(gt_idx)
-                    matches.append(pred_idx)
-
-            unmatched_preds = set(range(len(pred_boxes))) - set(matches)
-            for idx in unmatched_preds:
-                confusion[pred_labels[idx], num_classes] += 1  # Predicted object was FP
-
-        else:
-            # No matches at all
-            for pred_label in pred_labels:
-                confusion[pred_label, num_classes] += 1
-        unmatched_gt = set(range(len(gt_boxes))) - matched_gt
-        for idx in unmatched_gt:
-            confusion[num_classes, gt_labels[idx]] += 1  # FN (missed object)
 
     return confusion
+
+
+def _build_cat_id_to_index(
+    annotations: list[dict], label_name_to_index: dict[str, int]
+) -> dict[int, int]:
+    mapping = {}
+    for ann in annotations:
+        name = ann.get("category_name") or ann.get("name")
+        if not name:
+            continue
+        index = label_name_to_index.get(name)
+        if index is not None and "category_id" in ann:
+            mapping[ann["category_id"]] = index
+    return mapping
+
+
+def _organize_annotations_by_image(
+    annotations: list[dict], cat_id_to_index: dict[int, int]
+) -> dict[str, list]:
+    by_image: dict[str, list] = {}
+    for ann in annotations:
+        if ann["category_id"] in cat_id_to_index:
+            by_image.setdefault(ann["image_id"], []).append(ann)
+    return by_image
+
+
+def _update_confusion_matrix_for_image(
+    gts: list[dict],
+    preds: list[dict],
+    gt_cat_id_to_index: dict[int, int],
+    pred_cat_id_to_index: dict[int, int],
+    confusion: np.ndarray,
+    num_classes: int,
+    iou_threshold: float,
+) -> None:
+    gt_boxes = torch.tensor([g["bbox"] for g in gts]) if gts else torch.empty((0, 4))
+    gt_labels = torch.tensor(
+        [
+            gt_cat_id_to_index[g["category_id"]]
+            for g in gts
+            if g["category_id"] in gt_cat_id_to_index
+        ],
+        dtype=torch.long,
+    )
+
+    pred_boxes = (
+        torch.tensor([p["bbox"] for p in preds]) if preds else torch.empty((0, 4))
+    )
+    pred_labels = torch.tensor(
+        [
+            pred_cat_id_to_index[p["category_id"]]
+            for p in preds
+            if p["category_id"] in pred_cat_id_to_index
+        ],
+        dtype=torch.long,
+    )
+
+    matched_gt = set()
+
+    if len(gt_boxes) and len(pred_boxes):
+        # Convert to xyxy
+        gt_boxes[:, 2:] += gt_boxes[:, :2]
+        pred_boxes[:, 2:] += pred_boxes[:, :2]
+
+        ious = box_iou(gt_boxes, pred_boxes)
+        i, j = torch.where(ious > iou_threshold)
+
+        matches = []
+        for gt_idx, pred_idx in zip(i.tolist(), j.tolist()):
+            if gt_idx not in matched_gt:
+                confusion[pred_labels[pred_idx], gt_labels[gt_idx]] += 1
+                matched_gt.add(gt_idx)
+                matches.append(pred_idx)
+
+        unmatched_preds = set(range(len(pred_boxes))) - set(matches)
+        for idx in unmatched_preds:
+            confusion[pred_labels[idx], num_classes] += 1
+    else:
+        for pred_label in pred_labels:
+            confusion[pred_label, num_classes] += 1
+
+    unmatched_gt = set(range(len(gt_boxes))) - matched_gt
+    for idx in unmatched_gt:
+        confusion[num_classes, gt_labels[idx]] += 1

@@ -216,21 +216,26 @@ class ModelEvaluator:
             raise TypeError("Unsupported prediction type")
 
     def compute_coco_metrics(
-        self, assets: list[Asset] | MultiAsset, output_dir: str
+        self,
+        assets: list[Asset] | MultiAsset,
+        output_dir: str,
+        training_labelmap: dict[str, str],
     ) -> None:
         """
         Computes COCO metrics for the given experiment and assets and saves the results to a CSV file.
 
         Args:
-            experiment (Experiment): The Picsellia experiment to which evaluations will be added.
             assets (list[Asset] | MultiAsset): The assets to be evaluated.
             output_dir (str): The directory where the evaluation results will be saved.
+            training_labelmap (dict[str, str] | None): Optional mapping of label names to IDs for training.
         """
 
         os.makedirs(output_dir, exist_ok=True)
         gt_coco_path = os.path.join(output_dir, "gt.json")
         pred_coco_path = os.path.join(output_dir, "pred.json")
         output_path = os.path.join(output_dir, "output.csv")
+
+        label_map = {int(k): v for k, v in training_labelmap.items()}
 
         create_coco_files_from_experiment(
             experiment=self.experiment,
@@ -246,18 +251,15 @@ class ModelEvaluator:
         match_image_ids(gt_path_fixed, pred_path_fixed, matched_prediction_file)
         coco_gt = COCO(gt_path_fixed)
         coco_pred = COCO(matched_prediction_file)
-        categories = {
-            cat["id"]: cat["name"] for cat in coco_gt.loadCats(coco_gt.getCatIds())
-        }
+
         results = [
             evaluate_category(
                 coco_gt=coco_gt,
                 coco_pred=coco_pred,
-                cat_id=cat_id,
                 cat_name=cat_name,
                 inference_type=self.inference_type,
             )
-            for cat_id, cat_name in categories.items()
+            for cat_name in label_map.values()
         ]
         df = pd.DataFrame(results)
         df.to_csv(output_path, index=False)
@@ -292,37 +294,33 @@ class ModelEvaluator:
 
         gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
         pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
-        cat_ids = list(categories.keys())
 
         conf_matrix = compute_full_confusion_matrix(
             gt_annotations=gt_anns,
             pred_annotations=pred_anns,
-            category_ids=cat_ids,
+            label_map=label_map,
             iou_threshold=0.5,
         )
 
-        label_map = dict(enumerate(categories.values()))
         label_map[len(label_map)] = "background"
 
         self.experiment_logger.log_confusion_matrix(
             name="confusion-matrix",
-            labelmap=label_map,
+            labelmap=training_labelmap,
             matrix=conf_matrix,
             phase="test",
         )
 
     def compute_classification_metrics(
-        self, assets: list[Asset] | MultiAsset, output_dir: str
+        self,
+        assets: list[Asset] | MultiAsset,
+        output_dir: str,
+        training_labelmap: dict[str, str],
     ) -> None:
-        """
-        Compute classification metrics (accuracy, precision, recall, F1...) using COCO formatted GT and prediction files.
-        """
-
         os.makedirs(output_dir, exist_ok=True)
         gt_coco_path = os.path.join(output_dir, "gt.json")
         pred_coco_path = os.path.join(output_dir, "pred.json")
 
-        # Generate files
         create_coco_files_from_experiment(
             experiment=self.experiment,
             assets=assets,
@@ -331,75 +329,53 @@ class ModelEvaluator:
             inference_type=self.inference_type,
         )
 
-        # Sanitize IDs and match predictions
         gt_path_fixed = fix_coco_ids(gt_coco_path)
         pred_path_fixed = fix_coco_ids(pred_coco_path)
         matched_pred_path = pred_path_fixed.replace(".json", "_matched.json")
         match_image_ids(gt_path_fixed, pred_path_fixed, matched_pred_path)
 
-        # Load COCO objects
         coco_gt = COCO(gt_path_fixed)
         coco_pred = COCO(matched_pred_path)
 
         gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
         pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
 
-        y_true = []
-        y_pred = []
+        y_true, y_pred = self._extract_classification_labels(
+            gt_anns, pred_anns, training_labelmap
+        )
 
-        image_to_gt = {}
-        for ann in gt_anns:
-            image_to_gt[ann["image_id"]] = ann["category_id"]
-
-        for ann in pred_anns:
-            img_id = ann["image_id"]
-            if img_id in image_to_gt:
-                y_true.append(image_to_gt[img_id])
-                y_pred.append(ann["category_id"])
-
-        if not y_true:
+        if not y_true.size:
             logger.warning("No matching ground truth and predictions found.")
             return
 
-        y_true = np.array(y_true)
-        y_pred = np.array(y_pred)
-
-        # Load class names
-        id_to_name = {
-            cat["id"]: cat["name"] for cat in coco_gt.loadCats(coco_gt.getCatIds())
-        }
-
-        # Metrics
-        accuracy = accuracy_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred, average="macro", zero_division=0)
-        recall = recall_score(y_true, y_pred, average="macro", zero_division=0)
-        f1 = f1_score(y_true, y_pred, average="macro", zero_division=0)
+        metrics = self._compute_classification_scores(y_true, y_pred)
 
         logger.info(
-            f"[Classification] Accuracy={accuracy:.3f} | Precision={precision:.3f} | Recall={recall:.3f} | F1={f1:.3f}"
+            f"[Classification] Accuracy={metrics['accuracy']:.3f} | "
+            f"Precision={metrics['precision']:.3f} | Recall={metrics['recall']:.3f} | F1={metrics['f1-score']:.3f}"
         )
 
-        # Per-class metrics
+        label_indices = sorted(int(i) for i in training_labelmap.keys())
+
         class_report = classification_report(
             y_true,
             y_pred,
-            target_names=[id_to_name[i] for i in sorted(id_to_name.keys())],
+            labels=label_indices,
+            target_names=[training_labelmap[str(i)] for i in label_indices],
             output_dict=True,
             zero_division=0,
         )
 
-        rows = []
-        row_labels = []
-
-        for class_name, metrics in class_report.items():
+        rows, row_labels = [], []
+        for class_name, metric in class_report.items():
             if class_name in ["accuracy", "macro avg", "weighted avg"]:
                 continue
             row_labels.append(class_name)
             rows.append(
                 [
-                    round(metrics["precision"], 3),
-                    round(metrics["recall"], 3),
-                    round(metrics["f1-score"], 3),
+                    round(metric["precision"], 3),
+                    round(metric["recall"], 3),
+                    round(metric["f1-score"], 3),
                 ]
             )
 
@@ -413,22 +389,61 @@ class ModelEvaluator:
             phase="test",
         )
 
-        # Global summary as individual scalar values
-        global_metrics = {
+        for metric_name, metric_value in metrics.items():
+            self.experiment_logger.log_value(
+                name=metric_name, value=metric_value, phase="test"
+            )
+
+        cm, label_map = self._compute_classification_confusion_matrix(
+            y_true, y_pred, label_indices, training_labelmap
+        )
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
+        )
+
+    def _extract_classification_labels(
+        self, gt_anns, pred_anns, training_labelmap: dict[str, str]
+    ):
+        label_name_to_index = {v: int(k) for k, v in training_labelmap.items()}
+        id_to_index = {}
+
+        for cat in gt_anns:  # Use COCO category names
+            if cat["name"] in label_name_to_index:
+                id_to_index[cat["id"]] = label_name_to_index[cat["name"]]
+
+        y_true = []
+        y_pred = []
+
+        image_to_gt = {}
+        for ann in gt_anns:
+            if ann["category_id"] in id_to_index:
+                image_to_gt[ann["image_id"]] = id_to_index[ann["category_id"]]
+
+        for ann in pred_anns:
+            img_id = ann["image_id"]
+            if img_id in image_to_gt and ann["category_id"] in id_to_index:
+                y_true.append(image_to_gt[img_id])
+                y_pred.append(id_to_index[ann["category_id"]])
+
+        return np.array(y_true), np.array(y_pred)
+
+    def _compute_classification_scores(self, y_true, y_pred):
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred, average="macro", zero_division=0)
+        recall = recall_score(y_true, y_pred, average="macro", zero_division=0)
+        f1 = f1_score(y_true, y_pred, average="macro", zero_division=0)
+
+        return {
             "accuracy": round(accuracy, 3),
             "precision": round(precision, 3),
             "recall": round(recall, 3),
             "f1-score": round(f1, 3),
         }
 
-        for metric_name, metric_value in global_metrics.items():
-            self.experiment_logger.log_value(
-                name=metric_name, value=metric_value, phase="test"
-            )
-
-        cm = confusion_matrix(y_true, y_pred, labels=sorted(id_to_name.keys()))
-        label_map = {i: id_to_name[i] for i in sorted(id_to_name.keys())}
-
-        self.experiment_logger.log_confusion_matrix(
-            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
-        )
+    def _compute_classification_confusion_matrix(
+        self, y_true, y_pred, label_indices, training_labelmap
+    ):
+        cm = confusion_matrix(y_true, y_pred, labels=label_indices)
+        label_map = {i: training_labelmap[str(i)] for i in label_indices}
+        return cm, label_map

@@ -207,7 +207,6 @@ def calculate_metrics(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
 def evaluate_category(
     coco_gt: COCO,
     coco_pred: COCO,
-    cat_id: int,
     cat_name: str,
     inference_type: InferenceType,
 ) -> dict:
@@ -228,6 +227,21 @@ def evaluate_category(
     """
     iouType = "bbox" if inference_type == InferenceType.OBJECT_DETECTION else "segm"
     coco_eval = COCOeval(cocoGt=coco_gt, cocoDt=coco_pred, iouType=iouType)
+    cat_ids = coco_gt.getCatIds(catNms=[cat_name])
+
+    if not cat_ids:
+        return {
+            "Class": cat_name,
+            "Images": 0,
+            "Instances": 0,
+            "Box(P)": 0.0,
+            "Box(R)": 0.0,
+            "Box(mAP50-95)": 0.0,
+            "Box(mAP50)": 0.0,
+        }
+
+    cat_id = cat_ids[0]
+    coco_eval.params.catIds = [cat_id]
     coco_eval.params.catIds = [cat_id]
     # coco_eval.params.iouThrs = [0.5]
     coco_eval.params.areaRng = [[0, 10000000000.0]]
