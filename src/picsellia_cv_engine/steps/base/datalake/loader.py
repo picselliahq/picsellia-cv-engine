@@ -3,7 +3,6 @@ import os
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core import Datalake, DatalakeCollection
 from picsellia_cv_engine.core.contexts import PicselliaDatalakeProcessingContext
-from picsellia_cv_engine.services.base.data.utils import get_destination_path
 
 
 @step
@@ -58,7 +57,6 @@ def load_datalake() -> Datalake | DatalakeCollection:
         data_ids=context.data_ids,
         use_id=context.use_id,
     )
-    destination_dir = get_destination_path(job_id=context.job_id)
     if context.output_datalake:
         output_datalake = Datalake(
             name="output",
@@ -70,11 +68,11 @@ def load_datalake() -> Datalake | DatalakeCollection:
             output_datalake=output_datalake,
         )
         datalake_collection.download_all(
-            images_destination_dir=os.path.join(destination_dir, "images")
+            images_destination_dir=os.path.join(context.working_dir, "images")
         )
         return datalake_collection
     else:
         input_datalake.download_data(
-            destination_dir=os.path.join(destination_dir, "images")
+            destination_dir=os.path.join(context.working_dir, "images")
         )
         return input_datalake

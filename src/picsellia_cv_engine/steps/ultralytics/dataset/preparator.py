@@ -104,8 +104,7 @@ def prepare_classification_data(
     for dataset in dataset_collection:
         destination_dir = str(
             os.path.join(
-                os.getcwd(),
-                context.experiment.name,
+                context.working_dir,
                 "ultralytics_dataset",
                 dataset.name,
             )
@@ -119,7 +118,7 @@ def prepare_classification_data(
         dataset_collection[prepared_dataset.name] = prepared_dataset
 
     dataset_collection.dataset_path = os.path.join(
-        os.getcwd(), context.experiment.name, "ultralytics_dataset"
+        context.working_dir, "ultralytics_dataset"
     )
 
     return dataset_collection

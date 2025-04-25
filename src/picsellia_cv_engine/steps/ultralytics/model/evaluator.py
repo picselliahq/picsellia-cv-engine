@@ -75,5 +75,6 @@ def evaluate_ultralytics_model(
         picsellia_predictions=picsellia_predictions,
         inference_type=model.model_version.type,
         assets=dataset.assets,
-        output_dir=os.path.join(context.experiment.name, "evaluation"),
+        output_dir=os.path.join(context.working_dir, "evaluation"),
+        training_labelmap=context.experiment.get_log("labelmap").data,
     )

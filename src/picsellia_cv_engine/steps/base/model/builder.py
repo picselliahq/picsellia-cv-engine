@@ -61,11 +61,9 @@ def build_model_impl(
 ) -> TModel:
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
         model_version = context.experiment.get_base_model_version()
-        destination_dir = os.path.join(os.getcwd(), context.experiment.name, "models")
     elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
         if context.model_version_id:
             model_version = context.model_version
-            destination_dir = os.path.join(os.getcwd(), context.job_id, "models")
         else:
             raise ValueError("No model_version_id provided in the processing context.")
     else:
@@ -79,5 +77,7 @@ def build_model_impl(
         config_name=config_name,
         exported_weights_name=exported_weights_name,
     )
-    model.download_weights(destination_dir=destination_dir)
+    model.download_weights(
+        destination_dir=os.path.join((context.working_dir), "models")
+    )
     return model

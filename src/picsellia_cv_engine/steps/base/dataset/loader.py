@@ -11,7 +11,6 @@ from picsellia_cv_engine.core.contexts import (
 from picsellia_cv_engine.services.base.data.dataset.loader import (
     TrainingDatasetCollectionExtractor,
 )
-from picsellia_cv_engine.services.base.data.utils import get_destination_path
 from picsellia_cv_engine.services.base.utils.dataset_logging import log_labelmap
 
 
@@ -85,9 +84,7 @@ def load_coco_datasets_impl(
             log_name="labelmap",
         )
 
-        dataset_collection.dataset_path = os.path.join(
-            os.getcwd(), context.experiment.name, "dataset"
-        )
+        dataset_collection.dataset_path = os.path.join(context.working_dir, "dataset")
 
         dataset_collection.download_all(
             images_destination_dir=os.path.join(
@@ -124,11 +121,10 @@ def load_coco_datasets_impl(
                 labelmap=None,
             )
             dataset_collection = DatasetCollection([input_dataset, output_dataset])
-            destination_path = get_destination_path(context.job_id)
             dataset_collection.download_all(
-                images_destination_dir=os.path.join(destination_path, "images"),
+                images_destination_dir=os.path.join(context.working_dir, "images"),
                 annotations_destination_dir=os.path.join(
-                    destination_path, "annotations"
+                    context.working_dir, "annotations"
                 ),
                 use_id=True,
                 skip_asset_listing=skip_asset_listing,
@@ -148,16 +144,17 @@ def load_coco_datasets_impl(
                 assets=context.input_dataset_version.list_assets(),
                 labelmap=None,
             )
-            destination_path = get_destination_path(context.job_id)
 
             dataset.download_assets(
-                destination_dir=os.path.join(destination_path, "images", dataset.name),
+                destination_dir=os.path.join(
+                    context.working_dir, "images", dataset.name
+                ),
                 use_id=True,
                 skip_asset_listing=skip_asset_listing,
             )
             dataset.download_annotations(
                 destination_dir=os.path.join(
-                    destination_path, "annotations", dataset.name
+                    context.working_dir, "annotations", dataset.name
                 ),
                 use_id=True,
             )
@@ -192,9 +189,7 @@ def load_yolo_datasets_impl(
             log_name="labelmap",
         )
 
-        dataset_collection.dataset_path = os.path.join(
-            os.getcwd(), context.experiment.name, "dataset"
-        )
+        dataset_collection.dataset_path = os.path.join(context.working_dir, "dataset")
 
         dataset_collection.download_all(
             images_destination_dir=os.path.join(
@@ -231,10 +226,9 @@ def load_yolo_datasets_impl(
                 labelmap=None,
             )
             dataset_collection = DatasetCollection([input_dataset, output_dataset])
-            destination_path = get_destination_path(context.job_id)
             dataset_collection.download_all(
-                images_destination_dir=os.path.join(destination_path, "images"),
-                annotations_destination_dir=os.path.join(destination_path, "labels"),
+                images_destination_dir=os.path.join(context.working_dir, "images"),
+                annotations_destination_dir=os.path.join(context.working_dir, "labels"),
                 use_id=True,
                 skip_asset_listing=skip_asset_listing,
             )
@@ -253,15 +247,18 @@ def load_yolo_datasets_impl(
                 assets=context.input_dataset_version.list_assets(),
                 labelmap=None,
             )
-            destination_path = get_destination_path(context.job_id)
 
             dataset.download_assets(
-                destination_dir=os.path.join(destination_path, "images", dataset.name),
+                destination_dir=os.path.join(
+                    context.working_dir, "images", dataset.name
+                ),
                 use_id=True,
                 skip_asset_listing=skip_asset_listing,
             )
             dataset.download_annotations(
-                destination_dir=os.path.join(destination_path, "labels", dataset.name),
+                destination_dir=os.path.join(
+                    context.working_dir, "labels", dataset.name
+                ),
                 use_id=True,
             )
 

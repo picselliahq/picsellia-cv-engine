@@ -56,6 +56,7 @@ def evaluate_model_impl(
     inference_type: InferenceType,
     assets: list[Asset] | MultiAsset,
     output_dir: str,
+    training_labelmap: dict[str, str] | None = None,
 ) -> None:
     evaluator = ModelEvaluator(
         experiment=context.experiment, inference_type=inference_type
@@ -63,8 +64,12 @@ def evaluate_model_impl(
     evaluator.evaluate(picsellia_predictions=picsellia_predictions)
 
     if inference_type == InferenceType.CLASSIFICATION:
-        evaluator.compute_classification_metrics(assets=assets, output_dir=output_dir)
+        evaluator.compute_classification_metrics(
+            assets=assets, output_dir=output_dir, training_labelmap=training_labelmap
+        )
     elif inference_type in (InferenceType.OBJECT_DETECTION, InferenceType.SEGMENTATION):
-        evaluator.compute_coco_metrics(assets=assets, output_dir=output_dir)
+        evaluator.compute_coco_metrics(
+            assets=assets, output_dir=output_dir, training_labelmap=training_labelmap
+        )
     else:
         raise ValueError(f"Unsupported model type: {inference_type}")
