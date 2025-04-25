@@ -59,13 +59,14 @@ def create_local_processing_parameters(processing_parameters: dict[str, Any]):
 
 def create_local_processing_context(
     api_token: str,
-    organization_id: str,
+    organization_name: str,
     job_id: str,
     job_type: ProcessingType,
     input_dataset_version_id: str,
     processing_parameters: dict[str, Any],
     output_dataset_version_name: str | None = None,
     model_version_id: str | None = None,
+    working_dir: str | None = None,
 ) -> LocalProcessingContext:
     """
     Create a Picsellia processing context.
@@ -78,13 +79,14 @@ def create_local_processing_context(
     )
     context = LocalProcessingContext(
         api_token=api_token,
-        organization_id=organization_id,
+        organization_name=organization_name,
         job_id=job_id,
         job_type=job_type,
         input_dataset_version_id=input_dataset_version_id,
         output_dataset_version_name=output_dataset_version_name,
         model_version_id=model_version_id,
         processing_parameters=processing_parameters_data,
+        working_dir=working_dir,
     )
     return context
 
@@ -94,9 +96,10 @@ def create_local_training_context(
     augmentation_parameters_cls: type[AugmentationParameters],
     export_parameters_cls: type[ExportParameters],
     api_token: str,
-    organization_id: str,
+    organization_name: str,
     experiment_id: str,
     host: str | None = None,
+    working_dir: str | None = None,
 ) -> LocalTrainingContext:
     """
     Create a local training context for local runs (e.g. testing).
@@ -107,18 +110,20 @@ def create_local_training_context(
         export_parameters_cls: Class used to extract export parameters
         api_token: API token for authentication
         host: Host URL for the API
-        organization_id: Organization ID for the API
+        organization_name: Organization name for the API
         experiment_id: Experiment ID for the API
+        working_dir: Working directory for the experiment
 
     Returns:
         LocalTrainingContext
     """
     return LocalTrainingContext(
         api_token=api_token,
-        organization_id=organization_id,
+        organization_name=organization_name,
         experiment_id=experiment_id,
         host=host,
         hyperparameters_cls=hyperparameters_cls,
         augmentation_parameters_cls=augmentation_parameters_cls,
         export_parameters_cls=export_parameters_cls,
+        working_dir=working_dir,
     )
