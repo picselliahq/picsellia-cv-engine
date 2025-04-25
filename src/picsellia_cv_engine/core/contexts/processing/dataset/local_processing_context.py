@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from picsellia import DatasetVersion, ModelVersion
@@ -18,6 +19,7 @@ class LocalProcessingContext(PicselliaContext):
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
+        organization_name: str | None = None,
         job_id: str | None = None,
         job_type: ProcessingType | None = None,
         input_dataset_version_id: str | None = None,
@@ -27,9 +29,16 @@ class LocalProcessingContext(PicselliaContext):
         download_annotations: bool | None = True,
         model_version_id: str | None = None,
         processing_parameters=None,
+        working_dir: str | None = None,
     ):
         # Initialize the Picsellia client from the base class
-        super().__init__(api_token, host, organization_id)
+        super().__init__(
+            api_token=api_token,
+            host=host,
+            organization_id=organization_id,
+            organization_name=organization_name,
+            working_dir=working_dir,
+        )
         self.job_id = job_id
         self.job_type = job_type
         self.input_dataset_version_id = input_dataset_version_id
@@ -53,6 +62,12 @@ class LocalProcessingContext(PicselliaContext):
         self.processing_parameters = processing_parameters
         self.use_id = use_id
         self.download_annotations = download_annotations
+
+    @property
+    def working_dir(self) -> str:
+        if self._working_dir_override:
+            return self._working_dir_override
+        return os.path.join(os.getcwd(), f"job_{self.job_id}")
 
     def get_dataset_version(self, dataset_version_id) -> DatasetVersion:
         """

@@ -14,6 +14,7 @@ class PicselliaContext(ABC):
         host: Optional[str] = None,
         organization_id: Optional[str] = None,
         organization_name: Optional[str] = None,
+        working_dir: Optional[str] = None,
     ):
         self.api_token = api_token or os.getenv("api_token")
 
@@ -27,6 +28,17 @@ class PicselliaContext(ABC):
         self.organization_name = organization_name or os.getenv("organization_name")
 
         self.client = self._initialize_client()
+
+        self._working_dir_override = working_dir
+
+    @property
+    @abstractmethod
+    def working_dir(self) -> str:
+        """
+        Path where all files for this context will be stored (datasets, weights, etc).
+        Must be implemented by subclass once an ID (experiment, job...) is available.
+        """
+        raise NotImplementedError("Subclasses must define a working_dir.")
 
     def _initialize_client(self) -> picsellia.Client:
         return picsellia.Client(

@@ -1,5 +1,5 @@
 import os
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 
 from picsellia import Experiment  # type: ignore
 
@@ -29,9 +29,17 @@ class PicselliaTrainingContext(
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
+        organization_name: str | None = None,
         experiment_id: str | None = None,
+        working_dir: Optional[str] = None,
     ):
-        super().__init__(api_token, host, organization_id)
+        super().__init__(
+            api_token=api_token,
+            host=host,
+            organization_id=organization_id,
+            organization_name=organization_name,
+            working_dir=working_dir,
+        )
         self.experiment_id = experiment_id or os.getenv("experiment_id")
 
         if not self.experiment_id:
@@ -48,6 +56,12 @@ class PicselliaTrainingContext(
             log_data=parameters_log_data
         )
         self.export_parameters = export_parameters_cls(log_data=parameters_log_data)
+
+    @property
+    def working_dir(self) -> str:
+        if self._working_dir_override:
+            return self._working_dir_override
+        return os.path.join(os.getcwd(), self.experiment.name)
 
     def to_dict(self) -> dict[str, Any]:
         return {

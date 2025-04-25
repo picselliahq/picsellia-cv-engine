@@ -1,3 +1,4 @@
+import os
 from typing import Any, Generic, TypeVar
 
 from picsellia import Experiment
@@ -30,10 +31,18 @@ class LocalTrainingContext(
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
+        organization_name: str | None = None,
         experiment_id: str | None = None,
+        working_dir: str | None = None,
     ):
         # Initialize the Picsellia client from the base class
-        super().__init__(api_token, host, organization_id)
+        super().__init__(
+            api_token=api_token,
+            host=host,
+            organization_id=organization_id,
+            organization_name=organization_name,
+            working_dir=working_dir,
+        )
         self.experiment_id = experiment_id
         if self.experiment_id:
             self.experiment = self._initialize_experiment()
@@ -44,6 +53,14 @@ class LocalTrainingContext(
             log_data=parameters_log_data
         )
         self.export_parameters = export_parameters_cls(log_data=parameters_log_data)
+
+        self._working_dir_override = working_dir
+
+    @property
+    def working_dir(self) -> str:
+        if self._working_dir_override:
+            return self._working_dir_override
+        return os.path.join(os.getcwd(), self.experiment.name)
 
     def to_dict(self) -> dict[str, Any]:
         return {
