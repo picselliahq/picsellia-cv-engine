@@ -279,10 +279,12 @@ class ModelEvaluator:
             )
 
             key_name_map = {
-                "Box(mAP50)": "mAP50(B)",
-                "Box(mAP50-95)": "mAP50-95(B)",
-                "Mask(mAP50)": "mAP50(M)",
-                "Mask(mAP50-95)": "mAP50-95(M)",
+                "mAP50(B)": "mAP50(B)",
+                "mAP50-95(B)": "mAP50-95(B)",
+                "mAR50-95(B)": "mAR50-95(B)",
+                "mAP50(M)": "mAP50(M)",
+                "mAP50-95(M)": "mAP50-95(M)",
+                "mAR50-95(M)": "mAR50-95(M)",
             }
 
             for original_key, log_name in key_name_map.items():

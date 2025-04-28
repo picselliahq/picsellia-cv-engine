@@ -232,12 +232,10 @@ def evaluate_category(
     if not cat_ids:
         return {
             "Class": cat_name,
-            "Images": 0,
             "Instances": 0,
-            "Box(P)": 0.0,
-            "Box(R)": 0.0,
-            "Box(mAP50-95)": 0.0,
-            "Box(mAP50)": 0.0,
+            "mAP50-95(B)": 0.0,
+            "mAP50(B)": 0.0,
+            "mAR50-95(B)": 0.0,
         }
 
     cat_id = cat_ids[0]
@@ -254,30 +252,26 @@ def evaluate_category(
     stats = coco_eval.stats.tolist()
     detection_metrics = compute_tp_fp_fn(coco_eval)
     tp = detection_metrics[cat_id]["TP"]
-    fp = detection_metrics[cat_id]["FP"]
+    # fp = detection_metrics[cat_id]["FP"]
     fn = detection_metrics[cat_id]["FN"]
-    precision, recall, f1_score = calculate_metrics(tp=tp, fp=fp, fn=fn)
+    # precision, recall, f1_score = calculate_metrics(tp=tp, fp=fp, fn=fn)
 
-    num_images = len(coco_gt.getImgIds(catIds=[cat_id]))
+    # num_images = len(coco_gt.getImgIds(catIds=[cat_id]))
     num_instances = tp + fn
 
     if iouType == "bbox":
         return {
             "Class": cat_name,
-            "Images": num_images,
             "Instances": num_instances,
-            "Box(P)": precision,
-            "Box(R)": recall,
-            "Box(mAP50-95)": stats[0],
-            "Box(mAP50)": stats[1],
+            "mAP50-95(B)": stats[0],
+            "mAP50(B)": stats[1],
+            "mAR50-95(B)": stats[8],
         }
     else:
         return {
             "Class": cat_name,
-            "Images": num_images,
             "Instances": num_instances,
-            "Mask(P)": precision,
-            "Mask(R)": recall,
-            "Mask(mAP50-95)": stats[0],
-            "Mask(mAP50)": stats[1],
+            "mAP50-95(M)": stats[0],
+            "mAP50(M)": stats[1],
+            "mAR50-95(M)": stats[8],
         }
