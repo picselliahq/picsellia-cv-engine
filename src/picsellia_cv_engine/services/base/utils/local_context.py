@@ -60,7 +60,6 @@ def create_local_processing_parameters(processing_parameters: dict[str, Any]):
 def create_local_processing_context(
     api_token: str,
     organization_name: str,
-    job_id: str,
     job_type: ProcessingType,
     input_dataset_version_id: str,
     processing_parameters: dict[str, Any],
@@ -80,7 +79,6 @@ def create_local_processing_context(
     context = LocalProcessingContext(
         api_token=api_token,
         organization_name=organization_name,
-        job_id=job_id,
         job_type=job_type,
         input_dataset_version_id=input_dataset_version_id,
         output_dataset_version_name=output_dataset_version_name,
