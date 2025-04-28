@@ -30,9 +30,6 @@ from picsellia_cv_engine.services.base.model.evaluator.utils.coco_utils import (
     fix_coco_ids,
     match_image_ids,
 )
-from picsellia_cv_engine.services.base.model.evaluator.utils.compute_metrics import (
-    compute_full_confusion_matrix,
-)
 from picsellia_cv_engine.services.base.model.logging import BaseLogger, MetricMapping
 
 logger = logging.getLogger(__name__)
@@ -252,24 +249,24 @@ class ModelEvaluator:
         coco_gt = COCO(gt_path_fixed)
         coco_pred = COCO(matched_prediction_file)
 
-        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
-        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+        # gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+        # pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
 
-        conf_matrix = compute_full_confusion_matrix(
-            gt_annotations=gt_anns,
-            pred_annotations=pred_anns,
-            label_map=label_map,
-            iou_threshold=0.5,
-        )
+        # conf_matrix = compute_full_confusion_matrix(
+        #     gt_annotations=gt_anns,
+        #     pred_annotations=pred_anns,
+        #     label_map=label_map,
+        #     iou_threshold=0.5,
+        # )
 
-        label_map[len(label_map)] = "background"
-
-        self.experiment_logger.log_confusion_matrix(
-            name="confusion-matrix",
-            labelmap=training_labelmap,
-            matrix=conf_matrix,
-            phase="test",
-        )
+        # label_map[len(label_map)] = "background"
+        #
+        # self.experiment_logger.log_confusion_matrix(
+        #     name="confusion-matrix",
+        #     labelmap=training_labelmap,
+        #     matrix=conf_matrix,
+        #     phase="test",
+        # )
 
         results = [
             evaluate_category(
