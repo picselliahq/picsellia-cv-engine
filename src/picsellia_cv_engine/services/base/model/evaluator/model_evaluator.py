@@ -252,6 +252,25 @@ class ModelEvaluator:
         coco_gt = COCO(gt_path_fixed)
         coco_pred = COCO(matched_prediction_file)
 
+        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+
+        conf_matrix = compute_full_confusion_matrix(
+            gt_annotations=gt_anns,
+            pred_annotations=pred_anns,
+            label_map=label_map,
+            iou_threshold=0.5,
+        )
+
+        label_map[len(label_map)] = "background"
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix",
+            labelmap=training_labelmap,
+            matrix=conf_matrix,
+            phase="test",
+        )
+
         results = [
             evaluate_category(
                 coco_gt=coco_gt,
@@ -293,25 +312,6 @@ class ModelEvaluator:
                     self.experiment_logger.log_value(
                         name=log_name, value=round(mean_value, 3), phase="test"
                     )
-
-        gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
-        pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
-
-        conf_matrix = compute_full_confusion_matrix(
-            gt_annotations=gt_anns,
-            pred_annotations=pred_anns,
-            label_map=label_map,
-            iou_threshold=0.5,
-        )
-
-        label_map[len(label_map)] = "background"
-
-        self.experiment_logger.log_confusion_matrix(
-            name="confusion-matrix",
-            labelmap=training_labelmap,
-            matrix=conf_matrix,
-            phase="test",
-        )
 
     def compute_classification_metrics(
         self,
@@ -368,6 +368,14 @@ class ModelEvaluator:
             zero_division=0,
         )
 
+        cm, label_map = self._compute_classification_confusion_matrix(
+            y_true, y_pred, label_indices, training_labelmap
+        )
+
+        self.experiment_logger.log_confusion_matrix(
+            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
+        )
+
         rows, row_labels = [], []
         for class_name, metric in class_report.items():
             if class_name in ["accuracy", "macro avg", "weighted avg"]:
@@ -395,14 +403,6 @@ class ModelEvaluator:
             self.experiment_logger.log_value(
                 name=metric_name, value=metric_value, phase="test"
             )
-
-        cm, label_map = self._compute_classification_confusion_matrix(
-            y_true, y_pred, label_indices, training_labelmap
-        )
-
-        self.experiment_logger.log_confusion_matrix(
-            name="confusion-matrix", labelmap=label_map, matrix=cm, phase="test"
-        )
 
     def _extract_classification_labels(
         self, gt_anns, pred_anns, training_labelmap: dict[str, str]
