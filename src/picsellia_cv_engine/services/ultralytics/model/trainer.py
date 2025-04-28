@@ -1,4 +1,5 @@
 import os
+from typing import TypeVar
 
 from picsellia import Experiment
 
@@ -27,6 +28,8 @@ from picsellia_cv_engine.services.ultralytics.model.logger.segmentation import (
     UltralyticsSegmentationMetricMapping,
 )
 
+TUltralyticsCallbacks = TypeVar("TUltralyticsCallbacks", bound=UltralyticsCallbacks)
+
 
 class UltralyticsModelTrainer:
     """
@@ -37,6 +40,7 @@ class UltralyticsModelTrainer:
         self,
         model: UltralyticsModel,
         experiment: Experiment,
+        callbacks: type[TUltralyticsCallbacks] = UltralyticsCallbacks,
     ):
         """
         Initializes the trainer with a model and an experiment.
@@ -48,19 +52,19 @@ class UltralyticsModelTrainer:
         self.model = model
         self.experiment = experiment
         if self.model.loaded_model.task == "classify":
-            self.callback_handler = UltralyticsCallbacks(
+            self.callback_handler = callbacks(
                 experiment,
                 logger=UltralyticsClassificationLogger,
                 metric_mapping=UltralyticsClassificationMetricMapping(),
             )
         elif self.model.loaded_model.task == "detect":
-            self.callback_handler = UltralyticsCallbacks(
+            self.callback_handler = callbacks(
                 experiment,
                 logger=UltralyticsObjectDetectionLogger,
                 metric_mapping=UltralyticsObjectDetectionMetricMapping(),
             )
         elif self.model.loaded_model.task == "segment":
-            self.callback_handler = UltralyticsCallbacks(
+            self.callback_handler = callbacks(
                 experiment,
                 logger=UltralyticsSegmentationLogger,
                 metric_mapping=UltralyticsSegmentationMetricMapping(),
