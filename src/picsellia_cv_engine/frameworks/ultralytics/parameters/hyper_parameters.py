@@ -15,9 +15,7 @@ class UltralyticsHyperParameters(HyperParameters):
             keys=["patience"], expected_type=int, default=100
         )
         self.save_period = self.extract_parameter(
-            keys=["save_period"],
-            expected_type=int,
-            default=-1,
+            keys=["save_period"], expected_type=int, default=100
         )
         self.cache = self.extract_parameter(
             keys=["cache", "use_cache"],

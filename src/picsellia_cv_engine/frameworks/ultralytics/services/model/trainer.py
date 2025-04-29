@@ -40,7 +40,6 @@ class UltralyticsModelTrainer:
         self,
         model: UltralyticsModel,
         experiment: Experiment,
-        callbacks: type[TUltralyticsCallbacks] = UltralyticsCallbacks,
     ):
         """
         Initializes the trainer with a model and an experiment.
@@ -51,32 +50,42 @@ class UltralyticsModelTrainer:
         """
         self.model = model
         self.experiment = experiment
-        if self.model.loaded_model.task == "classify":
-            self.callback_handler = callbacks(
-                experiment,
-                logger=UltralyticsClassificationLogger,
-                metric_mapping=UltralyticsClassificationMetricMapping(),
-            )
-        elif self.model.loaded_model.task == "detect":
-            self.callback_handler = callbacks(
-                experiment,
-                logger=UltralyticsObjectDetectionLogger,
-                metric_mapping=UltralyticsObjectDetectionMetricMapping(),
-            )
-        elif self.model.loaded_model.task == "segment":
-            self.callback_handler = callbacks(
-                experiment,
-                logger=UltralyticsSegmentationLogger,
-                metric_mapping=UltralyticsSegmentationMetricMapping(),
-            )
-        else:
-            raise ValueError(f"Unsupported task: {self.model.loaded_model.task}")
 
-    def _setup_callbacks(self):
+    def _setup_callbacks(
+        self,
+        callbacks: type[TUltralyticsCallbacks] = UltralyticsCallbacks,
+        save_period: int = 10,
+    ):
         """
         Sets up the callbacks for the model training process.
         """
-        for event, callback in self.callback_handler.get_callbacks().items():
+        if self.model.loaded_model.task == "classify":
+            callback_handler = callbacks(
+                experiment=self.experiment,
+                logger=UltralyticsClassificationLogger,
+                metric_mapping=UltralyticsClassificationMetricMapping(),
+                model=self.model,
+                save_period=save_period,
+            )
+        elif self.model.loaded_model.task == "detect":
+            callback_handler = callbacks(
+                experiment=self.experiment,
+                logger=UltralyticsObjectDetectionLogger,
+                metric_mapping=UltralyticsObjectDetectionMetricMapping(),
+                model=self.model,
+                save_period=save_period,
+            )
+        elif self.model.loaded_model.task == "segment":
+            callback_handler = callbacks(
+                experiment=self.experiment,
+                logger=UltralyticsSegmentationLogger,
+                metric_mapping=UltralyticsSegmentationMetricMapping(),
+                model=self.model,
+                save_period=save_period,
+            )
+        else:
+            raise ValueError(f"Unsupported task: {self.model.loaded_model.task}")
+        for event, callback in callback_handler.get_callbacks().items():
             self.model.loaded_model.add_callback(event, callback)
 
     def train_model(
@@ -84,6 +93,7 @@ class UltralyticsModelTrainer:
         dataset_collection: DatasetCollection[TBaseDataset],
         hyperparameters: UltralyticsHyperParameters,
         augmentation_parameters: UltralyticsAugmentationParameters,
+        callbacks: type[TUltralyticsCallbacks] = UltralyticsCallbacks,
     ) -> UltralyticsModel:
         """
         Trains the model within the provided context using the given datasets, hyperparameters, and augmentation parameters.
@@ -92,12 +102,15 @@ class UltralyticsModelTrainer:
             dataset_collection (DatasetCollection): The collection of datasets used for training.
             hyperparameters (UltralyticsHyperParameters): The hyperparameters used for training.
             augmentation_parameters (UltralyticsAugmentationParameters): The augmentation parameters applied during training.
+            callbacks (type[TUltralyticsCallbacks]): The callbacks used for training.
 
         Returns:
             Model: The updated model after training.
         """
 
-        self._setup_callbacks()
+        self._setup_callbacks(
+            callbacks=callbacks, save_period=hyperparameters.save_period
+        )
 
         if self.model.loaded_model.task == "classify":
             data = dataset_collection.dataset_path
