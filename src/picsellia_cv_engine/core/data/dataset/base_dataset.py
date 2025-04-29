@@ -7,7 +7,7 @@ from picsellia import DatasetVersion, Label
 from picsellia.exceptions import NoDataError
 from picsellia.sdk.asset import MultiAsset
 
-from picsellia_cv_engine.services.base.utils.dataset_logging import get_labelmap
+from picsellia_cv_engine.core.services.utils.dataset_logging import get_labelmap
 
 logger = logging.getLogger(__name__)
 

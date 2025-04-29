@@ -5,9 +5,9 @@ __all__ = [
     "AugmentationParameters",
 ]
 
-from picsellia_cv_engine.core.parameters.base.augmentation_parameters import (
+from picsellia_cv_engine.core.parameters.augmentation_parameters import (
     AugmentationParameters,
 )
-from picsellia_cv_engine.core.parameters.base.base_parameters import Parameters
-from picsellia_cv_engine.core.parameters.base.export_parameters import ExportParameters
-from picsellia_cv_engine.core.parameters.base.hyper_parameters import HyperParameters
+from picsellia_cv_engine.core.parameters.base_parameters import Parameters
+from picsellia_cv_engine.core.parameters.export_parameters import ExportParameters
+from picsellia_cv_engine.core.parameters.hyper_parameters import HyperParameters

@@ -8,7 +8,7 @@ from picsellia_cv_engine.core.parameters import (
     AugmentationParameters,
     HyperParameters,
 )
-from picsellia_cv_engine.core.parameters.base.export_parameters import TExportParameters
+from picsellia_cv_engine.core.parameters.export_parameters import TExportParameters
 
 THyperParameters = TypeVar("THyperParameters", bound=HyperParameters)
 TAugmentationParameters = TypeVar(
