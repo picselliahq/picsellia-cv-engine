@@ -65,7 +65,7 @@ class UltralyticsCallbacks:
         for lr_name, lr_value in trainer.lr.items():
             self.logger.log_metric(name=lr_name, value=float(lr_value), phase="train")
 
-        if trainer.epoch % self.save_period == 0 and trainer.epoch != 0:
+        if (trainer.epoch - 1) % self.save_period == 0 and trainer.epoch != 0:
             self._save_checkpoint_to_experiment()
 
     def on_fit_epoch_end(self, trainer: TBaseTrainer):
