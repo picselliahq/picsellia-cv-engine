@@ -6,7 +6,6 @@ from ultralytics import YOLO
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core.contexts import PicselliaTrainingContext
 from picsellia_cv_engine.core.parameters import ExportParameters
-from picsellia_cv_engine.core.steps.model.builder import build_model_impl
 from picsellia_cv_engine.frameworks.ultralytics.model.model import UltralyticsModel
 from picsellia_cv_engine.frameworks.ultralytics.parameters.augmentation_parameters import (
     UltralyticsAugmentationParameters,
@@ -14,6 +13,7 @@ from picsellia_cv_engine.frameworks.ultralytics.parameters.augmentation_paramete
 from picsellia_cv_engine.frameworks.ultralytics.parameters.hyper_parameters import (
     UltralyticsHyperParameters,
 )
+from picsellia_cv_engine.steps.base.model.builder import build_model_impl
 
 logger = logging.getLogger(__name__)
 

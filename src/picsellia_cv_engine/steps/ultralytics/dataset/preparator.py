@@ -9,11 +9,11 @@ from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
 from picsellia_cv_engine.core.services.data.dataset.preprocessing import (
     ClassificationBaseDatasetPreparator,
 )
-from picsellia_cv_engine.core.steps.dataset.loader import (
+from picsellia_cv_engine.steps.base.dataset.loader import (
     load_coco_datasets_impl,
     load_yolo_datasets_impl,
 )
-from picsellia_cv_engine.core.steps.dataset.validator import validate_dataset_impl
+from picsellia_cv_engine.steps.base.dataset.validator import validate_dataset_impl
 
 
 @step
