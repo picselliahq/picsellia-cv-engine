@@ -65,8 +65,8 @@ class UltralyticsCallbacks:
         for lr_name, lr_value in trainer.lr.items():
             self.logger.log_metric(name=lr_name, value=float(lr_value), phase="train")
 
-        if (trainer.epoch - 1) % self.save_period == 0 and trainer.epoch != 0:
-            self._save_checkpoint_to_experiment()
+        if (trainer.epoch + 1) % self.save_period == 0 and trainer.epoch != 0:
+            self._save_checkpoint_to_experiment(epoch=trainer.epoch + 1)
 
     def on_fit_epoch_end(self, trainer: TBaseTrainer):
         """
@@ -236,27 +236,19 @@ class UltralyticsCallbacks:
             "on_train_end": self.on_train_end,
         }
 
-    def _save_checkpoint_to_experiment(self):
-        """
-        Save the latest trained weights (best.pt) to the experiment.
-        """
-        try:
-            self.model.set_latest_run_dir()
-            self.model.set_trained_weights_path()
+    def _save_checkpoint_to_experiment(self, epoch: int):
+        self.model.set_latest_run_dir()
+        self.model.set_trained_weights_path()
+        best_weights_path = self.model.trained_weights_path
 
-            best_weights_path = self.model.trained_weights_path
-
-            if best_weights_path and os.path.exists(best_weights_path):
-                self.model.save_artifact_to_experiment(
-                    experiment=self.experiment,
-                    artifact_name="best-model",
-                    artifact_path=best_weights_path,
-                )
-                print(f"✅ Saved checkpoint from {best_weights_path} to experiment.")
-            else:
-                print("⚠️ No best.pt found to upload.")
-        except Exception as e:
-            print(f"❌ Failed to save checkpoint: {e}")
+        if best_weights_path and os.path.exists(best_weights_path):
+            self.model.save_artifact_to_experiment(
+                experiment=self.experiment,
+                artifact_name="best-model",
+                artifact_path=best_weights_path,
+            )
+            print(f"✅ Saved checkpoint for epoch {epoch}")
+            self.last_saved_epoch = epoch
 
 
 def extract_column_names(desc: str) -> list[str]:
