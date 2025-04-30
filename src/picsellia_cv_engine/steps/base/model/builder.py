@@ -15,7 +15,7 @@ TModel = TypeVar("TModel", bound=Model)
 
 @step
 def build_model(
-    model_cls: type[TModel],
+    model_cls: type[TModel] = Model,
     pretrained_weights_name: str | None = None,
     trained_weights_name: str | None = None,
     config_name: str | None = None,
