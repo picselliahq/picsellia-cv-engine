@@ -190,23 +190,23 @@ class UltralyticsCallbacks:
                 phase="val",
             )
 
-        if (
-            hasattr(validator, "confusion_matrix")
-            and validator.confusion_matrix is not None
-        ):
-            matrix = validator.confusion_matrix.matrix
-            if hasattr(validator, "metrics") and hasattr(
-                validator.metrics, "ap_class_index"
-            ):
-                labelmap = dict(
-                    enumerate(list(validator.names.values()) + ["background"])
-                )
-
-            else:
-                labelmap = dict(enumerate(validator.names.values()))
-            self.logger.log_confusion_matrix(
-                name="confusion_matrix", labelmap=labelmap, matrix=matrix, phase="val"
-            )
+        # if (
+        #     hasattr(validator, "confusion_matrix")
+        #     and validator.confusion_matrix is not None
+        # ):
+        #     matrix = validator.confusion_matrix.matrix
+        #     if hasattr(validator, "metrics") and hasattr(
+        #         validator.metrics, "ap_class_index"
+        #     ):
+        #         labelmap = dict(
+        #             enumerate(list(validator.names.values()) + ["background"])
+        #         )
+        #
+        #     else:
+        #         labelmap = dict(enumerate(validator.names.values()))
+        #     self.logger.log_confusion_matrix(
+        #         name="confusion_matrix", labelmap=labelmap, matrix=matrix, phase="val"
+        #     )
 
     def on_train_end(self, trainer: TBaseTrainer):
         """
