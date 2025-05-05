@@ -3,9 +3,7 @@ import logging
 from picsellia_cv_engine import step
 from picsellia_cv_engine.core import DatasetCollection
 from picsellia_cv_engine.core.data import TBaseDataset
-from picsellia_cv_engine.core.services.data.dataset.validator.utils import (
-    get_dataset_validator,
-)
+from picsellia_cv_engine.core.services.data.dataset.utils import validate_dataset_impl
 
 logger = logging.getLogger(__name__)
 
@@ -33,31 +31,3 @@ def validate_dataset(
         Exception: If validation fails for a dataset in the collection, an error is logged, but the process continues.
     """
     return validate_dataset_impl(dataset=dataset, fix_annotation=fix_annotation)
-
-
-def validate_dataset_impl(
-    dataset: TBaseDataset | DatasetCollection, fix_annotation: bool = False
-):
-    validators = {}
-
-    if not isinstance(dataset, DatasetCollection):
-        validator = get_dataset_validator(
-            dataset=dataset, fix_annotation=fix_annotation
-        )
-        if validator:
-            validator.validate()
-    else:
-        dataset_collection = dataset
-
-        for name, dataset in dataset_collection.datasets.items():
-            try:
-                validator = get_dataset_validator(
-                    dataset=dataset, fix_annotation=fix_annotation
-                )
-                if validator:
-                    validator.validate()
-                    validators[name] = validator
-                else:
-                    logger.info(f"Skipping validation for dataset '{name}'.")
-            except Exception as e:
-                logger.error(f"Validation failed for dataset '{name}': {str(e)}")

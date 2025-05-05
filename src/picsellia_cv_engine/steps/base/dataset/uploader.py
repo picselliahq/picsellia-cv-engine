@@ -25,19 +25,26 @@ def upload_full_dataset(
     replace_annotations: Optional[bool] = None,
 ) -> None:
     """
-    Upload both images and annotations for a dataset.
+    Upload both images and annotations for a COCO dataset.
 
-    This step handles the entire dataset upload process, including:
+    This step manages the complete dataset upload workflow. It configures the dataset type based on its annotations
+    and handles image and annotation upload according to the dataset's inference type (classification, detection, etc.).
 
-    - Configuring the dataset type based on annotations
-    - Uploading images and annotations depending on the dataset's inference type
+    If annotations are present:
+    - The dataset type is automatically inferred.
+    - Both images and annotations are uploaded.
+    - If `replace_annotations` is not explicitly provided, it will be determined from the processing context.
+
+    If annotations are missing:
+    - Only images are uploaded.
 
     Args:
-        dataset (CocoDataset): The dataset containing images and annotations to upload.
-        datalake (Optional[Datalake]): The Datalake instance to upload to. If not provided, it is retrieved from the processing context.
-        data_tag (Optional[str]): The tag associated with the dataset upload. If not provided, it is retrieved from the context.
-        use_id (bool): Flag to indicate whether to use asset IDs during upload. Defaults to True.
-        fail_on_asset_not_found (bool): Flag to determine if the upload should fail if an asset is not found. Defaults to True.
+        dataset (CocoDataset): The dataset to upload (including images and optionally annotations).
+        datalake (Optional[Datalake]): The target datalake. If not provided, it is inferred from the processing context.
+        data_tag (Optional[str]): The tag used to associate the upload in the datalake. Defaults to the one in the context.
+        use_id (bool): Whether to use asset IDs for the upload (defaults to True).
+        fail_on_asset_not_found (bool): If True, raises an error when a corresponding asset is not found.
+        replace_annotations (Optional[bool]): Whether to overwrite existing annotations. Fetched from context if None.
     """
     context: PicselliaProcessingContext = Pipeline.get_active_context()
     datalake, data_tag = get_datalake_and_tag(
@@ -75,14 +82,15 @@ def upload_dataset_images(
     data_tag: str | None = None,
 ) -> None:
     """
-    Upload only the images from a dataset.
+    Upload only the image files from a COCO dataset.
 
-    This step focuses on uploading image assets associated with the provided dataset.
+    This step uploads all image assets associated with the provided dataset to the datalake.
+    Annotation data, if present, is ignored.
 
     Args:
-        dataset (CocoDataset): The dataset containing images to upload.
-        datalake (Optional[Datalake]): The Datalake instance to upload the images to. If not provided, it is retrieved from the processing context.
-        data_tag (Optional[str]): The tag associated with the dataset upload. If not provided, it is retrieved from the context.
+        dataset (CocoDataset): The dataset whose image files should be uploaded.
+        datalake (Optional[Datalake]): The target datalake. Inferred from the context if not provided.
+        data_tag (Optional[str]): Optional tag to associate with the uploaded data. Inferred from the context if not provided.
     """
     context: PicselliaProcessingContext = Pipeline.get_active_context()
     datalake, data_tag = get_datalake_and_tag(
@@ -100,16 +108,20 @@ def upload_dataset_annotations(
     replace_annotations: Optional[bool] = None,
 ) -> None:
     """
-    Upload only the annotations for a dataset.
+    Upload only the annotations from a COCO dataset.
 
-    This step handles the upload of annotations, which are configured based on the dataset. If annotations exist,
-    the dataset type is configured, and the annotations are uploaded based on the inference type.
+    This step uploads only the annotations portion of a dataset, based on its inference type.
+    It configures the dataset type (e.g., classification, detection, etc.) based on the annotations present.
+
+    If `replace_annotations` is not explicitly provided, the value is taken from the processing parameters context.
 
     Args:
         dataset (CocoDataset): The dataset containing annotations to upload.
-        use_id (bool): Flag to indicate whether to use asset IDs during upload. Defaults to True.
-        fail_on_asset_not_found (bool): Flag to determine if the upload should fail if an asset is not found. Defaults to True.
+        use_id (bool): Whether to use asset IDs for the upload. Defaults to True.
+        fail_on_asset_not_found (bool): Whether to fail if an asset referenced in the annotations is missing. Defaults to True.
+        replace_annotations (Optional[bool]): Whether to overwrite existing annotations. Fetched from context if not provided.
     """
+
     dataset = initialize_coco_data(dataset=dataset)
     annotations = dataset.coco_data.get("annotations", [])
 
