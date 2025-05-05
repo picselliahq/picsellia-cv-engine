@@ -23,18 +23,25 @@ def train_ultralytics_model(
     dataset_collection: DatasetCollection[TBaseDataset],
 ) -> UltralyticsModel:
     """
-    Trains an Ultralytics model on the provided dataset collection.
+    Train an Ultralytics model using the provided dataset collection and training context.
 
-    This function retrieves the active training context and initializes an `UltralyticsModelTrainer`.
-    It trains the Ultralytics model using the provided dataset collection, applying the hyperparameters and
-    augmentation parameters specified in the context. After training, the updated model is returned.
+    This step:
+    - Retrieves the active training context to access hyperparameters, augmentation settings, and experiment metadata.
+    - Initializes an `UltralyticsModelTrainer` to handle the training logic.
+    - Runs the training pipeline on the dataset collection.
+    - Sets the latest run directory and locates the best model weights after training.
+    - Saves the trained model weights as an artifact in the experiment.
 
     Args:
-        model (UltralyticsModel): The context containing the Ultralytics model to be trained.
-        dataset_collection (DatasetCollection): The dataset collection to be used for training the model.
+        model (UltralyticsModel): The model instance to be trained.
+        dataset_collection (DatasetCollection[TBaseDataset]): The dataset collection used for training,
+            typically including 'train', 'val', and optionally 'test' datasets.
 
     Returns:
-        UltralyticsModel: The updated model after training.
+        UltralyticsModel: The trained model with updated internal state and trained weights.
+
+    Raises:
+        FileNotFoundError: If the trained weights are not found after training.
     """
     context: PicselliaTrainingContext[
         UltralyticsHyperParameters, UltralyticsAugmentationParameters, ExportParameters

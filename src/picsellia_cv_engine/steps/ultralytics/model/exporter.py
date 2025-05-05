@@ -20,18 +20,21 @@ logger = logging.getLogger(__name__)
 @step
 def export_ultralytics_model(model: UltralyticsModel):
     """
-    Exports and saves the Ultralytics model to the experiment.
+    Export a trained Ultralytics model and save it to the associated experiment.
 
-    This function retrieves the active training context from the pipeline, exports the Ultralytics model
-    in the specified format, and saves the exported model weights to the experiment. If the `exported_weights_dir`
-    is not found in the model, the export process is skipped, and a log message is generated.
+    This step performs the following:
+    - Retrieves the active Picsellia training context.
+    - Initializes a model exporter for the given Ultralytics model.
+    - Exports the model to the format specified in the export parameters (e.g., ONNX).
+    - Saves the exported model as an artifact in the experiment.
+
+    If the model does not have an `exported_weights_dir` set, the function logs a message and skips the export.
 
     Args:
-        model (Model): The model for the Ultralytics model to be exported and saved.
+        model (UltralyticsModel): The trained Ultralytics model to export.
 
-    Raises:
-        If no `exported_weights_dir` is found in the model, the export process is skipped, and
-        a log message is generated.
+    Logs:
+        Skips export if no export destination is defined on the model.
     """
     context: PicselliaTrainingContext[
         UltralyticsHyperParameters, UltralyticsAugmentationParameters, ExportParameters

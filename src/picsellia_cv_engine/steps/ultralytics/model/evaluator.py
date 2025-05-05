@@ -4,6 +4,7 @@ from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core.contexts import PicselliaTrainingContext
 from picsellia_cv_engine.core.data import TBaseDataset
 from picsellia_cv_engine.core.parameters import ExportParameters
+from picsellia_cv_engine.core.services.model.utils import evaluate_model_impl
 from picsellia_cv_engine.frameworks.ultralytics.model.model import UltralyticsModel
 from picsellia_cv_engine.frameworks.ultralytics.parameters.augmentation_parameters import (
     UltralyticsAugmentationParameters,
@@ -20,7 +21,6 @@ from picsellia_cv_engine.frameworks.ultralytics.services.model.predictor.object_
 from picsellia_cv_engine.frameworks.ultralytics.services.model.predictor.segmentation import (
     UltralyticsSegmentationModelPredictor,
 )
-from picsellia_cv_engine.steps.base.model.evaluator import evaluate_model_impl
 
 
 @step
@@ -29,19 +29,33 @@ def evaluate_ultralytics_model(
     dataset: TBaseDataset,
 ) -> None:
     """
-    Evaluates an Ultralytics classification model on a given dataset.
+    Evaluate an Ultralytics model on a given dataset and log evaluation metrics.
 
-    This function retrieves the active training context from the pipeline, performs inference using
-    the provided Ultralytics classification model on the dataset, and evaluates the predictions. It processes
-    the dataset in batches, runs inference, and then logs the evaluation results to the experiment.
+    This step handles evaluation for classification, object detection, and segmentation models trained
+    with the Ultralytics framework. It:
+
+    - Retrieves the current training context from the pipeline.
+    - Chooses the appropriate predictor class based on the model's task type.
+    - Runs inference on the provided dataset in batches.
+    - Post-processes predictions into Picsellia-compatible format.
+    - Computes evaluation metrics and logs them to the experiment.
+
+    Supported tasks:
+        - Classification
+        - Object Detection
+        - Segmentation
 
     Args:
-        model (Model): The Ultralytics model to be evaluated.
-        dataset (TDataset): The dataset containing the data for evaluation.
+        model (UltralyticsModel): The trained Ultralytics model to evaluate.
+        dataset (TBaseDataset): The dataset to evaluate the model on.
+
+    Raises:
+        ValueError: If the model's task type is unsupported.
 
     Returns:
-        None: The function performs evaluation and logs the results to the experiment but does not return any value.
+        None
     """
+
     context: PicselliaTrainingContext[
         UltralyticsHyperParameters, UltralyticsAugmentationParameters, ExportParameters
     ] = Pipeline.get_active_context()
