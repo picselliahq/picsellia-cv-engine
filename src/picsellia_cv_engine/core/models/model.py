@@ -25,31 +25,31 @@ class Model:
         Initialize the model with its version and associated files.
         """
         self.name = name
-        """The name of the models."""
+        """The name of the model."""
 
         self.model_version = model_version
-        """The version of the models from Picsellia."""
+        """The version of the model from Picsellia."""
 
         self.pretrained_weights_name = pretrained_weights_name
-        """The name of the pretrained weights file attached to the models version in Picsellia."""
+        """The name of the pretrained weights file attached to the model version in Picsellia."""
 
         self.trained_weights_name = trained_weights_name
-        """The name of the trained weights file attached to the models version in Picsellia."""
+        """The name of the trained weights file attached to the model version in Picsellia."""
 
         self.config_name = config_name
-        """The name of the configuration file attached to the models version in Picsellia."""
+        """The name of the configuration file attached to the model version in Picsellia."""
 
         self.exported_weights_name = exported_weights_name
-        """The name of the exported weights file attached to the models version in Picsellia."""
+        """The name of the exported weights file attached to the model version in Picsellia."""
 
         self.labelmap = labelmap or {}
         """A dictionary mapping category names to labels."""
 
         self.weights_dir: str | None = None
-        """The directory where models weights are stored."""
+        """The directory where model weights are stored."""
 
         self.results_dir: str | None = None
-        """The directory where models results are stored."""
+        """The directory where model results are stored."""
 
         self.pretrained_weights_dir: str | None = None
         """The directory where pretrained weights are stored."""
@@ -58,7 +58,7 @@ class Model:
         """The directory where trained weights are stored."""
 
         self.config_dir: str | None = None
-        """The directory where models configuration files are stored."""
+        """The directory where model configuration files are stored."""
 
         self.exported_weights_dir: str | None = None
         """The directory where exported weights are stored."""
@@ -70,13 +70,13 @@ class Model:
         """The path to the trained weights file."""
 
         self.config_path: str | None = None
-        """The path to the models configuration file."""
+        """The path to the model configuration file."""
 
         self.exported_weights_path: str | None = None
         """The path to the exported weights file."""
 
         self._loaded_model: Any | None = None
-        """The loaded models instance."""
+        """The loaded model instance."""
 
     @property
     def loaded_model(self) -> Any:
@@ -88,7 +88,7 @@ class Model:
         """
         if self._loaded_model is None:
             raise ValueError(
-                "Model is not loaded. Please load the models before accessing it."
+                "Model is not loaded. Please load the model before accessing it."
             )
         return self._loaded_model
 
@@ -126,7 +126,7 @@ class Model:
         ]:
             os.makedirs(directory, exist_ok=True)
 
-        # Download and process models files
+        # Download and process model files
         for model_file in self.model_version.list_files():
             if model_file.name == self.pretrained_weights_name:
                 self.pretrained_weights_path = downloader.download_and_process(
