@@ -11,5 +11,5 @@ class ModelCollectionPredictor(Generic[TModelCollection]):
 
         if not hasattr(self.model_collection, "loaded_model"):
             raise ValueError(
-                "The models collection does not have a loaded models attribute."
+                "The model collection does not have a loaded model attribute."
             )

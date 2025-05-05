@@ -12,7 +12,7 @@ class ClassificationMetricMapping(MetricMapping):
     Defines the metric mapping for classification tasks across different phases (train, val, test).
 
     This class adds common metrics such as accuracy, loss, learning rate, and confusion matrix
-    for the phases 'train', 'val', and 'test' in a classification models workflow.
+    for the phases 'train', 'val', and 'test' in a classification model workflow.
     """
 
     def __init__(self):
@@ -41,7 +41,7 @@ class ClassificationLogger(BaseLogger):
     Logger for classification tasks, using the predefined metric mapping.
 
     This class logs metrics like accuracy, loss, precision, and others during training,
-    validation, and testing phases of a classification models.
+    validation, and testing phases of a classification model.
     """
 
     def __init__(self, experiment: Experiment):
