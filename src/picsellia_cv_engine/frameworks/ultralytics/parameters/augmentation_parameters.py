@@ -4,6 +4,16 @@ from picsellia_cv_engine.core.parameters import AugmentationParameters
 
 
 class UltralyticsAugmentationParameters(AugmentationParameters):
+    """
+    Defines data augmentation parameters for Ultralytics-based training.
+
+    This class extracts and validates augmentation parameters from Picsellia logs.
+    Each parameter is automatically parsed and type-checked using `extract_parameter`.
+
+    Args:
+        log_data (LogDataType): The dictionary of logged parameters from the Picsellia platform.
+    """
+
     def __init__(self, log_data: LogDataType):
         super().__init__(log_data=log_data)
 

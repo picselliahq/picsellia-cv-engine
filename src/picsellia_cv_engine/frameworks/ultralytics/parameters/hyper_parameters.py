@@ -6,6 +6,16 @@ from picsellia_cv_engine.core.parameters import HyperParameters
 
 
 class UltralyticsHyperParameters(HyperParameters):
+    """
+    Defines the set of training hyperparameters used for Ultralytics models.
+
+    This class extracts, validates, and stores training hyperparameters from a Picsellia experiment log.
+    Each parameter includes type validation, default value fallback, and optional value range enforcement.
+
+    Args:
+        log_data (LogDataType): The dictionary of logged hyperparameters from the Picsellia platform.
+    """
+
     def __init__(self, log_data: LogDataType):
         super().__init__(log_data=log_data)
         self.time = self.extract_parameter(

@@ -7,7 +7,20 @@ from picsellia_cv_engine.core.models import Model
 
 def find_latest_run_dir(dir: str, model_name: str):
     """
-    Finds the latest run directory in the given directory.
+    Finds the latest run directory for a given model name.
+
+    This function looks for subdirectories starting with the model name and returns
+    the most recent one (by sorting the folder names ending with digits).
+
+    Args:
+        dir (str): Path to the directory containing run folders.
+        model_name (str): Prefix used to identify run folders.
+
+    Returns:
+        str: Path to the most recent run directory.
+
+    Raises:
+        ValueError: If no matching run directory is found.
     """
     run_dirs = os.listdir(dir)
     run_dirs = [f for f in run_dirs if f.startswith(model_name)]
@@ -23,6 +36,13 @@ def find_latest_run_dir(dir: str, model_name: str):
 
 
 class UltralyticsModel(Model):
+    """
+    Specialized model class for handling Ultralytics models.
+
+    This class extends the base `Model` class to support Ultralytics-specific logic
+    such as automatically locating the latest run directory and setting the trained weights' path.
+    """
+
     def __init__(
         self,
         name: str,
@@ -33,6 +53,18 @@ class UltralyticsModel(Model):
         exported_weights_name: str | None = None,
         labelmap: dict[str, Label] | None = None,
     ):
+        """
+        Initializes the UltralyticsModel.
+
+        Args:
+            name (str): Name of the model.
+            model_version (ModelVersion): Picsellia ModelVersion associated with the model.
+            pretrained_weights_name (Optional[str]): Name of the pretrained weights file.
+            trained_weights_name (Optional[str]): Name of the trained weights file.
+            config_name (Optional[str]): Name of the config file.
+            exported_weights_name (Optional[str]): Name of the exported weights file.
+            labelmap (Optional[dict[str, Label]]): Label map for the model.
+        """
         super().__init__(
             name=name,
             model_version=model_version,
@@ -46,7 +78,10 @@ class UltralyticsModel(Model):
 
     def set_latest_run_dir(self):
         """
-        Sets the latest run directory in the given results directory.
+        Sets the path to the latest run directory.
+
+        Uses the results directory to find and assign the most recent run folder.
+        Raises an error if the results directory is not set or does not exist.
         """
         if not self.results_dir or not os.path.exists(self.results_dir):
             raise ValueError("The results directory is not set.")
@@ -54,7 +89,10 @@ class UltralyticsModel(Model):
 
     def set_trained_weights_path(self):
         """
-        Sets the path to the trained weights file using the latest run directory.
+        Sets the path to the trained weights file from the latest run directory.
+
+        Assumes the file is stored as `best.pt` inside a `weights/` subdirectory.
+        Raises an error if the required directories do not exist.
         """
         if not self.results_dir or not os.path.exists(self.results_dir):
             raise ValueError("The results directory is not set.")
