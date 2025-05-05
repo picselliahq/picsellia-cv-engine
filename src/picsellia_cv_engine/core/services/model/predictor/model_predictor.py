@@ -13,12 +13,25 @@ TModel = TypeVar("TModel", bound=Model)
 
 
 class ModelPredictor(ABC, Generic[TModel]):
+    """
+    Abstract base class for model inference.
+
+    Provides utility methods to standardize prediction outputs (labels, confidence, rectangles)
+    into Picsellia-compatible structures.
+
+    Attributes:
+        model (TModel): The model instance used for inference.
+    """
+
     def __init__(self, model: TModel):
         """
-        Initializes the base class for performing inference using a models.
+        Initialize the predictor with a loaded model.
 
         Args:
-            model (TModel): The context containing the loaded models and configurations.
+            model (TModel): The model context with loaded weights and configuration.
+
+        Raises:
+            ValueError: If the model does not have a loaded model instance.
         """
         self.model: TModel = model
 
@@ -29,14 +42,14 @@ class ModelPredictor(ABC, Generic[TModel]):
         self, category_name: str, dataset: TBaseDataset
     ) -> PicselliaLabel:
         """
-        Retrieves or creates a label for a given category name within the dataset.
+        Get or create a PicselliaLabel from a dataset category name.
 
         Args:
-            category_name (str): The name of the category to retrieve the label for.
-            dataset (TBaseDataset): The dataset containing the label information.
+            category_name (str): The name of the label category.
+            dataset (TBaseDataset): Dataset that provides label access.
 
         Returns:
-            PicselliaLabel: The corresponding Picsellia label for the given category.
+            PicselliaLabel: Wrapped label object.
         """
         return PicselliaLabel(
             dataset.dataset_version.get_or_create_label(category_name)
@@ -44,13 +57,13 @@ class ModelPredictor(ABC, Generic[TModel]):
 
     def get_picsellia_confidence(self, confidence: float) -> PicselliaConfidence:
         """
-        Converts a confidence score into a PicselliaConfidence object.
+        Wrap a confidence score in a PicselliaConfidence object.
 
         Args:
-            confidence (float): The confidence score for the prediction.
+            confidence (float): Prediction confidence score.
 
         Returns:
-            PicselliaConfidence: The confidence score wrapped in a PicselliaConfidence object.
+            PicselliaConfidence: Wrapped confidence object.
         """
         return PicselliaConfidence(confidence)
 
@@ -58,15 +71,15 @@ class ModelPredictor(ABC, Generic[TModel]):
         self, x: int, y: int, w: int, h: int
     ) -> PicselliaRectangle:
         """
-        Creates a PicselliaRectangle object representing a bounding box.
+        Create a PicselliaRectangle from bounding box coordinates.
 
         Args:
-            x (int): The x-coordinate of the top-left corner of the rectangle.
-            y (int): The y-coordinate of the top-left corner of the rectangle.
-            w (int): The width of the rectangle.
-            h (int): The height of the rectangle.
+            x (int): Top-left x-coordinate.
+            y (int): Top-left y-coordinate.
+            w (int): Width of the box.
+            h (int): Height of the box.
 
         Returns:
-            PicselliaRectangle: The rectangle object with the specified dimensions.
+            PicselliaRectangle: Rectangle wrapper for object detection.
         """
         return PicselliaRectangle(x=x, y=y, w=w, h=h)

@@ -3,12 +3,27 @@ from picsellia.services.error_manager import ErrorManager
 
 
 class DataUploader:
+    """
+    Helper class to upload images to a Picsellia datalake with error handling and retries.
+    """
+
     def _upload_data_with_error_manager(
         self,
         datalake: Datalake,
         images_to_upload: list[str],
         data_tags: list[str] | None = None,
     ) -> tuple[list[Data], list[str]]:
+        """
+        Upload images to the datalake using an error manager.
+
+        Args:
+            datalake (Datalake): The target datalake.
+            images_to_upload (list[str]): List of image file paths.
+            data_tags (list[str] | None): Optional tags to attach to data.
+
+        Returns:
+            tuple: A tuple of (successfully uploaded Data objects, failed file paths).
+        """
         error_manager = ErrorManager()
         data = datalake.upload_data(
             filepaths=images_to_upload, tags=data_tags, error_manager=error_manager
@@ -29,6 +44,21 @@ class DataUploader:
         data_tags: list[str] | None = None,
         max_retries: int = 5,
     ) -> list[Data]:
+        """
+        Upload images with retry logic on failure.
+
+        Args:
+            datalake (Datalake): The target datalake.
+            images_to_upload (list[str]): List of image file paths.
+            data_tags (list[str] | None): Optional tags to attach to data.
+            max_retries (int): Maximum number of retry attempts.
+
+        Returns:
+            list[Data]: All successfully uploaded Data objects.
+
+        Raises:
+            Exception: If some files failed to upload after all retries.
+        """
         all_uploaded_data = []
         uploaded_data, error_paths = self._upload_data_with_error_manager(
             datalake=datalake, images_to_upload=images_to_upload, data_tags=data_tags

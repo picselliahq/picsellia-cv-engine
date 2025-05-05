@@ -37,22 +37,19 @@ logger = logging.getLogger(__name__)
 
 class ModelEvaluator:
     """
-    Handles the evaluation process of various prediction types for an experiment in Picsellia.
+    Evaluates model predictions and logs metrics into a Picsellia experiment.
 
-    This class processes different types of predictions (OCR, rectangles, classifications, and polygons)
-    and adds them as evaluations to an experiment. It supports logging and managing the evaluation results
-    based on the type of prediction.
-
-    Attributes:
-        experiment (Experiment): The Picsellia experiment to which evaluations will be added.
+    Supports classification, detection (rectangle), OCR, and segmentation (polygon) evaluations,
+    including COCO-style and sklearn metrics.
     """
 
     def __init__(self, experiment: Experiment, inference_type: InferenceType) -> None:
         """
-        Initializes the ModelEvaluator with the given experiment.
+        Initialize the evaluator with a Picsellia experiment.
 
         Args:
-            experiment (Experiment): The Picsellia experiment object where the evaluations will be logged.
+            experiment (Experiment): The experiment where results will be logged.
+            inference_type (InferenceType): Type of inference (classification, detection, etc.).
         """
         self.experiment = experiment
         self.inference_type = inference_type
@@ -70,15 +67,10 @@ class ModelEvaluator:
         ),
     ) -> None:
         """
-        Evaluates a list of predictions and adds them to the experiment.
-
-        This method processes a list of predictions and delegates the task to `add_evaluation`
-        for each prediction based on its type.
+        Add and compute evaluation metrics from a list of predictions.
 
         Args:
-            picsellia_predictions (Union[List[PicselliaClassificationPrediction], List[PicselliaRectanglePrediction],
-                List[PicselliaPolygonPrediction], List[PicselliaOCRPrediction]]):
-                A list of Picsellia predictions, which can include classification, rectangle, polygon, or OCR predictions.
+            picsellia_predictions (list): List of PicselliaPrediction objects.
         """
         for prediction in picsellia_predictions:
             self.add_evaluation(prediction)
@@ -94,19 +86,13 @@ class ModelEvaluator:
         ),
     ) -> None:
         """
-        Adds a single evaluation to the experiment based on the prediction type.
-
-        This method identifies the type of prediction and adds the corresponding evaluation
-        to the Picsellia experiment. It handles OCR, rectangle, classification, and polygon
-        predictions separately and logs the evaluation details.
+        Add a single prediction to the experiment as evaluation.
 
         Args:
-            evaluation (Union[PicselliaClassificationPrediction, PicselliaRectanglePrediction,
-                PicselliaPolygonPrediction, PicselliaOCRPrediction]):
-                A single prediction instance, which can be a classification, rectangle, polygon, or OCR prediction.
+            evaluation: A prediction (classification, rectangle, OCR, or polygon).
 
         Raises:
-            TypeError: If the prediction type is not supported.
+            TypeError: If the prediction type is unsupported.
         """
         asset = evaluation.asset
 
@@ -219,12 +205,12 @@ class ModelEvaluator:
         training_labelmap: dict[str, str],
     ) -> None:
         """
-        Computes COCO metrics for the given experiment and assets and saves the results to a CSV file.
+        Compute COCO metrics and log them into the experiment.
 
         Args:
-            assets (list[Asset] | MultiAsset): The assets to be evaluated.
-            output_dir (str): The directory where the evaluation results will be saved.
-            training_labelmap (dict[str, str] | None): Optional mapping of label names to IDs for training.
+            assets (list | MultiAsset): Assets to evaluate.
+            output_dir (str): Directory to save metrics.
+            training_labelmap (dict): Label ID-to-name mapping.
         """
 
         os.makedirs(output_dir, exist_ok=True)
@@ -316,6 +302,14 @@ class ModelEvaluator:
         output_dir: str,
         training_labelmap: dict[str, str],
     ) -> None:
+        """
+        Compute sklearn classification metrics (acc, precision, recall, F1).
+
+        Args:
+            assets (list | MultiAsset): Assets to evaluate.
+            output_dir (str): Output directory.
+            training_labelmap (dict): Label ID-to-name mapping.
+        """
         os.makedirs(output_dir, exist_ok=True)
         gt_coco_path = os.path.join(output_dir, "gt.json")
         pred_coco_path = os.path.join(output_dir, "pred.json")

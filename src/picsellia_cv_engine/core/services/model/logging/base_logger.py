@@ -5,11 +5,11 @@ from picsellia.types.enums import LogType
 
 class Metric:
     """
-    Represents a metric with a standard name and an optional framework-specific name.
+    Represents a metric with a standard and optional framework-specific name.
 
     Attributes:
-        standard_name (str): The standard name of the metric (e.g., 'accuracy').
-        framework_name (Optional[str]): The framework-specific name of the metric (optional).
+        standard_name (str): Canonical name used internally.
+        framework_name (str | None): Optional name used by a specific framework.
     """
 
     def __init__(self, standard_name: str, framework_name: str | None = None):
@@ -25,21 +25,19 @@ class Metric:
 
     def get_name(self) -> str:
         """
-        Returns the standard name of the metric.
+        Get the standard name of the metric.
 
         Returns:
-            str: The standard name of the metric.
+            str: Standard metric name.
         """
         return self.standard_name
 
 
 class MetricMapping:
     """
-    Represents a collection of metric mappings for different phases (train, validation, test) of a models's lifecycle.
+    Holds mappings between framework-specific metric names and standard names.
 
-    Attributes:
-        mappings (Dict[str, List[Metric]]): A dictionary where the key is the phase ('train', 'val', 'test')
-                                            and the value is a list of Metric objects.
+    Supports phases: 'train', 'val', 'test'.
     """
 
     def __init__(self):
@@ -54,14 +52,14 @@ class MetricMapping:
 
     def add_metric(self, phase: str, metric: Metric) -> None:
         """
-        Adds a metric to the specified phase.
+        Add a metric to the specified phase.
 
         Args:
-            phase (str): The phase ('train', 'val', 'test') to which the metric will be added.
-            metric (Metric): The metric object to add.
+            phase (str): One of 'train', 'val', or 'test'.
+            metric (Metric): The metric to register.
 
         Raises:
-            ValueError: If an unknown phase is provided.
+            ValueError: If phase is unknown.
         """
         if phase in self.mappings:
             self.mappings[phase].append(metric)
@@ -70,13 +68,13 @@ class MetricMapping:
 
     def get_mapping(self, phase: str | None = None) -> dict[str, str]:
         """
-        Get the mapping of framework names to standard names for the specified phase.
+        Get mapping of framework names to standard names for a given phase.
 
         Args:
-            phase (Optional[str]): The phase ('train', 'val', 'test').
+            phase (str | None): One of 'train', 'val', 'test'.
 
         Returns:
-            Dict[str, str]: A dictionary mapping framework names (or standard names) to standard names for the phase.
+            dict: Mapping of metric names.
         """
         if phase is None:
             return {}
@@ -88,11 +86,7 @@ class MetricMapping:
 
 class BaseLogger:
     """
-    Base class for logging metrics, values, images, and confusion matrices to an experiment.
-
-    Attributes:
-        experiment (Experiment): The experiment object for logging.
-        metric_mapping (MetricMapping): The metric mapping object to translate metric names.
+    Generic logger for logging metrics, values, images, confusion matrices and tables.
     """
 
     def __init__(self, experiment: Experiment, metric_mapping: MetricMapping):
@@ -114,13 +108,13 @@ class BaseLogger:
         phase: str | None = None,
     ):
         """
-        Logs a metric value using the experiment's logging system.
+        Log a metric value (e.g. for line plot).
 
         Args:
-            name (str): The name of the metric.
-            value (float): The value of the metric.
-            log_type (LogType): The type of log (e.g., line plot, default is LogType.LINE).
-            phase (Optional[str]): The phase in which the metric is logged (e.g., 'train', 'val', 'test').
+            name (str): Metric name.
+            value (float): Metric value.
+            log_type (LogType): Logging type (default LINE).
+            phase (str | None): Phase name.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
         self.experiment.log(log_name, value, log_type)
@@ -129,13 +123,13 @@ class BaseLogger:
         self, name: str, value: float, phase: str | None = None, precision: int = 4
     ):
         """
-        Logs a simple scalar value.
+        Log a scalar value (e.g., accuracy score).
 
         Args:
-            name (str): The name of the value.
-            value (float): The value to log.
-            phase (Optional[str]): The phase in which the value is logged (e.g., 'train', 'val', 'test').
-            precision (int): The precision to which the value will be rounded (default is 4).
+            name (str): Metric name.
+            value (float): Value to log.
+            phase (str | None): Phase name.
+            precision (int): Decimal precision to round.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
         sanitized_value = Sanitizer.sanitize_value(round(value, precision))
@@ -143,12 +137,12 @@ class BaseLogger:
 
     def log_image(self, name: str, image_path: str, phase: str | None = None):
         """
-        Logs an image to the experiment.
+        Log an image file.
 
         Args:
-            name (str): The name of the image.
-            image_path (str): The path to the image file.
-            phase (Optional[str]): The phase in which the image is logged (e.g., 'train', 'val', 'test').
+            name (str): Log name.
+            image_path (str): Path to image.
+            phase (str | None): Phase name.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
         self.experiment.log(log_name, image_path, LogType.IMAGE)
@@ -157,12 +151,13 @@ class BaseLogger:
         self, name: str, labelmap: dict, matrix: np.ndarray, phase: str | None = None
     ):
         """
-        Logs a confusion matrix as a heatmap.
+        Log a confusion matrix as a heatmap.
 
         Args:
-            labelmap (dict): A mapping of label indices to label names.
-            matrix (np.ndarray): The confusion matrix data.
-            phase (Optional[str]): The phase in which the confusion matrix is logged (e.g., 'test').
+            name (str): Log name.
+            labelmap (dict): Mapping of label indices to names.
+            matrix (np.ndarray): Confusion matrix.
+            phase (str | None): Phase name.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
         sanitized_confusion = Sanitizer.sanitize_confusion_matrix(
@@ -172,31 +167,28 @@ class BaseLogger:
 
     def _format_confusion_matrix(self, labelmap: dict, matrix: np.ndarray) -> dict:
         """
-        Formats the confusion matrix for logging as a heatmap.
+        Internal formatter for confusion matrix (unused).
 
         Args:
-            labelmap (dict): A mapping of label indices to label names.
-            matrix (np.ndarray): The confusion matrix data.
+            labelmap (dict): Index-to-name mapping.
+            matrix (np.ndarray): Raw matrix.
 
         Returns:
-            dict: A dictionary with the categories and matrix values.
+            dict: Formatted structure.
         """
         return {"categories": list(labelmap.values()), "values": matrix.tolist()}
 
     def log_table(self, name: str, data: dict, phase: str | None = None):
         """
-        Logs a dictionary or matrix as a table to the experiment.
-
-        - If the input has 'data', 'rows', and 'columns', it is treated as a 2D matrix.
-        - Otherwise, it is treated as a 1D key-value dictionary.
+        Log a table (either a key-value dict or 2D matrix).
 
         Args:
-            name (str): The name of the table.
-            data (dict): The table data, either a key-value dict or a 2D matrix.
-            phase (Optional[str]): The phase in which the table is logged.
+            name (str): Log name.
+            data (dict): Data to log.
+            phase (str | None): Phase name.
 
         Raises:
-            ValueError: If 2D matrix dimensions do not match rows/columns.
+            ValueError: If matrix structure is inconsistent.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
 
@@ -222,14 +214,14 @@ class BaseLogger:
 
     def get_log_name(self, metric_name: str, phase: str | None = None) -> str:
         """
-        Generates the appropriate log name by applying the metric mapping and phase.
+        Construct log name with optional phase and mapped name.
 
         Args:
-            metric_name (str): The name of the metric.
-            phase (Optional[str]): The phase in which the metric is logged (e.g., 'train', 'val', 'test').
+            metric_name (str): Base metric name.
+            phase (str | None): Optional phase.
 
         Returns:
-            str: The formatted log name.
+            str: Full log name.
         """
         mapped_name = self.metric_mapping.get_mapping(phase).get(
             metric_name, metric_name
@@ -238,9 +230,21 @@ class BaseLogger:
 
 
 class Sanitizer:
+    """
+    Utility class to convert values and structures into loggable formats.
+    """
+
     @staticmethod
     def sanitize_value(value):
-        """Sanitize a single value for JSON serialization."""
+        """
+        Convert single value to loggable primitive.
+
+        Args:
+            value: Value to convert.
+
+        Returns:
+            int | float | str: Clean value.
+        """
         if isinstance(value, (np.integer, np.floating)):
             return value.item()
         elif isinstance(value, (int, float, str)):
@@ -250,17 +254,42 @@ class Sanitizer:
 
     @classmethod
     def sanitize_dict(cls, data: dict) -> dict:
-        """Sanitize a dictionary of key-value pairs."""
+        """
+        Sanitize values in a dict.
+
+        Args:
+            data (dict): Dictionary to sanitize.
+
+        Returns:
+            dict: Cleaned dictionary.
+        """
         return {k: cls.sanitize_value(v) for k, v in data.items()}
 
     @classmethod
     def sanitize_matrix(cls, matrix: list[list]) -> list[list]:
-        """Sanitize each element of a 2D matrix."""
+        """
+        Sanitize a matrix of values.
+
+        Args:
+            matrix (list[list]): 2D list.
+
+        Returns:
+            list[list]: Clean matrix.
+        """
         return [[cls.sanitize_value(v) for v in row] for row in matrix]
 
     @classmethod
     def sanitize_confusion_matrix(cls, categories: list, matrix: np.ndarray) -> dict:
-        """Sanitize confusion matrix for logging."""
+        """
+        Format confusion matrix for logging.
+
+        Args:
+            categories (list): Category labels.
+            matrix (np.ndarray): Matrix values.
+
+        Returns:
+            dict: Loggable structure.
+        """
         return {
             "categories": list(categories),
             "values": cls.sanitize_matrix(matrix.tolist()),

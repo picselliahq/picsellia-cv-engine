@@ -14,23 +14,18 @@ logger = logging.getLogger("picsellia-engine")
 
 class ModelExporter:
     """
-    Base class for exporting and saving a models.
+    Base class for exporting and saving a model.
 
-    This class serves as a base for exporting a models and saving it to an experiment.
-    It provides an abstract method `export_model` for subclasses to implement
-    specific export logic, and a concrete method `save_model_to_experiment` for saving
-    the exported models to the experiment.
-
-    Attributes:
-        model (Model): The context of the models to be exported.
+    This class provides a standard interface for exporting models and saving them
+    to a Picsellia experiment or model version.
     """
 
     def __init__(self, model: Model):
         """
-        Initializes the ModelExporter with the given models and experiment.
+        Initialize the exporter with a model instance.
 
         Args:
-            model (Model): The models containing the models's details.
+            model (Model): The model to export.
         """
         self.model = model
 
@@ -42,15 +37,14 @@ class ModelExporter:
         hyperparameters: Any,
     ):
         """
-        Abstract method to export the models.
+        Abstract method to export the model.
 
-        This method should be implemented by subclasses to define the logic for exporting
-        the models in the specified format.
+        Must be implemented in subclasses.
 
         Args:
-            exported_model_destination_path (str): The destination path where the exported models will be saved.
-            export_format (str): The format in which the models should be exported.
-            hyperparameters (Any):
+            exported_model_destination_path (str): Directory to export the model to.
+            export_format (str): Format to export the model in.
+            hyperparameters (Any): Optional export configuration.
         """
         pass
 
@@ -61,15 +55,12 @@ class ModelExporter:
         exported_weights_name: str,
     ) -> None:
         """
-        Saves the exported models to the specified experiment.
-
-        This method takes the directory where the models was exported and uploads it to the
-        associated experiment. If multiple files exist in the directory, they are zipped before uploading.
+        Save exported model to a Picsellia experiment.
 
         Args:
-            experiment (Experiment): The experiment to which the models should be saved.
-            exported_weights_path (str):  The path where the exported models weights are stored.
-            exported_weights_name (str): The name under which the models will be stored in the experiment.
+            experiment (Experiment): Target experiment.
+            exported_weights_path (str): Path to exported weights directory.
+            exported_weights_name (str): File name to use in Picsellia.
         """
         self._store_artifact(
             target=experiment,
@@ -84,15 +75,12 @@ class ModelExporter:
         exported_weights_name: str,
     ) -> None:
         """
-        Saves the exported models to the specified models version.
-
-        This method takes the directory where the models was exported and uploads it to the
-        associated models version. If multiple files exist in the directory, they are zipped before uploading.
+        Save exported model to a Picsellia model version.
 
         Args:
-            model_version (Experiment): The models version to which the models should be saved.
-            exported_weights_path (str): The path where the exported models weights are stored.
-            exported_weights_name (str): The name under which the models will be stored in the experiment.
+            model_version (ModelVersion): Target model version.
+            exported_weights_path (str): Path to exported weights directory.
+            exported_weights_name (str): File name to use in Picsellia.
         """
         self._store_artifact(
             target=model_version,
@@ -104,15 +92,14 @@ class ModelExporter:
         self, exported_weights_name: str, target_files: list[ModelFile]
     ) -> str:
         """
-        Get a unique filename for the exported models by looking if a file with the same name already exists in the
-        target. If so, append a number to the filename to make it unique.
+        Generate a unique name for the model file if a name conflict exists.
+
         Args:
-            exported_weights_name: The name of the exported models
-            target_files: The list of files in the target
+            exported_weights_name (str): Desired name of the file.
+            target_files (list[ModelFile]): Existing files in the target.
 
         Returns:
-            str: The unique filename for the exported models
-
+            str: A unique file name.
         """
         unique_name = self._sanitize_filename(filename=exported_weights_name)
         existing_files = [file.name for file in target_files]
@@ -131,13 +118,16 @@ class ModelExporter:
         return unique_name
 
     def _sanitize_filename(self, filename: str) -> str:
-        """Sanitize filename to comply with Picsellia naming requirements.
+        """
+        Sanitize a filename to comply with Picsellia constraints.
+
+        Replaces invalid characters with underscores and removes redundancy.
 
         Args:
-            filename: Original filename to sanitize
+            filename (str): Filename to sanitize.
 
         Returns:
-            Sanitized filename containing only ascii chars, numbers, underscores and hyphens
+            str: Sanitized filename.
         """
         # Replace spaces and invalid chars with underscore
         sanitized = re.sub(r"[^a-zA-Z0-9-]", "_", filename)
@@ -156,15 +146,17 @@ class ModelExporter:
         exported_weights_name: str,
     ) -> None:
         """
-        Stores the exported models weights to the specified target.
+        Store model weights to an experiment or model version.
+
+        If multiple files are found in the directory, they will be zipped.
 
         Args:
-            target: The target to which the models weights should be stored.
-            exported_weights_path: The path where the exported models weights are stored.
-            exported_weights_name: The name under which the models will be stored in the target.
+            target (Experiment | ModelVersion): Destination for the model.
+            exported_weights_path (str): Path to the export folder.
+            exported_weights_name (str): Name under which to save the model.
 
         Raises:
-            ValueError: If no models files are found in the exported models directory.
+            ValueError: If export path is invalid or empty.
         """
         weights_dir = Path(exported_weights_path)
         if not weights_dir.exists():
