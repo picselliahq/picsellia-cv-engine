@@ -13,6 +13,16 @@ from picsellia_cv_engine.core.parameters import (
 
 
 def retrieve_picsellia_processing_parameters(processing_parameters: dict[str, Any]):
+    """
+    Dynamically create a Parameters subclass from a dictionary of processing parameters.
+
+    Args:
+        processing_parameters (dict[str, Any]): Dictionary containing parameter names and example values.
+
+    Returns:
+        Type[Parameters]: A dynamically built subclass of Parameters with attributes based on the input.
+    """
+
     class ProcessingParameters(Parameters):
         def __init__(self, log_data):
             super().__init__(log_data)
@@ -31,10 +41,13 @@ def create_picsellia_processing_context(
     processing_parameters: dict[str, Any],
 ) -> PicselliaProcessingContext:
     """
-    Create a Picsellia processing context.
+    Create a PicselliaProcessingContext from raw processing parameters.
+
+    Args:
+        processing_parameters (dict[str, Any]): Dictionary of parameters used to build the processing context.
 
     Returns:
-        PicselliaProcessingContext: Picsellia processing context object.
+        PicselliaProcessingContext: Initialized processing context object.
     """
     processing_parameters_cls = retrieve_picsellia_processing_parameters(
         processing_parameters
@@ -55,19 +68,19 @@ def create_picsellia_training_context(
     experiment_id: str | None = None,
 ) -> PicselliaTrainingContext:
     """
-    Create a Picsellia training context using static parameter classes.
+    Create a PicselliaTrainingContext from provided static parameter classes.
 
     Args:
-        hyperparameters_cls: Class used to extract hyperparameters
-        augmentation_parameters_cls: Class used to extract augmentation parameters
-        export_parameters_cls: Class used to extract export parameters
-        api_token: API token for authentication
-        host: Host URL for the Picsellia API
-        organization_id: Organization ID for the Picsellia account
-        experiment_id: Experiment ID for the training run
+        hyperparameters_cls (type): Class used to define hyperparameters.
+        augmentation_parameters_cls (type): Class used to define augmentation parameters.
+        export_parameters_cls (type): Class used to define export parameters.
+        api_token (str | None): Optional Picsellia API token.
+        host (str | None): Optional API host.
+        organization_id (str | None): Optional organization ID.
+        experiment_id (str | None): Optional experiment ID.
 
     Returns:
-        A fully initialized PicselliaTrainingContext.
+        PicselliaTrainingContext: Fully initialized training context.
     """
     return PicselliaTrainingContext(
         hyperparameters_cls=hyperparameters_cls,

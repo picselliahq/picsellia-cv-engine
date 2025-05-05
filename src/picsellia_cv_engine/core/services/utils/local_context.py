@@ -15,7 +15,17 @@ from picsellia_cv_engine.core.parameters import (
 
 
 def infer_type(value: str) -> Any:
-    """Infer the type of value based on its content."""
+    """
+    Infer the Python type of string value.
+
+    Tries to cast the input to int, then float, and falls back to string.
+
+    Args:
+        value (str): The string to convert.
+
+    Returns:
+        Any: The value cast to int, float, or left as string.
+    """
     try:
         return int(value)  # Check if it's an integer
     except ValueError:
@@ -26,7 +36,15 @@ def infer_type(value: str) -> Any:
 
 
 def create_local_processing_parameters(processing_parameters: dict[str, Any]):
-    """Create a parameter object with inferred types."""
+    """
+    Dynamically create a local ProcessingParameters dataclass from a dictionary.
+
+    Args:
+        processing_parameters (dict[str, Any]): Dictionary of parameter values.
+
+    Returns:
+        ProcessingParameters: A dataclass instance with inferred types and values.
+    """
 
     @dataclasses.dataclass
     class ProcessingParameters:
@@ -68,10 +86,20 @@ def create_local_processing_context(
     working_dir: str | None = None,
 ) -> LocalProcessingContext:
     """
-    Create a Picsellia processing context.
+    Create a local Picsellia processing context for testing a processing pipeline.
+
+    Args:
+        api_token (str): API token for authentication.
+        organization_name (str): Name of the organization.
+        job_type (ProcessingType): Type of processing (e.g., PRE_ANNOTATION).
+        input_dataset_version_id (str): ID of the dataset version to use as input.
+        processing_parameters (dict[str, Any]): Parameters for the processing step.
+        output_dataset_version_name (str | None): Name of the output dataset version (optional).
+        model_version_id (str | None): ID of the model version to use (optional).
+        working_dir (str | None): Working directory to store files locally (optional).
 
     Returns:
-        PicselliaProcessingContext: Picsellia processing context object.
+        LocalProcessingContext: Initialized processing context.
     """
     processing_parameters_data = create_local_processing_parameters(
         processing_parameters
@@ -100,20 +128,20 @@ def create_local_training_context(
     working_dir: str | None = None,
 ) -> LocalTrainingContext:
     """
-    Create a local training context for local runs (e.g. testing).
+    Create a local training context for testing training workflows.
 
     Args:
-        hyperparameters_cls: Class used to extract hyperparameters
-        augmentation_parameters_cls: Class used to extract augmentation parameters
-        export_parameters_cls: Class used to extract export parameters
-        api_token: API token for authentication
-        host: Host URL for the API
-        organization_name: Organization name for the API
-        experiment_id: Experiment ID for the API
-        working_dir: Working directory for the experiment
+        hyperparameters_cls (type): Class used to extract hyperparameters.
+        augmentation_parameters_cls (type): Class used to extract augmentation parameters.
+        export_parameters_cls (type): Class used to extract export parameters.
+        api_token (str): API token for Picsellia access.
+        organization_name (str): Name of the organization.
+        experiment_id (str): ID of the experiment to attach logs/artifacts.
+        host (str | None): Picsellia API host (optional).
+        working_dir (str | None): Local working directory (optional).
 
     Returns:
-        LocalTrainingContext
+        LocalTrainingContext: Initialized training context.
     """
     return LocalTrainingContext(
         api_token=api_token,
