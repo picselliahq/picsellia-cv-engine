@@ -15,24 +15,9 @@ TParameters = TypeVar("TParameters", bound=Parameters)
 
 class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters]):
     """
-    A context class designed for handling Picsellia datalake processing jobs.
+    Context for running Picsellia datalake processing jobs.
 
-    This class extends `PicselliaContext` to manage the specific setup and execution
-    of a datalake processing job in Picsellia, including fetching job context,
-    input/output datalakes, and models versions.
-
-    Attributes:
-        job_id (str): The job ID, either passed or fetched from environment variables.
-        job (picsellia.Job): The Picsellia job object initialized from the job ID.
-        job_type (str): The type of the job (e.g., pre-annotation).
-        job_context (dict): The context of the job containing models version, datalakes, and other details.
-        input_datalake (Datalake): The input datalake used in the job.
-        output_datalake (Optional[Datalake]): The output datalake (optional).
-        model_version (Optional[ModelVersion]): The models version associated with the job.
-        data_ids (list[UUID]): List of data IDs fetched from the job payload.
-        use_id (bool): A flag indicating whether to use data IDs.
-        download_annotations (bool): A flag indicating whether to download annotations.
-        processing_parameters (TParameters): The parameters used for the processing job.
+    Manages job initialization, model version, input/output datalakes, and job parameters.
     """
 
     def __init__(
@@ -46,19 +31,10 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         download_annotations: bool | None = True,
     ):
         """
-        Initializes the PicselliaDatalakeProcessingContext with parameters to run a processing job.
-
-        Args:
-            processing_parameters_cls (Type[TParameters]): The class used to define the processing parameters.
-            api_token (Optional[str], optional): The API token to authenticate with Picsellia. Defaults to None.
-            host (Optional[str], optional): The host URL for the Picsellia platform. Defaults to None.
-            organization_id (Optional[str], optional): The organization ID within Picsellia. Defaults to None.
-            job_id (Optional[str], optional): The ID of the job to be processed. Defaults to None.
-            use_id (Optional[bool], optional): Whether to use data IDs in the processing job. Defaults to True.
-            download_annotations (Optional[bool], optional): Whether to download annotations for the datalake. Defaults to True.
+        Initialize the datalake processing context.
 
         Raises:
-            ValueError: If the job ID is not provided or found in the environment variables.
+            ValueError: If required information is missing (e.g., job ID or input datalake).
         """
         super().__init__(api_token, host, organization_id)
 
@@ -70,7 +46,6 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
 
         self.job = self._initialize_job()
         self.job_type = self.job.sync()["type"]
-
         self.job_context = self._initialize_job_context()
 
         self._model_version_id = self.job_context.get("model_version_id")
@@ -81,17 +56,16 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         if self._input_datalake_id:
             self.input_datalake = self.get_datalake(self._input_datalake_id)
         else:
-            raise ValueError(
-                "Input datalake ID not found. Please ensure the job is correctly configured."
-            )
-        if self._output_datalake_id:
-            self.output_datalake = self.get_datalake(self._output_datalake_id)
-        else:
-            self.output_datalake = None
-        if self._model_version_id:
-            self.model_version = self.get_model_version()
-        else:
-            self.model_version = None
+            raise ValueError("Input datalake ID not found.")
+
+        self.output_datalake = (
+            self.get_datalake(self._output_datalake_id)
+            if self._output_datalake_id
+            else None
+        )
+        self.model_version = (
+            self.get_model_version() if self._model_version_id else None
+        )
         self.data_ids = self.get_data_ids()
 
         self.use_id = use_id
@@ -104,32 +78,20 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
     @property
     def model_version_id(self) -> str | None:
         """
-        Retrieves the models version ID if available, and ensures it is required for certain job types.
-
-        Returns:
-            Union[str, None]: The models version ID or None if not applicable.
+        Get the model version ID, validating presence if required.
 
         Raises:
-            ValueError: If the models version ID is missing when it is required for the job type.
+            ValueError: If required for pre-annotation but missing.
         """
         if (
             not self._model_version_id
             and self.job_type == ProcessingType.PRE_ANNOTATION
         ):
-            raise ValueError(
-                "Model version ID not found. Please ensure the job is correctly configured."
-            )
-
+            raise ValueError("Model version ID is required for pre-annotation jobs.")
         return self._model_version_id
 
     def to_dict(self) -> dict[str, Any]:
-        """
-        Converts the current processing context to a dictionary format for easier serialization.
-
-        Returns:
-            Dict[str, Any]: A dictionary representation of the context, including job parameters,
-            datalake IDs, and processing parameters.
-        """
+        """Convert the context to a dictionary representation."""
         return {
             "context_parameters": {
                 "host": self.host,
@@ -146,63 +108,30 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         }
 
     def _initialize_job_context(self) -> dict[str, Any]:
-        """
-        Initializes the job context by synchronizing the job data from Picsellia.
-
-        Returns:
-            Dict[str, Any]: The job context containing information such as input datalake, output datalake,
-            models version ID, and other processing parameters.
-        """
-        job_context = self.job.sync()["datalake_processing_job"]
-
-        return job_context
+        """Fetch and return the job's context data."""
+        return self.job.sync()["datalake_processing_job"]
 
     def _initialize_job(self) -> picsellia.Job:
-        """
-        Initializes and retrieves the job from Picsellia using the job ID.
-
-        Returns:
-            picsellia.Job: The initialized job object fetched from Picsellia.
-        """
+        """Fetch the Picsellia Job from its ID."""
         return self.client.get_job_by_id(self.job_id)
 
     def get_datalake(self, datalake_id: str) -> Datalake:
-        """
-        Fetches a datalake from Picsellia using the datalake ID.
-
-        Args:
-            datalake_id (str): The ID of the datalake to fetch.
-
-        Returns:
-            Datalake: The datalake object fetched from Picsellia.
-        """
+        """Fetch a datalake by ID."""
         return self.client.get_datalake(id=datalake_id)
 
     def get_model_version(self) -> ModelVersion:
-        """
-        Fetches the models version from Picsellia using the models version ID.
-
-        Returns:
-            ModelVersion: The models version object fetched from Picsellia.
-        """
+        """Fetch the model version by ID."""
         return self.client.get_model_version_by_id(self.model_version_id)
 
     def get_data_ids(self) -> list[UUID]:
         """
-        Retrieves the list of data IDs from the job's payload presigned URL.
-
-        Returns:
-            list[UUID]: A list of UUIDs representing the data IDs.
+        Retrieve data IDs from the job payload.
 
         Raises:
-            ValueError: If the payload presigned URL is missing from the job context.
+            ValueError: If the payload URL is missing or invalid.
         """
         if self._payload_presigned_url:
             payload = requests.get(self._payload_presigned_url).json()
-            data_ids = payload["data_ids"]
-            uuid_data_ids = [UUID(data_id) for data_id in data_ids]
-            return uuid_data_ids
+            return [UUID(data_id) for data_id in payload["data_ids"]]
         else:
-            raise ValueError(
-                "Payload presigned URL not found. Please ensure the job is correctly configured."
-            )
+            raise ValueError("Payload presigned URL not found.")

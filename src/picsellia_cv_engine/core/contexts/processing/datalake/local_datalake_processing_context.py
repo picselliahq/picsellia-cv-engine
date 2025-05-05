@@ -19,6 +19,12 @@ def create_processing(
     docker_tag: str,
     docker_flags: list[str] | None = None,
 ) -> str:
+    """
+    Create a processing configuration in Picsellia.
+
+    Returns:
+        str: ID of the created processing.
+    """
     payload = {
         "name": name,
         "type": type,
@@ -36,6 +42,12 @@ def create_processing(
 
 
 def get_processing(client: Client, name: str) -> str:
+    """
+    Get the ID of a processing by name.
+
+    Returns:
+        str: ID of the found processing.
+    """
     r = client.connexion.get(
         f"/sdk/organization/{client.id}/processings", params={"name": name}
     ).json()
@@ -53,6 +65,12 @@ def launch_processing(
     gpu: int,
     target_datalake_name: str | None = None,
 ):
+    """
+    Launch a processing job on a datalake.
+
+    Returns:
+        Job: The launched job object.
+    """
     payload = {
         "processing_id": processing_id,
         "parameters": parameters,
@@ -74,7 +92,7 @@ def launch_processing(
 
 class LocalDatalakeProcessingContext(PicselliaContext):
     """
-    This class is used to test a processing pipeline without a real job execution on Picsellia (without giving a real job ID).
+    Context for local testing of processing jobs without real job execution on Picsellia.
     """
 
     def __init__(
@@ -92,7 +110,12 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         use_id: bool | None = True,
         processing_parameters=None,
     ):
-        # Initialize the Picsellia client from the base class
+        """
+        Initialize the local datalake processing context.
+
+        Raises:
+            ValueError: If the input datalake ID is missing or invalid.
+        """
         super().__init__(api_token, host, organization_id)
 
         self.job_id = job_id
@@ -107,16 +130,18 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         self.input_datalake = self.get_datalake(input_datalake_id)
         if not self.input_datalake:
             raise ValueError(f"Datalake with ID {input_datalake_id} not found")
-        if output_datalake_id:
-            self.output_datalake = self.get_datalake(output_datalake_id)
-        else:
-            self.output_datalake = None
+
+        self.output_datalake = (
+            self.get_datalake(output_datalake_id) if output_datalake_id else None
+        )
+
         if model_version_id:
             self.model_version = self.get_model_version(
                 model_version_id=model_version_id
             )
         self.offset = offset
         self.limit = limit
+
         if self.limit is not None and self.offset is not None:
             self.data_ids = self.get_data_ids(
                 datalake=self.input_datalake, offset=self.offset, limit=self.limit
@@ -126,18 +151,21 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         self.processing_parameters = processing_parameters
 
     def get_datalake(self, datalake_id: str) -> Datalake:
+        """Retrieve a datalake by its ID."""
         return self.client.get_datalake(id=datalake_id)
 
     def get_model_version(self, model_version_id: str) -> ModelVersion:
+        """Retrieve a model version by its ID."""
         return self.client.get_model_version_by_id(model_version_id)
 
     def get_data_ids(self, datalake: Datalake, offset: int, limit: int) -> list[UUID]:
+        """List data IDs from a datalake with offset and limit."""
         if not datalake or offset is None or limit is None:
-            raise (ValueError("Datalake, offset and limit must be provided"))
-        else:
-            return datalake.list_data(offset=offset, limit=limit).ids
+            raise ValueError("Datalake, offset and limit must be provided")
+        return datalake.list_data(offset=offset, limit=limit).ids
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert the context to a dictionary."""
         return {
             "context_parameters": {
                 "host": self.host,

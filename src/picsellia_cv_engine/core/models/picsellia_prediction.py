@@ -5,95 +5,50 @@ from picsellia import Asset, Label
 
 @dataclass
 class PicselliaLabel:
-    """
-    Represents a label prediction in Picsellia.
-
-    Attributes:
-        value (Label): The label value associated with a prediction.
-    """
+    """Label associated with a prediction."""
 
     value: Label
 
 
 @dataclass
 class PicselliaConfidence:
-    """
-    Represents the confidence score of a prediction.
-
-    Attributes:
-        value (float): The confidence value associated with a prediction, typically between 0 and 1.
-    """
+    """Confidence score for a prediction (typically between 0 and 1)."""
 
     value: float
 
 
 @dataclass
 class PicselliaRectangle:
-    """
-    Represents a bounding box in the form of a rectangle.
-
-    Attributes:
-        value (list[int]): The list of coordinates [x, y, width, height] that define the rectangle.
-    """
+    """Bounding box in [x, y, width, height] format."""
 
     value: list[int]
 
     def __init__(self, x: int, y: int, w: int, h: int):
-        """
-        Initializes the bounding box with the given coordinates.
-
-        Args:
-            x (int): The x-coordinate of the top-left corner.
-            y (int): The y-coordinate of the top-left corner.
-            w (int): The width of the bounding box.
-            h (int): The height of the bounding box.
-        """
+        """Initialize rectangle coordinates."""
         self.value = [int(x), int(y), int(w), int(h)]
 
 
 @dataclass
 class PicselliaText:
-    """
-    Represents text information in OCR predictions.
-
-    Attributes:
-        value (str): The recognized text from the OCR process.
-    """
+    """Recognized text from OCR predictions."""
 
     value: str
 
 
 @dataclass
 class PicselliaPolygon:
-    """
-    Represents a polygon with a series of points.
-
-    Attributes:
-        value (list[int]): A list of integer coordinates that define the polygon.
-    """
+    """Polygon represented by a list of points."""
 
     value: list[list[int]]
 
     def __init__(self, points: list[list[int]]):
-        """
-        Initializes the polygon with the given list of points.
-
-        Args:
-            points (list[list[int]]): A list of integer coordinates that define the polygon.
-        """
+        """Initialize polygon with a list of [x, y] points."""
         self.value = points
 
 
 @dataclass
 class PicselliaClassificationPrediction:
-    """
-    Represents a classification prediction for an asset.
-
-    Attributes:
-        asset (Asset): The asset associated with this prediction.
-        label (PicselliaLabel): The predicted label.
-        confidence (PicselliaConfidence): The confidence score of the prediction.
-    """
+    """Prediction result for classification tasks."""
 
     asset: Asset
     label: PicselliaLabel
@@ -102,15 +57,7 @@ class PicselliaClassificationPrediction:
 
 @dataclass
 class PicselliaRectanglePrediction:
-    """
-    Represents a rectangle prediction for an asset, typically used in object detection.
-
-    Attributes:
-        asset (Asset): The asset associated with this prediction.
-        boxes (list[PicselliaRectangle]): The bounding boxes predicted for the asset.
-        labels (list[PicselliaLabel]): The labels corresponding to each bounding box.
-        confidences (list[PicselliaConfidence]): The confidence scores for each predicted box.
-    """
+    """Prediction result for object detection (rectangles)."""
 
     asset: Asset
     boxes: list[PicselliaRectangle]
@@ -120,16 +67,7 @@ class PicselliaRectanglePrediction:
 
 @dataclass
 class PicselliaOCRPrediction:
-    """
-    Represents an OCR prediction for an asset, which includes bounding boxes, text, and labels.
-
-    Attributes:
-        asset (Asset): The asset associated with this OCR prediction.
-        boxes (list[PicselliaRectangle]): The bounding boxes for text regions in the asset.
-        labels (list[PicselliaLabel]): The labels corresponding to each text region.
-        texts (list[PicselliaText]): The recognized text in each region.
-        confidences (list[PicselliaConfidence]): The confidence scores for each prediction.
-    """
+    """Prediction result for OCR tasks."""
 
     asset: Asset
     boxes: list[PicselliaRectangle]
@@ -140,15 +78,7 @@ class PicselliaOCRPrediction:
 
 @dataclass
 class PicselliaPolygonPrediction:
-    """
-    Represents a polygon prediction for an asset, typically used in segmentation tasks.
-
-    Attributes:
-        asset (Asset): The asset associated with this prediction.
-        polygons (list[PicselliaPolygon]): The predicted polygons.
-        labels (list[PicselliaLabel]): The labels corresponding to each polygon.
-        confidences (list[PicselliaConfidence]): The confidence scores for each predicted polygon.
-    """
+    """Prediction result for segmentation tasks."""
 
     asset: Asset
     polygons: list[PicselliaPolygon]

@@ -8,11 +8,7 @@ from .model_downloader import ModelDownloader
 
 class Model:
     """
-    Manages the context of a specific models version, including paths, weights, configuration, and labels.
-
-    This class handles the organization of models-related files such as pretrained weights, trained weights,
-    configuration files, and exported weights. It provides methods for downloading these files, managing
-    the models's runtime instance, and storing models artifacts in an experiment.
+    Represents a model version and manages its associated files and runtime instance.
     """
 
     def __init__(
@@ -26,16 +22,7 @@ class Model:
         labelmap: dict[str, Label] | None = None,
     ):
         """
-        Initializes the Model, which manages the paths, version, and related information for a specific models.
-
-        Args:
-            name (str): The name of the models.
-            model_version (ModelVersion): The version of the models, which contains the pretrained models and configuration.
-            pretrained_weights_name (Optional[str], optional): The name of the pretrained weights file attached to the models version in Picsellia. Defaults to None.
-            trained_weights_name (Optional[str], optional): The name of the trained weights file attached to the models version in Picsellia. Defaults to None.
-            config_name (Optional[str], optional): The name of the configuration file attached to the models version in Picsellia. Defaults to None.
-            exported_weights_name (Optional[str], optional): The name of the exported weights file attached to the models version in Picsellia. Defaults to None.
-            labelmap (Optional[Dict[str, Label]], optional): A dictionary mapping category names to labels. Defaults to None.
+        Initialize the model with its version and associated files.
         """
         self.name = name
         """The name of the models."""
@@ -94,13 +81,10 @@ class Model:
     @property
     def loaded_model(self) -> Any:
         """
-        Returns the loaded models instance. Raises an error if the models is not yet loaded.
-
-        Returns:
-            Any: The loaded models instance.
+        Return the loaded model instance.
 
         Raises:
-            ValueError: If the models is not loaded, an error is raised.
+            ValueError: If the model is not yet loaded.
         """
         if self._loaded_model is None:
             raise ValueError(
@@ -109,23 +93,15 @@ class Model:
         return self._loaded_model
 
     def set_loaded_model(self, model: Any) -> None:
-        """
-        Sets the provided models instance as the loaded models.
-
-        Args:
-            model (Any): The models instance to set as loaded.
-        """
+        """Set the runtime-loaded model instance."""
         self._loaded_model = model
 
     def download_weights(self, destination_dir: str) -> None:
         """
-        Downloads the models's weights and configuration files to the specified destination path.
-
-        This method organizes the models weights into separate directories for pretrained weights, trained weights,
-        and configuration files. It then downloads the corresponding files from the models version.
+        Download all configured model files (weights, config, exports) to destination.
 
         Args:
-            destination_dir (str): The destination path where the models weights and related files will be downloaded.
+            destination_dir (str): Root directory for downloaded files.
         """
         downloader = ModelDownloader()
 
@@ -175,17 +151,15 @@ class Model:
         self, experiment: Experiment, artifact_name: str, artifact_path: str
     ) -> None:
         """
-        Saves the specified artifact to the provided experiment.
-
-        This method stores the artifact (e.g., models weights or configuration) to the experiment.
+        Store an artifact file in the given experiment.
 
         Args:
-            experiment (Experiment): The experiment to which the artifact will be saved.
-            artifact_name (str): The name to assign to the artifact in the experiment.
-            artifact_path (str): The path to the artifact file.
+            experiment (Experiment): Experiment to store into.
+            artifact_name (str): Name under which to save the artifact.
+            artifact_path (str): Path to the file.
 
         Raises:
-            ValueError: If the artifact path does not exist.
+            ValueError: If the artifact path doesn't exist.
         """
         if not os.path.exists(artifact_path):
             raise ValueError(f"Artifact path {artifact_path} does not exist.")

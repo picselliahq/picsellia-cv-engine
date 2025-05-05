@@ -20,7 +20,20 @@ T = TypeVar("T")
 
 
 class Parameters(ABC, Generic[T]):
+    """
+    Base class for handling typed parameter extraction from Picsellia log data.
+    """
+
     def __init__(self, log_data: LogDataType):
+        """
+        Initialize with log data.
+
+        Args:
+            log_data (LogDataType): Dictionary of parameters extracted from Picsellia logs.
+
+        Raises:
+            ValueError: If the provided data is not a dictionary.
+        """
         self.parameters_data = self.validate_log_data(log_data)
 
         # Store the keys that have been defaulted, used for logging purposes
@@ -51,10 +64,8 @@ class Parameters(ABC, Generic[T]):
         default: Any = ...,
         range_value: tuple[Any, Any] | None = None,
     ) -> Any:
-        """Extract a parameter from the log data.
-
-        This function tries to extract a parameter from the log data using a list of possible keys.
-        Additional constraints can be provided, such as the expected type, a default value, and a value range.
+        """
+        Extract a parameter using keys, type, optional default, and optional value range.
 
         Examples:
             Extract a required string parameter that cannot be None:
@@ -89,7 +100,7 @@ class Parameters(ABC, Generic[T]):
             range_value: A tuple of two numbers representing the allowed range of the parameter.
 
         Returns:
-            The extracted parameter.
+            The parsed parameter.
 
         Raises:
             ValueError: If no keys are provided or if the value is out of the allowed range.
@@ -193,14 +204,7 @@ class Parameters(ABC, Generic[T]):
             raise KeyError(error_string)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert the parameters to a dictionary.
-
-        This function gathers all of its parameters and returns them as a dictionary.
-        Some parameters are excluded from the dictionary, such as `parameters_data` and `defaulted_keys`.
-
-        Returns:
-            The parameters as a dictionary.
-        """
+        """Return parameters as a dictionary, excluding internal fields."""
         filtered_dict = {
             key: value
             for key, value in self.__dict__.items()
@@ -209,17 +213,7 @@ class Parameters(ABC, Generic[T]):
         return dict(sorted(filtered_dict.items()))
 
     def validate_log_data(self, log_data: LogDataType) -> dict[str, Any]:
-        """Validate the log data.
-
-        Args:
-            log_data: The log data to validate.
-
-        Returns:
-            The validated log data.
-
-        Raises:
-            ValueError: If the log data is not a dictionary.
-        """
+        """Validate and return log data if it's a dictionary."""
         if isinstance(log_data, dict):
             return log_data
 
@@ -228,19 +222,7 @@ class Parameters(ABC, Generic[T]):
     def _flexible_type_check(
         self, value: Any, expected_type: type[T], is_optional: bool
     ) -> Any:
-        """Check if a value can be converted to a given type.
-
-        Args:
-            value: The value to check.
-            expected_type: The type to check against.
-            is_optional: Whether the type is optional.
-
-        Returns:
-            The value converted to the expected type if possible, otherwise None.
-
-        Raises:
-            ValueError: If the value cannot be converted to the expected type.
-        """
+        """Try to cast value to expected type, handling optional and coercion logic."""
         if expected_type is bool:
             return self._check_bool(value)
 
@@ -342,17 +324,7 @@ class Parameters(ABC, Generic[T]):
             return None
 
     def _validate_range(self, value_range: tuple) -> tuple:
-        """Validate the range of a value.
-
-        Args:
-            value_range: A list of two numbers representing the range.
-
-        Returns:
-            The validated range.
-
-        Raises:
-            ValueError: If the range is invalid.
-        """
+        """Ensure range is valid and return it."""
         if value_range is not None:
             if (
                 len(value_range) == 2

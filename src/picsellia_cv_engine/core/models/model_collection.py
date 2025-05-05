@@ -8,22 +8,18 @@ TModel = TypeVar("TModel", bound=Model)
 
 class ModelCollection(Generic[TModel]):
     """
-    A collection of core for managing multiple core in a sequential manner.
+    A collection for managing multiple models, with one active loaded model at a time.
 
-    This class holds multiple core and allows managing a single 'loaded' models
-    at a time for the collection.
-
-    Attributes:
-        models (dict): A dictionary containing core, where keys are models names.
-        loaded_model (Optional[Any]): The currently loaded models for this collection.
+    Provides access to individual models by name, and supports downloading weights
+    for all models in the collection.
     """
 
     def __init__(self, models: list[TModel]):
         """
-        Initializes the collection with a list of core.
+        Initialize the collection from a list of models.
 
         Args:
-            models (List[TModel]): A list of core.
+            models (list[TModel]): List of model instances.
         """
         self.models = {model.name: model for model in models}
         self._loaded_model: Any | None = None
@@ -31,61 +27,51 @@ class ModelCollection(Generic[TModel]):
     @property
     def loaded_model(self) -> Any:
         """
-        Returns the loaded models instance. Raises an error if no models is currently loaded.
-
-        Returns:
-            Any: The loaded models instance.
+        Return the currently loaded model.
 
         Raises:
-            ValueError: If no models is currently loaded.
+            ValueError: If no model is currently loaded.
         """
         if self._loaded_model is None:
-            raise ValueError("No models is currently loaded in this collection.")
+            raise ValueError("No model is currently loaded in this collection.")
         return self._loaded_model
 
     def set_loaded_model(self, model: Any) -> None:
-        """
-        Sets the provided models instance as the loaded models for this collection.
-
-        Args:
-            model (Any): The models instance to set as loaded.
-        """
+        """Set the loaded model for this collection."""
         self._loaded_model = model
 
     def __getitem__(self, key: str) -> TModel:
         """
-        Retrieves a models by its name.
+        Access a model by name.
 
         Args:
-            key (str): The name of the models.
+            key (str): The model name.
 
         Returns:
-            TModel: The models corresponding to the given name.
+            TModel: The corresponding model.
         """
         return self.models[key]
 
     def __setitem__(self, key: str, value: TModel):
         """
-        Sets or updates a models in the collection.
+        Add or update a model in the collection.
 
         Args:
-            key (str): The name of the models to update or add.
-            value (TModel): The models object to associate with the given name.
+            key (str): The model name.
+            value (TModel): The model instance.
         """
         self.models[key] = value
 
     def __iter__(self):
-        """
-        Iterates over all core in the collection.
-
-        Returns:
-            Iterator: An iterator over the core.
-        """
+        """Iterate over models in the collection."""
         return iter(self.models.values())
 
     def download_weights(self, destination_dir: str) -> None:
         """
-        Downloads weights for all core in the collection.
+        Download weights for all models to subdirectories by model name.
+
+        Args:
+            destination_dir (str): Base directory where weights will be saved.
         """
         for model in self:
             model.download_weights(

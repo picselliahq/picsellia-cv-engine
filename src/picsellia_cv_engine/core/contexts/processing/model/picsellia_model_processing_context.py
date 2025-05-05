@@ -1,7 +1,7 @@
 import os
 from typing import Any, Generic, TypeVar
 
-import picsellia  # type: ignore
+import picsellia
 from picsellia import ModelVersion
 
 from picsellia_cv_engine.core.contexts import PicselliaContext
@@ -14,6 +14,10 @@ TExportParameters = TypeVar("TExportParameters", bound=ExportParameters)
 class PicselliaModelProcessingContext(
     PicselliaContext, Generic[TParameters, TExportParameters]
 ):
+    """
+    Context for model version processing jobs in Picsellia, including export logic.
+    """
+
     def __init__(
         self,
         processing_parameters_cls: type[TParameters],
@@ -25,6 +29,12 @@ class PicselliaModelProcessingContext(
         use_id: bool | None = True,
         download_annotations: bool | None = True,
     ):
+        """
+        Initialize the model processing context.
+
+        Raises:
+            ValueError: If job ID is missing or model version ID is not found.
+        """
         super().__init__(api_token, host, organization_id)
 
         self.job_id = job_id or os.environ.get("job_id")
@@ -35,11 +45,9 @@ class PicselliaModelProcessingContext(
 
         self.job = self._initialize_job()
         self.job_type = self.job.sync()["type"]
-
         self.job_context = self._initialize_job_context()
 
         self._model_version_id = self.job_context.get("input_model_version_id")
-
         if self._model_version_id:
             self.model_version = self.get_model_version()
 
@@ -47,7 +55,6 @@ class PicselliaModelProcessingContext(
         self.download_annotations = download_annotations
 
         parameters_log_data = self.job_context["parameters"]
-
         self.processing_parameters = processing_parameters_cls(
             log_data=parameters_log_data
         )
@@ -55,14 +62,15 @@ class PicselliaModelProcessingContext(
 
     @property
     def model_version_id(self) -> str | None:
+        """Return the model version ID, or raise if missing."""
         if not self._model_version_id:
             raise ValueError(
                 "Model version ID not found. Please ensure the job is correctly configured."
             )
-
         return self._model_version_id
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert context to a dictionary representation."""
         return {
             "context_parameters": {
                 "host": self.host,
@@ -81,31 +89,13 @@ class PicselliaModelProcessingContext(
         }
 
     def _initialize_job_context(self) -> dict[str, Any]:
-        """Initializes the context by fetching the necessary information from the job."""
-        job_context = self.job.sync()["model_version_processing_job"]
-
-        return job_context
+        """Fetch job context from Picsellia."""
+        return self.job.sync()["model_version_processing_job"]
 
     def _initialize_job(self) -> picsellia.Job:
-        """
-        Fetches the job from Picsellia using the job ID.
-
-        The Job, in a Picsellia processing context,
-        is the entity that contains all the information needed to run a processing job.
-
-        Returns:
-            The job fetched from Picsellia.
-        """
+        """Retrieve the Picsellia job by ID."""
         return self.client.get_job_by_id(self.job_id)
 
     def get_model_version(self) -> ModelVersion:
-        """
-        Fetches the models version from Picsellia using the models version ID.
-
-        The ModelVersion, in a Picsellia processing context,
-        is the entity that contains all the information needed to process a models.
-
-        Returns:
-            The models version fetched from Picsellia.
-        """
+        """Fetch a model version by ID."""
         return self.client.get_model_version_by_id(self.model_version_id)

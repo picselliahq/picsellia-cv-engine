@@ -11,7 +11,7 @@ from picsellia_cv_engine.core.contexts import (
 
 class LocalProcessingContext(PicselliaContext):
     """
-    This class is used to test a processing pipeline without a real job execution on Picsellia (without giving a real job ID).
+    Local context for testing a processing pipeline without executing a real job on Picsellia.
     """
 
     def __init__(
@@ -31,7 +31,14 @@ class LocalProcessingContext(PicselliaContext):
         processing_parameters=None,
         working_dir: str | None = None,
     ):
-        # Initialize the Picsellia client from the base class
+        """
+        Initialize the local processing context.
+
+        Can create or retrieve dataset versions and model versions as needed.
+
+        Raises:
+            ValueError: If required data is missing (e.g., input dataset version).
+        """
         super().__init__(
             api_token=api_token,
             host=host,
@@ -39,15 +46,18 @@ class LocalProcessingContext(PicselliaContext):
             organization_name=organization_name,
             working_dir=working_dir,
         )
+
         self.job_id = job_id
         self.job_type = job_type
         self.input_dataset_version_id = input_dataset_version_id
         self.output_dataset_version_id = output_dataset_version_id
         self.model_version_id = model_version_id
+
         if self.input_dataset_version_id:
             self.input_dataset_version = self.get_dataset_version(
                 self.input_dataset_version_id
             )
+
         if self.output_dataset_version_id:
             self.output_dataset_version = self.get_dataset_version(
                 self.output_dataset_version_id
@@ -57,43 +67,31 @@ class LocalProcessingContext(PicselliaContext):
                 self.input_dataset_version.origin_id
             ).create_version(version=output_dataset_version_name)
             self.output_dataset_version_id = self.output_dataset_version.id
+
         if self.model_version_id:
             self.model_version = self.get_model_version()
+
         self.processing_parameters = processing_parameters
         self.use_id = use_id
         self.download_annotations = download_annotations
 
     @property
     def working_dir(self) -> str:
+        """Return the working directory for this job."""
         if self._working_dir_override:
             return self._working_dir_override
         return os.path.join(os.getcwd(), f"job_{self.job_id}")
 
     def get_dataset_version(self, dataset_version_id) -> DatasetVersion:
-        """
-        Fetches the dataset version from Picsellia using the input dataset version ID.
-
-        The DatasetVersion, in a Picsellia processing context,
-        is the entity that contains all the information needed to process a dataset.
-
-        Returns:
-            The dataset version fetched from Picsellia.
-        """
+        """Fetch a dataset version by its ID."""
         return self.client.get_dataset_version_by_id(dataset_version_id)
 
     def get_model_version(self) -> ModelVersion:
-        """
-        Fetches the models version from Picsellia using the models version ID.
-
-        The ModelVersion, in a Picsellia processing context,
-        is the entity that contains all the information needed to process a models.
-
-        Returns:
-            The models version fetched from Picsellia.
-        """
+        """Fetch a model version by its ID."""
         return self.client.get_model_version_by_id(self.model_version_id)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert context to a dictionary for logging or serialization."""
         return {
             "context_parameters": {
                 "host": self.host,

@@ -6,16 +6,20 @@ from picsellia import ModelFile
 
 
 class ModelDownloader:
+    """
+    Handles downloading and optional extraction of model files.
+    """
+
     def download_and_process(self, model_file: ModelFile, destination_path: str) -> str:
         """
-        Downloads and extracts a models file if necessary.
+        Download a model file and extract it if compressed.
 
         Args:
-            model_file (ModelFile): The models file to download.
-            destination_path (str): The destination path where the file will be stored.
+            model_file (ModelFile): The file to download.
+            destination_path (str): Target directory for the downloaded file.
 
         Returns:
-            str: The path to the downloaded or extracted file.
+            str: Path to the extracted or raw file.
         """
         os.makedirs(destination_path, exist_ok=True)
         file_path = os.path.join(destination_path, model_file.filename)
@@ -27,14 +31,14 @@ class ModelDownloader:
 
     def _unzip_if_needed(self, file_path: str, destination_path: str) -> str:
         """
-        Extracts a compressed file if it's in a .tar or .zip format.
+        Extract .tar or .zip files if needed.
 
         Args:
-            file_path (str): The path of the file to extract.
-            destination_path (str): The directory where the file should be extracted.
+            file_path (str): Path to the downloaded file.
+            destination_path (str): Where to extract contents.
 
         Returns:
-            str: The path to the extracted file, or the original file if no extraction was needed.
+            str: Path to extracted contents or original file.
         """
         if file_path.endswith(".tar"):
             with tarfile.open(file_path, "r:*") as tar:

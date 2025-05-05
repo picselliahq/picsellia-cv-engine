@@ -21,6 +21,10 @@ class PicselliaTrainingContext(
     PicselliaContext,
     Generic[THyperParameters, TAugmentationParameters, TExportParameters],
 ):
+    """
+    Context for training jobs in Picsellia, managing parameters and experiment metadata.
+    """
+
     def __init__(
         self,
         hyperparameters_cls: type[THyperParameters],
@@ -33,6 +37,12 @@ class PicselliaTrainingContext(
         experiment_id: str | None = None,
         working_dir: Optional[str] = None,
     ):
+        """
+        Initialize the training context with parameter classes and experiment data.
+
+        Raises:
+            ValueError: If no experiment ID is provided or found in the environment.
+        """
         super().__init__(
             api_token=api_token,
             host=host,
@@ -40,8 +50,8 @@ class PicselliaTrainingContext(
             organization_name=organization_name,
             working_dir=working_dir,
         )
-        self.experiment_id = experiment_id or os.getenv("experiment_id")
 
+        self.experiment_id = experiment_id or os.getenv("experiment_id")
         if not self.experiment_id:
             raise ValueError(
                 "Experiment ID not provided. Please provide it as an argument "
@@ -59,11 +69,13 @@ class PicselliaTrainingContext(
 
     @property
     def working_dir(self) -> str:
+        """Return the working directory path for the experiment."""
         if self._working_dir_override:
             return self._working_dir_override
         return os.path.join(os.getcwd(), self.experiment.name)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert the context to a dictionary representation."""
         return {
             "context_parameters": {
                 "host": self.host,
@@ -86,12 +98,5 @@ class PicselliaTrainingContext(
         }
 
     def _initialize_experiment(self) -> Experiment:
-        """Fetches the experiment from Picsellia using the experiment ID.
-
-        The experiment, in a Picsellia training context,
-        is the entity that contains all the information needed to train a models.
-
-        Returns:
-            The experiment fetched from Picsellia.
-        """
+        """Fetch the experiment by ID from Picsellia."""
         return self.client.get_experiment_by_id(self.experiment_id)

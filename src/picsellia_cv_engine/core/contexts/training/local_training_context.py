@@ -20,7 +20,7 @@ class LocalTrainingContext(
     PicselliaContext, Generic[THyperParameters, TAugmentationParameters]
 ):
     """
-    This class is used to test a processing pipeline without a real job execution on Picsellia (without giving a real job ID).
+    Local context for training pipelines without a real job on Picsellia.
     """
 
     def __init__(
@@ -35,7 +35,12 @@ class LocalTrainingContext(
         experiment_id: str | None = None,
         working_dir: str | None = None,
     ):
-        # Initialize the Picsellia client from the base class
+        """
+        Initialize the training context using an experiment and parameter classes.
+
+        Raises:
+            ValueError: If experiment ID is provided but the experiment cannot be found.
+        """
         super().__init__(
             api_token=api_token,
             host=host,
@@ -43,9 +48,11 @@ class LocalTrainingContext(
             organization_name=organization_name,
             working_dir=working_dir,
         )
+
         self.experiment_id = experiment_id
         if self.experiment_id:
             self.experiment = self._initialize_experiment()
+
         parameters_log_data = self.experiment.get_log("parameters").data
 
         self.hyperparameters = hyperparameters_cls(log_data=parameters_log_data)
@@ -58,11 +65,13 @@ class LocalTrainingContext(
 
     @property
     def working_dir(self) -> str:
+        """Return the working directory path for the experiment."""
         if self._working_dir_override:
             return self._working_dir_override
         return os.path.join(os.getcwd(), self.experiment.name)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert the context to a dictionary representation."""
         return {
             "context_parameters": {
                 "host": self.host,
@@ -85,12 +94,5 @@ class LocalTrainingContext(
         }
 
     def _initialize_experiment(self) -> Experiment:
-        """Fetches the experiment from Picsellia using the experiment ID.
-
-        The experiment, in a Picsellia training context,
-        is the entity that contains all the information needed to train a models.
-
-        Returns:
-            The experiment fetched from Picsellia.
-        """
+        """Fetch the experiment by ID from Picsellia."""
         return self.client.get_experiment_by_id(self.experiment_id)
