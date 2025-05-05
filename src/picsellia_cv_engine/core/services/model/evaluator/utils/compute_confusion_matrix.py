@@ -50,8 +50,6 @@ def compute_full_confusion_matrix(
     num_classes = len(label_name_to_index)
     confusion = np.zeros((num_classes + 1, num_classes + 1), dtype=int)
 
-    # gt_cat_id_to_index = _build_cat_id_to_index(gt_annotations, label_name_to_index)
-    # pred_cat_id_to_index = _build_cat_id_to_index(pred_annotations, label_name_to_index)
     gt_cat_id_to_index = _build_cat_id_to_index(gt_annotations)
     pred_cat_id_to_index = _build_cat_id_to_index(pred_annotations)
 
@@ -153,3 +151,26 @@ def _update_confusion_matrix_for_image(
     unmatched_gt = set(range(len(gt_boxes))) - matched_gt
     for idx in unmatched_gt:
         confusion[num_classes, gt_labels[idx]] += 1
+
+
+def compute_confusion_matrix_impl(
+    coco_gt, coco_pred, label_map, training_labelmap, experiment_logger
+):
+    gt_anns = coco_gt.loadAnns(coco_gt.getAnnIds())
+    pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
+
+    conf_matrix = compute_full_confusion_matrix(
+        gt_annotations=gt_anns,
+        pred_annotations=pred_anns,
+        label_map=label_map,
+        iou_threshold=0.5,
+    )
+
+    label_map[len(label_map)] = "background"
+
+    experiment_logger.log_confusion_matrix(
+        name="confusion-matrix",
+        labelmap=training_labelmap,
+        matrix=conf_matrix,
+        phase="test",
+    )
