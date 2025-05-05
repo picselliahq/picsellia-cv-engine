@@ -26,19 +26,19 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
         Initializes the UltralyticsClassificationModelPredictor with a provided model.
 
         Args:
-            model (Model): The context containing the loaded model and its configurations.
+            model (UltralyticsModel): The context containing the loaded model and its configurations.
         """
         super().__init__(model)
 
     def pre_process_dataset(self, dataset: TBaseDataset) -> list[str]:
         """
-        Prepares the dataset by extracting and returning a list of image file paths from the dataset.
+        Prepares the dataset by extracting and returning a list of image file paths from the dataset directory.
 
         Args:
-            dataset (TBaseDataset): The context containing the dataset information.
+            dataset (TBaseDataset): The dataset containing image directories structured by class.
 
         Returns:
-            List[str]: A list of image file paths from the dataset.
+            list[str]: A list of full image file paths.
         """
         if not dataset.images_dir:
             raise ValueError("No images directory found in the dataset.")
@@ -57,14 +57,14 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
         self, image_paths: list[str], batch_size: int
     ) -> list[list[str]]:
         """
-        Divides the list of image paths into smaller batches of a specified size.
+        Splits the image paths into smaller batches for batched inference.
 
         Args:
-            image_paths (List[str]): A list of image file paths to be split into batches.
-            batch_size (int): The size of each batch.
+            image_paths (list[str]): List of full image file paths.
+            batch_size (int): Number of images per batch.
 
         Returns:
-            List[List[str]]: A list of batches, each containing a list of image file paths.
+            list[list[str]]: A list of batches (each batch is a list of image paths).
         """
         return [
             image_paths[i : i + batch_size]
@@ -73,13 +73,13 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
 
     def run_inference_on_batches(self, image_batches: list[list[str]]) -> list[Results]:
         """
-        Runs model inference on each batch of images and returns the prediction results for all batches.
+        Runs inference on each batch of images using the model.
 
         Args:
-            image_batches (List[List[str]]): A list of batches of image file paths for inference.
+            image_batches (list[list[str]]): Batches of image paths.
 
         Returns:
-            List[Results]: A list of prediction results for each batch.
+            list[Results]: A list of inference result objects, one per batch.
         """
         all_batch_results = []
 
@@ -90,13 +90,13 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
 
     def _run_inference(self, batch_paths: list[str]) -> Results:
         """
-        Executes inference on a single batch of images using the loaded model.
+        Executes inference on a single batch using the loaded Ultralytics model.
 
         Args:
-            batch_paths (List[str]): A list of image file paths to perform inference on.
+            batch_paths (list[str]): A batch of image paths.
 
         Returns:
-            Results: The inference results, containing predictions for each image in the batch.
+            Results: Inference result for the given batch.
         """
         return self.model.loaded_model(batch_paths)
 
@@ -107,15 +107,15 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
         dataset: TBaseDataset,
     ) -> list[PicselliaClassificationPrediction]:
         """
-        Post-processes the inference results for each batch and returns a list of classification predictions.
+        Post-processes all inference results by matching predictions with assets.
 
         Args:
-            image_batches (List[List[str]]): A list of batches of image paths.
-            batch_results (List[Results]): The list of inference results for each batch.
-            dataset (TBaseDataset): The context of the dataset used for label mapping.
+            image_batches (list[list[str]]): List of image batches.
+            batch_results (list[Results]): Corresponding model outputs for each batch.
+            dataset (TBaseDataset): Dataset used to resolve label references.
 
         Returns:
-            List[PicselliaClassificationPrediction]: A list of processed classification predictions for each image.
+            list[PicselliaClassificationPrediction]: Formatted predictions.
         """
         all_predictions = []
 
@@ -138,17 +138,15 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
         dataset: TBaseDataset,
     ) -> list[PicselliaClassificationPrediction]:
         """
-        Post-processes the predictions for a single batch of images, mapping predicted classes and confidence scores
-        to Picsellia labels.
+        Converts raw model outputs into Picsellia-compatible classification predictions.
 
         Args:
-            image_paths (List[str]): The list of image paths for the batch.
-            batch_prediction (Results): The inference results for the batch.
-            dataset (TBaseDataset): The dataset used for label mapping.
+            image_paths (list[str]): List of image paths corresponding to predictions.
+            batch_prediction (Results): Raw model output for the batch.
+            dataset (TBaseDataset): Dataset used for asset resolution and label lookup.
 
         Returns:
-            List[PicselliaClassificationPrediction]: A list of processed predictions, including image paths,
-            predicted classes, and confidence scores.
+            list[PicselliaClassificationPrediction]: Final structured predictions.
         """
         processed_predictions = []
 

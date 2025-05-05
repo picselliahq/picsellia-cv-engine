@@ -17,19 +17,16 @@ class UltralyticsModelExporter(ModelExporter):
     """
     Exporter class for Ultralytics models.
 
-    This class handles the export of models trained with the Ultralytics framework. It supports exporting the model
-    to a specified format (e.g., ONNX) and moving the resulting file to a designated destination for deployment or further use.
-
-    Attributes:
-        model (UltralyticsModel): The Ultralytics model to be exported.
+    This class handles the export process for models trained using the Ultralytics framework.
+    It supports exporting to formats such as ONNX and relocating the exported model to a specified path.
     """
 
     def __init__(self, model: UltralyticsModel):
         """
-        Initializes an instance of UltralyticsModelExporter.
+        Initializes the UltralyticsModelExporter with a model instance.
 
         Args:
-            model (UltralyticsModel): The model containing details about the model and paths.
+            model (UltralyticsModel): The model instance containing metadata and paths required for export.
         """
         super().__init__(model=model)
         self.model: UltralyticsModel = model
@@ -41,16 +38,15 @@ class UltralyticsModelExporter(ModelExporter):
         hyperparameters: UltralyticsHyperParameters,
     ) -> None:
         """
-        Exports the Ultralytics model by converting it to the specified format (e.g., ONNX) and
-        moves the resulting file to the designated destination path.
+        Exports the model to the specified format and moves the file to a target directory.
 
         Args:
-            exported_model_destination_path (str): The path to save the exported model weights.
-            export_format (str): The format in which to export the model (e.g., ONNX).
-            hyperparameters (UltralyticsHyperParameters): The hyperparameters guiding the export process.
+            exported_model_destination_path (str): Path to save the exported model.
+            export_format (str): Export format (e.g., 'onnx').
+            hyperparameters (UltralyticsHyperParameters): Export configuration including image size.
 
         Raises:
-            ValueError: If no results folder or ONNX file is found during the export process.
+            ValueError: If the export directory or ONNX file cannot be found.
         """
         self._export_model(export_format=export_format, hyperparameters=hyperparameters)
 
@@ -65,11 +61,11 @@ class UltralyticsModelExporter(ModelExporter):
         self, export_format: str, hyperparameters: UltralyticsHyperParameters
     ) -> None:
         """
-        Exports the loaded model in the specified format (e.g., ONNX) to the model's inference path.
+        Executes the export of the model using Ultralytics API.
 
         Args:
-            export_format (str): The format to export the model in (e.g., ONNX).
-            hyperparameters (UltralyticsHyperParameters): Hyperparameters specifying the image size, batch size, etc.
+            export_format (str): Format to which the model should be exported.
+            hyperparameters (UltralyticsHyperParameters): Contains export settings such as image size.
         """
         loaded_model: YOLO = self.model.loaded_model
         loaded_model.export(
@@ -82,13 +78,13 @@ class UltralyticsModelExporter(ModelExporter):
 
     def _find_exported_onnx_file(self) -> str:
         """
-        Searches for the ONNX file in the weights directory of the Ultralytics results folder.
+        Locates the exported ONNX file in the model's weights directory.
 
         Returns:
-            str: The full path to the ONNX file.
+            str: Absolute path to the ONNX file.
 
         Raises:
-            ValueError: If no ONNX file is found in the weights directory.
+            ValueError: If no ONNX file is found in the expected directory.
         """
         if not self.model.latest_run_dir:
             raise ValueError("The latest run directory is not set.")
@@ -104,13 +100,13 @@ class UltralyticsModelExporter(ModelExporter):
         self, onnx_file_path: str, exported_model_destination_path: str
     ) -> None:
         """
-        Moves the ONNX file from its current location to the specified destination path.
+        Moves the exported ONNX model to the destination directory.
 
-        If a file already exists at the destination, it will be overwritten.
+        If a file with the same name exists, it will be overwritten.
 
         Args:
-            onnx_file_path (str): The full path to the ONNX file.
-            exported_model_destination_path (str): The destination path to move the ONNX file.
+            onnx_file_path (str): Path to the ONNX file.
+            exported_model_destination_path (str): Target directory where the file will be moved.
         """
         logger.info(f"Moving ONNX file to {exported_model_destination_path}...")
 

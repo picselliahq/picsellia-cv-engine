@@ -33,7 +33,10 @@ TUltralyticsCallbacks = TypeVar("TUltralyticsCallbacks", bound=UltralyticsCallba
 
 class UltralyticsModelTrainer:
     """
-    Trainer class for handling the training process of a model using the Ultralytics framework.
+    Trainer class for managing the training lifecycle of a model using the Ultralytics framework.
+
+    This class handles the setup of callbacks, integration with the Picsellia experiment system,
+    and executes training using specific hyperparameters and augmentations.
     """
 
     def __init__(
@@ -45,8 +48,8 @@ class UltralyticsModelTrainer:
         Initializes the trainer with a model and an experiment.
 
         Args:
-            model (Model): The context of the model to be trained.
-            experiment (Experiment): The experiment instance used for logging and tracking.
+            model (UltralyticsModel): The model to be trained.
+            experiment (Experiment): The experiment instance used for logging and tracking results.
         """
         self.model = model
         self.experiment = experiment
@@ -57,7 +60,14 @@ class UltralyticsModelTrainer:
         save_period: int = 10,
     ):
         """
-        Sets up the callbacks for the model training process.
+        Sets up the appropriate callbacks depending on the model task.
+
+        Args:
+            callbacks (type): Callback handler class to use.
+            save_period (int): Number of epochs between model checkpoint saves.
+
+        Raises:
+            ValueError: If the model task is not supported.
         """
         if self.model.loaded_model.task == "classify":
             callback_handler = callbacks(
@@ -96,18 +106,17 @@ class UltralyticsModelTrainer:
         callbacks: type[TUltralyticsCallbacks] = UltralyticsCallbacks,
     ) -> UltralyticsModel:
         """
-        Trains the model within the provided context using the given datasets, hyperparameters, and augmentation parameters.
+        Executes training on the model using the provided datasets and parameters.
 
         Args:
-            dataset_collection (DatasetCollection): The collection of datasets used for training.
-            hyperparameters (UltralyticsHyperParameters): The hyperparameters used for training.
-            augmentation_parameters (UltralyticsAugmentationParameters): The augmentation parameters applied during training.
-            callbacks (type[TUltralyticsCallbacks]): The callbacks used for training.
+            dataset_collection (DatasetCollection): Dataset used for training and validation.
+            hyperparameters (UltralyticsHyperParameters): Training configuration including learning rate, epochs, etc.
+            augmentation_parameters (UltralyticsAugmentationParameters): Data augmentation parameters.
+            callbacks (type): Callback class to use for logging and event handling.
 
         Returns:
-            Model: The updated model after training.
+            UltralyticsModel: The trained model instance.
         """
-
         self._setup_callbacks(
             callbacks=callbacks, save_period=hyperparameters.save_period
         )

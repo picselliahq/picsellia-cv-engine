@@ -20,8 +20,10 @@ TBaseValidator = TypeVar("TBaseValidator", bound=BaseValidator)
 
 class UltralyticsCallbacks:
     """
-    A class that provides callback methods for logging metrics, images, and results during the
-    training and validation process of an Ultralytics YOLO model.
+    Provides callback hooks for training and evaluation lifecycle events in Ultralytics YOLO models.
+
+    This class integrates with Picsellia to log metrics, images, and artifacts
+    during the training and validation process.
     """
 
     def __init__(
@@ -33,12 +35,14 @@ class UltralyticsCallbacks:
         save_period: int,
     ):
         """
-        Initializes the callback class with an experiment for logging.
+        Initializes the UltralyticsCallbacks.
 
         Args:
-            experiment (Experiment): The experiment instance for logging training and validation data.
-            logger (Type[TBaseLogger]): The logger class to be used for logging metrics and images.
-            metric_mapping (TMetricMapping): The metric mapping class for mapping
+            experiment (Experiment): The experiment object used for logging.
+            logger (type[TBaseLogger]): The logger class used for metric/image logging.
+            metric_mapping (TMetricMapping): Maps framework-specific metric names to standard names.
+            model (UltralyticsModel): The model wrapper to manage artifacts and paths.
+            save_period (int): Frequency (in epochs) to save model checkpoints.
         """
         self.logger = logger(experiment=experiment, metric_mapping=metric_mapping)
         self.experiment = experiment
@@ -47,10 +51,11 @@ class UltralyticsCallbacks:
 
     def on_train_epoch_end(self, trainer: TBaseTrainer):
         """
-        Logs metrics and learning rate at the end of each training epoch.
+        Callback called at the end of each training epoch.
+        Logs training and validation losses, learning rates, and periodically saves the model.
 
         Args:
-            trainer (TBaseTrainer): The trainer instance containing current training state and metrics.
+            trainer (TBaseTrainer): The trainer object with training state and losses.
         """
         for metric_name, loss_value in trainer.label_loss_items(trainer.tloss).items():
             if metric_name.startswith("val") or metric_name.startswith("metrics"):
@@ -70,10 +75,11 @@ class UltralyticsCallbacks:
 
     def on_fit_epoch_end(self, trainer: TBaseTrainer):
         """
-        Logs the time and metrics at the end of each epoch.
+        Callback called at the end of each epoch (after validation).
+        Logs time, metrics, and training images.
 
         Args:
-            trainer (TBaseTrainer): The trainer instance containing current training state and metrics.
+            trainer (TBaseTrainer): The trainer object with metrics and epoch info.
         """
         self.logger.log_metric(
             name="epoch_time", value=float(trainer.epoch_time), phase="train"
@@ -114,10 +120,11 @@ class UltralyticsCallbacks:
 
     def on_val_end(self, validator: TBaseValidator):
         """
-        Logs validation results including validation images at the end of the validation phase.
+        Callback called after validation.
+        Logs validation result images and performance metrics.
 
         Args:
-            validator (TBaseValidator): The validator instance containing the validation results.
+            validator (TBaseValidator): The validator object with validation metrics.
         """
         val_output_directory = Path(validator.save_dir)
 
@@ -210,24 +217,20 @@ class UltralyticsCallbacks:
 
     def on_train_end(self, trainer: TBaseTrainer):
         """
-        Logs the final results, including metrics and visualizations, after training completes.
+        Callback called at the end of training.
+        Currently logs final metrics (disabled by default).
 
         Args:
-            trainer (TBaseTrainer): The trainer instance containing the final training state.
+            trainer (TBaseTrainer): The trainer object.
         """
-        # for metric_key, metric_value in trainer.validator.metrics.results_dict.items():
-        #     if isinstance(metric_value, np.float64):
-        #         metric_value = float(metric_value)
-        #     self.logger.log_value(
-        #         name=f"{metric_key}-final", value=metric_value, phase="val"
-        #     )
+        # Reserved for future use or manual reactivation for metrics logging
 
     def get_callbacks(self):
         """
-        Returns a dictionary mapping callback names to the corresponding callback functions.
+        Returns the dictionary of callback methods for integration into the Ultralytics engine.
 
         Returns:
-            dict: A dictionary of callback functions.
+            dict: Callback function names mapped to their handlers.
         """
         return {
             "on_train_epoch_end": self.on_train_epoch_end,
@@ -237,6 +240,12 @@ class UltralyticsCallbacks:
         }
 
     def _save_checkpoint_to_experiment(self, epoch: int):
+        """
+        Saves the trained model weights to the experiment as an artifact.
+
+        Args:
+            epoch (int): The epoch number associated with the checkpoint.
+        """
         self.model.set_latest_run_dir()
         self.model.set_trained_weights_path()
         best_weights_path = self.model.trained_weights_path
@@ -253,11 +262,13 @@ class UltralyticsCallbacks:
 
 def extract_column_names(desc: str) -> list[str]:
     """
-    Extracts column names from a YOLO-style desc string, preserving prefixes like 'Box' or 'Mask'.
+    Parses a YOLO-style descriptor string to extract column names, preserving prefixes like 'Box' and 'Mask'.
 
-    Example:
-    Input:  "%22s" + "%11s" * 10 => "Class Images Instances Box(P R mAP50 mAP50-95) Mask(P R mAP50 mAP50-95)"
-    Output: ['Class', 'Images', 'Instances', 'Box(P)', 'Box(R)', 'Box(mAP50)', 'Box(mAP50-95)', 'Mask(P)', 'Mask(R)', ...]
+    Args:
+        desc (str): A description string (e.g., "Class Images Instances Box(P R mAP50)").
+
+    Returns:
+        list[str]: Parsed column names (e.g., ["Class", "Images", "Instances", "Box(P)", ...]).
     """
     tokens = desc.replace(")", ") ").split()
     final_cols = []

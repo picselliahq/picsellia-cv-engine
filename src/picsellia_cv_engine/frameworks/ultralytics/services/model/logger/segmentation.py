@@ -10,10 +10,20 @@ from picsellia_cv_engine.frameworks.ultralytics.services.model.logger.object_det
 
 
 class UltralyticsSegmentationMetricMapping(UltralyticsObjectDetectionMetricMapping):
-    """ """
+    """
+    Defines the metric mapping for segmentation tasks using the Ultralytics framework.
+
+    This class extends the object detection mapping and adds segmentation-specific metrics,
+    such as segmentation loss and mask-based precision, recall, and mAP.
+    """
 
     def __init__(self):
-        """ """
+        """
+        Initializes the segmentation-specific metric mapping.
+
+        Adds metrics for training and validation segmentation loss, as well as mask precision,
+        recall, mAP50, and mAP50-95.
+        """
         super().__init__()
         self.add_metric(
             phase="train",
@@ -49,12 +59,23 @@ class UltralyticsSegmentationMetricMapping(UltralyticsObjectDetectionMetricMappi
 
 
 class UltralyticsSegmentationLogger(BaseLogger):
-    """ """
+    """
+    Logger for Ultralytics-based segmentation models.
+
+    This logger uses an UltralyticsSegmentationMetricMapping to log metrics
+    during training and validation phases to a Picsellia experiment.
+    """
 
     def __init__(
         self,
         experiment: Experiment,
         metric_mapping: UltralyticsSegmentationMetricMapping,
     ):
-        """ """
+        """
+        Initializes the segmentation logger with the given experiment and metric mapping.
+
+        Args:
+            experiment (Experiment): The experiment used for logging.
+            metric_mapping (UltralyticsSegmentationMetricMapping): The segmentation-specific metric mapping.
+        """
         super().__init__(experiment=experiment, metric_mapping=metric_mapping)

@@ -19,14 +19,29 @@ from picsellia_cv_engine.frameworks.ultralytics.model.model import UltralyticsMo
 
 class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
     """
-    A predictor class that handles model inference and result post-processing for object detection tasks
+    A predictor class that handles inference and result formatting for object detection tasks
     using the Ultralytics framework.
     """
 
     def __init__(self, model: UltralyticsModel):
+        """
+        Initializes the UltralyticsDetectionModelPredictor with the specified model.
+
+        Args:
+            model (UltralyticsModel): The detection model with its weights and configuration loaded.
+        """
         super().__init__(model)
 
     def pre_process_dataset(self, dataset: TBaseDataset) -> list[str]:
+        """
+        Extracts all image paths from the dataset's image directory.
+
+        Args:
+            dataset (TBaseDataset): The dataset object containing the image directory.
+
+        Returns:
+            list[str]: A list of file paths to the dataset images.
+        """
         if not dataset.images_dir:
             raise ValueError("No images directory found in the dataset.")
 
@@ -38,12 +53,31 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
     def prepare_batches(
         self, image_paths: list[str], batch_size: int
     ) -> list[list[str]]:
+        """
+        Splits the list of image paths into batches of a specified size.
+
+        Args:
+            image_paths (list[str]): List of all image paths.
+            batch_size (int): Number of images per batch.
+
+        Returns:
+            list[list[str]]: List of batches, each containing a list of image paths.
+        """
         return [
             image_paths[i : i + batch_size]
             for i in range(0, len(image_paths), batch_size)
         ]
 
     def run_inference_on_batches(self, image_batches: list[list[str]]) -> list[Results]:
+        """
+        Runs inference on each image batch using the model.
+
+        Args:
+            image_batches (list[list[str]]): A list of image batches.
+
+        Returns:
+            list[Results]: A list of inference result objects, one per batch.
+        """
         all_batch_results = []
 
         for batch_paths in image_batches:
@@ -52,6 +86,15 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
         return all_batch_results
 
     def _run_inference(self, batch_paths: list[str]) -> Results:
+        """
+        Runs inference on a single batch of image paths.
+
+        Args:
+            batch_paths (list[str]): List of paths for the current batch.
+
+        Returns:
+            Results: The Ultralytics model's inference result.
+        """
         return self.model.loaded_model(batch_paths)
 
     def post_process_batches(
@@ -60,6 +103,17 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
         batch_results: list[Results],
         dataset: TBaseDataset,
     ) -> list[PicselliaRectanglePrediction]:
+        """
+        Converts raw model outputs into structured rectangle predictions.
+
+        Args:
+            image_batches (list[list[str]]): List of image batches.
+            batch_results (list[Results]): Model predictions per batch.
+            dataset (TBaseDataset): Dataset context used for label resolution.
+
+        Returns:
+            list[PicselliaRectanglePrediction]: Structured prediction results per image.
+        """
         all_predictions = []
 
         for batch_result, batch_paths in zip(
@@ -80,6 +134,17 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
         batch_prediction: Results,
         dataset: TBaseDataset,
     ) -> list[PicselliaRectanglePrediction]:
+        """
+        Converts prediction results for a batch into PicselliaRectanglePrediction objects.
+
+        Args:
+            image_paths (list[str]): The image paths corresponding to the predictions.
+            batch_prediction (Results): The raw prediction results.
+            dataset (TBaseDataset): Dataset used for label matching.
+
+        Returns:
+            list[PicselliaRectanglePrediction]: Formatted detection predictions.
+        """
         processed_predictions = []
 
         for image_path, prediction in zip(image_paths, batch_prediction, strict=False):
@@ -103,6 +168,17 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
     def format_predictions(
         self, asset: Asset, prediction: Results, dataset: TBaseDataset
     ):
+        """
+        Transforms raw model predictions into Picsellia-compatible rectangle, label, and confidence objects.
+
+        Args:
+            asset (Asset): The asset corresponding to the image.
+            prediction (Results): The prediction results for the image.
+            dataset (TBaseDataset): The dataset used to retrieve label mappings.
+
+        Returns:
+            tuple: Lists of PicselliaRectangle, PicselliaLabel, and PicselliaConfidence objects.
+        """
         if not prediction.boxes:
             return [], [], []
 
@@ -130,7 +206,15 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
     @staticmethod
     def rescale_normalized_box(box, width, height):
         """
-        Rescale a normalized bounding box (values between 0 and 1) to image dimensions.
+        Rescales a bounding box from normalized coordinates to pixel dimensions.
+
+        Args:
+            box (list): Normalized box in [x_min, y_min, x_max, y_max] format.
+            width (int): Image width.
+            height (int): Image height.
+
+        Returns:
+            list[int]: Rescaled box in [x, y, width, height] format.
         """
         x_min, y_min, x_max, y_max = box
         return [
@@ -143,6 +227,12 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
     @staticmethod
     def cast_type_list_to_int(box):
         """
-        Casts a list of float values to integers.
+        Converts all values in a box list to integers.
+
+        Args:
+            box (list[float]): Bounding box coordinates.
+
+        Returns:
+            list[int]: Bounding box with integer values.
         """
         return [int(value) for value in box]

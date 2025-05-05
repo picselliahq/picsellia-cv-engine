@@ -16,13 +16,16 @@ class UltralyticsClassificationMetricMapping(UltralyticsBaseMetricMapping):
     """
     Defines the metric mapping for classification tasks in the Ultralytics framework.
 
-    This class extends the ClassificationMetricMapping and adds specific framework-related metric names
-    for training and validation phases, such as top-1 and top-5 accuracy, loss, and learning rate.
+    This class extends the base Ultralytics metric mapping and adds classification-specific metrics
+    such as top-1 and top-5 accuracy and loss for both training and validation phases.
     """
 
     def __init__(self):
         """
         Initializes the Ultralytics-specific classification metric mapping.
+
+        Registers classification metrics including loss, top-1 accuracy, and top-5 accuracy
+        for both training and validation.
         """
         super().__init__()
         self.add_metric(
@@ -64,17 +67,18 @@ class UltralyticsClassificationLogger(BaseLogger):
     """
     Logger for Ultralytics-based classification models.
 
-    This class logs classification metrics during training and validation phases in Ultralytics models,
-    using a metric mapping specific to the Ultralytics framework.
+    This class is responsible for logging classification-related metrics during training
+    and validation, using an Ultralytics-compatible metric mapping.
     """
 
     def __init__(
         self, experiment: Experiment, metric_mapping: ClassificationMetricMapping
     ):
         """
-        Initialize the UltralyticsClassificationLogger with an experiment and Ultralytics metric mapping.
+        Initialize the UltralyticsClassificationLogger with an experiment and a metric mapping.
 
         Args:
-            experiment (Experiment): The experiment object for logging Ultralytics classification metrics.
+            experiment (Experiment): The experiment object used for logging.
+            metric_mapping (ClassificationMetricMapping): The metric mapping used to normalize metric names.
         """
         super().__init__(experiment=experiment, metric_mapping=metric_mapping)

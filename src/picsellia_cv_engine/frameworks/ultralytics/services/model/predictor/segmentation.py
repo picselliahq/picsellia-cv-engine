@@ -23,9 +23,27 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
     """
 
     def __init__(self, model: UltralyticsModel):
+        """
+        Initializes the segmentation predictor with the specified model.
+
+        Args:
+            model (UltralyticsModel): The model used to perform inference.
+        """
         super().__init__(model)
 
     def pre_process_dataset(self, dataset: TBaseDataset) -> list[str]:
+        """
+        Retrieves the list of image paths from the dataset.
+
+        Args:
+            dataset (TBaseDataset): The dataset containing image paths.
+
+        Returns:
+            list[str]: A list of full paths to image files.
+
+        Raises:
+            ValueError: If the dataset has no image directory defined.
+        """
         if not dataset.images_dir:
             raise ValueError("No images directory found in the dataset.")
 
@@ -37,15 +55,43 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
     def prepare_batches(
         self, image_paths: list[str], batch_size: int
     ) -> list[list[str]]:
+        """
+        Splits image paths into batches of a given size.
+
+        Args:
+            image_paths (list[str]): All image file paths.
+            batch_size (int): Number of images per batch.
+
+        Returns:
+            list[list[str]]: List of batches, each a list of image paths.
+        """
         return [
             image_paths[i : i + batch_size]
             for i in range(0, len(image_paths), batch_size)
         ]
 
     def run_inference_on_batches(self, image_batches: list[list[str]]) -> list[Results]:
+        """
+        Runs inference on each batch of images.
+
+        Args:
+            image_batches (list[list[str]]): A list of image path batches.
+
+        Returns:
+            list[Results]: The list of inference results for each batch.
+        """
         return [self._run_inference(batch) for batch in image_batches]
 
     def _run_inference(self, batch_paths: list[str]) -> Results:
+        """
+        Executes model inference on a single batch of images.
+
+        Args:
+            batch_paths (list[str]): List of image paths.
+
+        Returns:
+            Results: The results of the inference for the batch.
+        """
         return self.model.loaded_model(batch_paths)
 
     def post_process_batches(
@@ -54,6 +100,17 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
         batch_results: list[Results],
         dataset: TBaseDataset,
     ) -> list[PicselliaPolygonPrediction]:
+        """
+        Converts raw predictions into PicselliaPolygonPrediction objects for each image.
+
+        Args:
+            image_batches (list[list[str]]): The original image path batches.
+            batch_results (list[Results]): The inference results for each batch.
+            dataset (TBaseDataset): Dataset used to retrieve asset metadata.
+
+        Returns:
+            list[PicselliaPolygonPrediction]: Structured predictions ready for evaluation/logging.
+        """
         return [
             prediction
             for batch_paths, batch_result in zip(
@@ -68,6 +125,17 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
         batch_prediction: Results,
         dataset: TBaseDataset,
     ) -> list[PicselliaPolygonPrediction]:
+        """
+        Processes a batch's prediction output and builds the final prediction objects.
+
+        Args:
+            image_paths (list[str]): Image paths for the current batch.
+            batch_prediction (Results): Inference results for the batch.
+            dataset (TBaseDataset): Dataset used to map predictions to assets and labels.
+
+        Returns:
+            list[PicselliaPolygonPrediction]: Processed predictions for each image.
+        """
         processed_predictions = []
 
         for image_path, prediction in zip(image_paths, batch_prediction, strict=False):
@@ -90,6 +158,16 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
         return processed_predictions
 
     def format_predictions(self, prediction: Results, dataset: TBaseDataset):
+        """
+        Extracts and formats segmentation predictions into Picsellia types.
+
+        Args:
+            prediction (Results): A single inference result containing segmentation masks.
+            dataset (TBaseDataset): Dataset used to resolve labels.
+
+        Returns:
+            tuple: Lists of PicselliaPolygon, PicselliaLabel, and PicselliaConfidence.
+        """
         if prediction.masks is None:
             return [], [], []
 
@@ -117,6 +195,12 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
     @staticmethod
     def format_polygons(polygon):
         """
-        Convert polygon mask to integer points.
+        Converts a polygon array to a list of integer coordinates.
+
+        Args:
+            polygon (np.ndarray): Polygon mask as an array of coordinates.
+
+        Returns:
+            list[list[int]]: Polygon represented as a list of integer point pairs.
         """
         return polygon.astype(int).tolist()

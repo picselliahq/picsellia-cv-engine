@@ -5,7 +5,18 @@ from picsellia_cv_engine.core.services.model.logging import (
 
 
 class UltralyticsBaseMetricMapping(MetricMapping):
+    """
+    A base class that defines the standard metric mappings for Ultralytics models.
+
+    This class extends the MetricMapping to register common metrics used during training
+    and validation in the Ultralytics framework. It provides a consistent mapping between
+    framework-specific metric names and their standardized names across training phases.
+    """
+
     def __init__(self):
+        """
+        Initializes the metric mappings for training and validation phases.
+        """
         super().__init__()
         self.add_metric(
             phase="train",
