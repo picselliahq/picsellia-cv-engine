@@ -5,10 +5,10 @@ from typing import Any, Optional, TypeVar, Union, overload
 
 from tabulate import tabulate  # type: ignore
 
+from picsellia_cv_engine.core import Colors
+from picsellia_cv_engine.core.step_metadata import StepMetadata
 from picsellia_cv_engine.enums import PipelineState, StepState
 from picsellia_cv_engine.logger import LoggerManager
-from picsellia_cv_engine.models.logging.colors import Colors
-from picsellia_cv_engine.models.steps.step_metadata import StepMetadata
 
 F = TypeVar("F", bound=Callable[..., Any])
 
