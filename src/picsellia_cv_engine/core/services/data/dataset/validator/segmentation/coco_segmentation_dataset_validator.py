@@ -27,7 +27,7 @@ class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
             "deleted_objects": 0,
         }
 
-    def validate(self):
+    def validate(self) -> CocoDataset:
         """
         Validate the COCO segmentation dataset.
 

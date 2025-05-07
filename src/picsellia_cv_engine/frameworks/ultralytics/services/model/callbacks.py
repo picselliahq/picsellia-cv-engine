@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import TypeVar
+from typing import Callable, TypeVar
 
 from picsellia import Experiment
 from ultralytics.engine.trainer import BaseTrainer
@@ -207,7 +207,7 @@ class UltralyticsCallbacks:
         """
         # Reserved for future use or manual reactivation for metrics logging
 
-    def get_callbacks(self):
+    def get_callbacks(self) -> dict[str, Callable]:
         """
         Returns the dictionary of callback methods for integration into the Ultralytics engine.
 

@@ -24,7 +24,7 @@ class CocoObjectDetectionDatasetValidator(DatasetValidator[CocoDataset]):
             "bottom_right_y": 0,
         }
 
-    def validate(self):
+    def validate(self) -> CocoDataset:
         """
         Validate the COCO object detection dataset.
 
