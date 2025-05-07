@@ -1,4 +1,4 @@
-# Core.Parameters.Export Parameters
+# core.parameters.export_parameters
 
 ::: picsellia_cv_engine.core.parameters.export_parameters
     handler: python

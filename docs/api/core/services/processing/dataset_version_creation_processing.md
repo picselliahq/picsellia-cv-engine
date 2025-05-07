@@ -1,4 +1,4 @@
-# Core.Services.Processing.Dataset Version Creation Processing
+# core.services.processing.dataset_version_creation_processing
 
 ::: picsellia_cv_engine.core.services.processing.dataset_version_creation_processing
     handler: python

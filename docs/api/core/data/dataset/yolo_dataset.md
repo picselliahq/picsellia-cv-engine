@@ -1,4 +1,4 @@
-# Core.Data.Dataset.Yolo Dataset
+# core.data.dataset.yolo_dataset
 
 ::: picsellia_cv_engine.core.data.dataset.yolo_dataset
     handler: python

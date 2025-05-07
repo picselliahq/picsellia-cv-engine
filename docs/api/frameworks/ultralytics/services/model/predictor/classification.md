@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Predictor.Classification
+# frameworks.ultralytics.services.model.predictor.classification
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.predictor.classification
     handler: python

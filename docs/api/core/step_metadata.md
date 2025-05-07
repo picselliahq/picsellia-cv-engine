@@ -1,4 +1,4 @@
-# Core.Step Metadata
+# core.step_metadata
 
 ::: picsellia_cv_engine.core.step_metadata
     handler: python

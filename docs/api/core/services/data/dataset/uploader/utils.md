@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Uploader.Utils
+# core.services.data.dataset.uploader.utils
 
 ::: picsellia_cv_engine.core.services.data.dataset.uploader.utils
     handler: python

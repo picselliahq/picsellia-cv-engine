@@ -1,4 +1,4 @@
-# Core.Services.Utils.Picsellia Context
+# core.services.utils.picsellia_context
 
 ::: picsellia_cv_engine.core.services.utils.picsellia_context
     handler: python

@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Validator.Object Detection.Coco Object Detection Dataset Validator
+# core.services.data.dataset.validator.object_detection.coco_object_detection_dataset_validator
 
 ::: picsellia_cv_engine.core.services.data.dataset.validator.object_detection.coco_object_detection_dataset_validator
     handler: python

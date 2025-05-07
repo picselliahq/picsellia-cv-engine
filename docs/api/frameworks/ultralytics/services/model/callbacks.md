@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Callbacks
+# frameworks.ultralytics.services.model.callbacks
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.callbacks
     handler: python

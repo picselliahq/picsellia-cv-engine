@@ -1,4 +1,4 @@
-# Steps.Base.Dataset.Validator
+# steps.base.dataset.validator
 
 ::: picsellia_cv_engine.steps.base.dataset.validator
     handler: python

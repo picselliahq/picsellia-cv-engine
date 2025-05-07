@@ -1,4 +1,4 @@
-# Steps.Base.Model.Evaluator
+# steps.base.model.evaluator
 
 ::: picsellia_cv_engine.steps.base.model.evaluator
     handler: python

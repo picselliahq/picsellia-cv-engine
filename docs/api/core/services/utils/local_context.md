@@ -1,4 +1,4 @@
-# Core.Services.Utils.Local Context
+# core.services.utils.local_context
 
 ::: picsellia_cv_engine.core.services.utils.local_context
     handler: python

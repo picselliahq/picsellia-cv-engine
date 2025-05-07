@@ -1,4 +1,4 @@
-# Core.Models.Picsellia Prediction
+# core.models.picsellia_prediction
 
 ::: picsellia_cv_engine.core.models.picsellia_prediction
     handler: python

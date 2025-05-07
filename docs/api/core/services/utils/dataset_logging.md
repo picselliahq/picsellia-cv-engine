@@ -1,4 +1,4 @@
-# Core.Services.Utils.Dataset Logging
+# core.services.utils.dataset_logging
 
 ::: picsellia_cv_engine.core.services.utils.dataset_logging
     handler: python

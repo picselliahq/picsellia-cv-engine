@@ -1,4 +1,4 @@
-# Steps.Base.Dataset.Loader
+# steps.base.dataset.loader
 
 ::: picsellia_cv_engine.steps.base.dataset.loader
     handler: python

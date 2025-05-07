@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Uploader.Object Detection.Coco Object Detection Dataset Uploader
+# core.services.data.dataset.uploader.object_detection.coco_object_detection_dataset_uploader
 
 ::: picsellia_cv_engine.core.services.data.dataset.uploader.object_detection.coco_object_detection_dataset_uploader
     handler: python

@@ -1,4 +1,4 @@
-# Steps.Base.Dataset.Uploader
+# steps.base.dataset.uploader
 
 ::: picsellia_cv_engine.steps.base.dataset.uploader
     handler: python

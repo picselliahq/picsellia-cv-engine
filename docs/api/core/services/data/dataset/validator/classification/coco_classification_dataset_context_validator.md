@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Validator.Classification.Coco Classification Dataset Context Validator
+# core.services.data.dataset.validator.classification.coco_classification_dataset_context_validator
 
 ::: picsellia_cv_engine.core.services.data.dataset.validator.classification.coco_classification_dataset_context_validator
     handler: python

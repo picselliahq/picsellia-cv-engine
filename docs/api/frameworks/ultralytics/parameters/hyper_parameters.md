@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Parameters.Hyper Parameters
+# frameworks.ultralytics.parameters.hyper_parameters
 
 ::: picsellia_cv_engine.frameworks.ultralytics.parameters.hyper_parameters
     handler: python

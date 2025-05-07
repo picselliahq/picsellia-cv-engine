@@ -1,4 +1,4 @@
-# Steps.Ultralytics.Model.Evaluator
+# steps.ultralytics.model.evaluator
 
 ::: picsellia_cv_engine.steps.ultralytics.model.evaluator
     handler: python

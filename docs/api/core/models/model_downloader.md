@@ -1,4 +1,4 @@
-# Core.Models.Model Downloader
+# core.models.model_downloader
 
 ::: picsellia_cv_engine.core.models.model_downloader
     handler: python

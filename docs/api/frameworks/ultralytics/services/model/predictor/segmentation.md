@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Predictor.Segmentation
+# frameworks.ultralytics.services.model.predictor.segmentation
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.predictor.segmentation
     handler: python

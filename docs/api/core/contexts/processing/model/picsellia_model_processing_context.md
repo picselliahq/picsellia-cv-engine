@@ -1,4 +1,4 @@
-# Core.Contexts.Processing.Model.Picsellia Model Processing Context
+# core.contexts.processing.model.picsellia_model_processing_context
 
 ::: picsellia_cv_engine.core.contexts.processing.model.picsellia_model_processing_context
     handler: python

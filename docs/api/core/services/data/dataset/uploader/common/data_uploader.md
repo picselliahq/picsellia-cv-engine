@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Uploader.Common.Data Uploader
+# core.services.data.dataset.uploader.common.data_uploader
 
 ::: picsellia_cv_engine.core.services.data.dataset.uploader.common.data_uploader
     handler: python

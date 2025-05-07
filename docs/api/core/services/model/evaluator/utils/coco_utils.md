@@ -1,4 +1,4 @@
-# Core.Services.Model.Evaluator.Utils.Coco Utils
+# core.services.model.evaluator.utils.coco_utils
 
 ::: picsellia_cv_engine.core.services.model.evaluator.utils.coco_utils
     handler: python

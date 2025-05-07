@@ -1,4 +1,4 @@
-# Core.Parameters.Hyper Parameters
+# core.parameters.hyper_parameters
 
 ::: picsellia_cv_engine.core.parameters.hyper_parameters
     handler: python

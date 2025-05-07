@@ -1,4 +1,4 @@
-# Core.Contexts.Processing.Datalake.Picsellia Datalake Processing Context
+# core.contexts.processing.datalake.picsellia_datalake_processing_context
 
 ::: picsellia_cv_engine.core.contexts.processing.datalake.picsellia_datalake_processing_context
     handler: python

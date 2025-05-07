@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Loader.Training Dataset Collection Extractor
+# core.services.data.dataset.loader.training_dataset_collection_extractor
 
 ::: picsellia_cv_engine.core.services.data.dataset.loader.training_dataset_collection_extractor
     handler: python

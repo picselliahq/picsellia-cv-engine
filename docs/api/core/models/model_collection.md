@@ -1,4 +1,4 @@
-# Core.Models.Model Collection
+# core.models.model_collection
 
 ::: picsellia_cv_engine.core.models.model_collection
     handler: python

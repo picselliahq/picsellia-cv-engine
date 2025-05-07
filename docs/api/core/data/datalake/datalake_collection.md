@@ -1,4 +1,4 @@
-# Core.Data.Datalake.Datalake Collection
+# core.data.datalake.datalake_collection
 
 ::: picsellia_cv_engine.core.data.datalake.datalake_collection
     handler: python

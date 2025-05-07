@@ -1,4 +1,4 @@
-# Core.Services.Model.Predictor.Model Collection Predictor
+# core.services.model.predictor.model_collection_predictor
 
 ::: picsellia_cv_engine.core.services.model.predictor.model_collection_predictor
     handler: python

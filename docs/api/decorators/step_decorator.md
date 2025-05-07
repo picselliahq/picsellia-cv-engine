@@ -1,4 +1,4 @@
-# Decorators.Step Decorator
+# decorators.step_decorator
 
 ::: picsellia_cv_engine.decorators.step_decorator
     handler: python

@@ -1,4 +1,4 @@
-# Core.Services.Utils.Image File
+# core.services.utils.image_file
 
 ::: picsellia_cv_engine.core.services.utils.image_file
     handler: python

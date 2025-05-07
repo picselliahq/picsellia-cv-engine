@@ -1,4 +1,4 @@
-# Core.Data.Dataset.Dataset Collection
+# core.data.dataset.dataset_collection
 
 ::: picsellia_cv_engine.core.data.dataset.dataset_collection
     handler: python

@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Uploader.Segmentation.Coco Segmentation Dataset Uploader
+# core.services.data.dataset.uploader.segmentation.coco_segmentation_dataset_uploader
 
 ::: picsellia_cv_engine.core.services.data.dataset.uploader.segmentation.coco_segmentation_dataset_uploader
     handler: python

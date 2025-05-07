@@ -1,4 +1,4 @@
-# Core.Contexts.Processing.Dataset.Local Processing Context
+# core.contexts.processing.dataset.local_processing_context
 
 ::: picsellia_cv_engine.core.contexts.processing.dataset.local_processing_context
     handler: python

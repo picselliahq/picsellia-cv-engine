@@ -1,4 +1,4 @@
-# Core.Contexts.Training.Picsellia Training Context
+# core.contexts.training.picsellia_training_context
 
 ::: picsellia_cv_engine.core.contexts.training.picsellia_training_context
     handler: python
