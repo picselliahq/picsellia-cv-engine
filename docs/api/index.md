@@ -4,7 +4,7 @@ The **Picsellia CV Engine API** is a modular toolkit for building end-to-end pip
 
 ---
 
-## 🧩 Core Concepts
+## Core concepts
 
 - **Steps**: Modular units of logic (e.g. load, train, validate)
 - **Pipelines**: Logical flows decorated with `@pipeline`, composed of `@step`
@@ -12,9 +12,9 @@ The **Picsellia CV Engine API** is a modular toolkit for building end-to-end pip
 
 ---
 
-## 🧱 Built-in Components
+## Built-in components
 
-### Base Steps
+### Base steps
 
 #### Dataset
 - [Loader](steps/base/dataset/loader.md)
@@ -31,7 +31,7 @@ The **Picsellia CV Engine API** is a modular toolkit for building end-to-end pip
 
 ---
 
-## 🧠 Framework-Specific Extensions
+## Framework-Specific extensions
 
 Frameworks are isolated under: `src/picsellia_cv_engine/frameworks/<framework_name>/`
 
@@ -45,7 +45,7 @@ Each framework can include:
 
 ---
 
-## 🔁 Decorators
+## Decorators
 
 - [@pipeline](decorators/pipeline_decorator.md) – Defines a pipeline entrypoint
 - [@step](decorators/step_decorator.md) – Marks a function as a step
@@ -53,7 +53,7 @@ Each framework can include:
 
 ---
 
-## 🧬 Data Models
+## Data models
 
 - [COCO Dataset](core/data/dataset/coco_dataset.md)
 - [Dataset Collection](core/data/dataset/dataset_collection.md)
@@ -61,7 +61,7 @@ Each framework can include:
 
 ---
 
-## 🛠 Code Example
+## Code example
 
 ```python
 from picsellia_cv_engine.decorators.pipeline_decorator import pipeline
