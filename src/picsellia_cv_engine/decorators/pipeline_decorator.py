@@ -398,8 +398,9 @@ class Pipeline:
             step_metadata: The metadata of the step to register.
 
         Raises:
-            ValueError: If a step with the same name has already been registered. The step names must be unique,
-            so two functions in two different modules cannot be decorated with @step if they have the same name.
+            ValueError: If a step with the same name has already been registered.
+                Step names must be unique — two functions in different modules
+                cannot be decorated with @step if they share the same name.
         """
         step_name = step_metadata.name
 
