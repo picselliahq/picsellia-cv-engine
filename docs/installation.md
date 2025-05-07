@@ -9,7 +9,7 @@
 
 You can either install this project locally for development, or use it directly as a dependency via Git.
 
-### 📦 Option 1 — Install via Git Only (No Local Clone)
+### Option 1 — Install via Git Only (No Local Clone)
 
 Use this method if you want to consume the CV Engine and Pipeline CLI without modifying the code.
 
@@ -35,7 +35,7 @@ pip install git+https://github.com/picselliahq/picsellia-cv-engine.git@main
 pip install git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
 ```
 
-### 🔧 Option 2 — Develop Locally
+### Option 2 — Develop Locally
 
 Use this option if you want to contribute or make local changes.
 
