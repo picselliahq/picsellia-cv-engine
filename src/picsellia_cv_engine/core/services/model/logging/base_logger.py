@@ -1,8 +1,11 @@
+import logging
 import math
 
 import numpy as np
 from picsellia import Experiment
 from picsellia.types.enums import LogType
+
+logger = logging.getLogger(__name__)
 
 
 class Metric:
@@ -142,7 +145,9 @@ class BaseLogger:
         if sanitized_value:
             self.experiment.log(log_name, sanitized_value, LogType.VALUE)
         else:
-            print(f"Value {value} is not loggable. Skipping logging for {log_name}.")
+            logger.info(
+                f"Value {value} is not loggable. Skipping logging for {log_name}."
+            )
 
     def log_image(self, name: str, image_path: str, phase: str | None = None):
         """
@@ -254,8 +259,6 @@ class Sanitizer:
         Returns:
             int | float | str: Clean value.
         """
-        print(f"Sanitizing value: {value} of type {type(value)}")
-
         # Convert NumPy types to native Python types
         if isinstance(value, (np.integer, np.floating)):
             value = value.item()
