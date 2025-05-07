@@ -43,8 +43,6 @@ Each framework can include:
 - Training, evaluation, or export [services](frameworks/ultralytics/services/model/trainer.md)
 - [Framework-specific steps](steps/ultralytics/model/trainer.md)
 
-📍 Example: [Ultralytics Integration](frameworks/ultralytics/)
-
 ---
 
 ## 🔁 Decorators
