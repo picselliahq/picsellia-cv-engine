@@ -12,7 +12,9 @@ from picsellia_cv_engine.core.parameters import (
 )
 
 
-def retrieve_picsellia_processing_parameters(processing_parameters: dict[str, Any]):
+def retrieve_picsellia_processing_parameters(
+    processing_parameters: dict[str, Any],
+) -> type[Parameters]:
     """
     Dynamically create a Parameters subclass from a dictionary of processing parameters.
 

@@ -64,7 +64,7 @@ def launch_processing(
     cpu: int,
     gpu: int,
     target_datalake_name: str | None = None,
-):
+) -> Job:
     """
     Launch a processing job on a datalake.
 

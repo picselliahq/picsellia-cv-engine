@@ -1,21 +1,28 @@
 # Picsellia CV Engine
 
-## Installation & Setup guide
+**Picsellia CV Engine** is a modular engine for building, testing, and deploying computer vision pipelines — fully integrated with the Picsellia platform.
 
-This guide will help you set up Picsellia CV Engine and Pipeline CLI to start building and testing your own dataset processing pipelines.
+Whether you're transforming datasets, training models, or tracking experiments, this engine helps you organize everything into **clean, reusable components**.
 
-### 1. Clone the required repositories
+## 🧠 What’s a pipeline?
 
-You need to clone two repositories:
+A pipeline is a structured sequence of actions — like:
+
+- 🧼 Preprocessing images
+- 🧪 Training a model
+- 📊 Evaluating predictions
+- ☁️ Uploading results to Picsellia
+
+Each action is implemented as a step — a small, focused function decorated with @step.
+
+You can chain together these steps inside a @pipeline, and run it locally or on Picsellia.
+
+## 🚀 Quickstart guide
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/picselliahq/picsellia-cv-engine.git
-git clone https://github.com/picselliahq/picsellia-pipelines-cli.git
-```
-
-Navigate to the picsellia-cv-engine directory:
-
-```bash
 cd picsellia-cv-engine
 ```
 
@@ -33,15 +40,17 @@ Then, install the dependencies:
 poetry install
 ```
 
-This installs:
+### 3. Link the Pipeline CLI
 
-- Picsellia SDK
-- Pipeline CLI (linked in dev mode)
-- NumPy, Tabulate, and other required packages
+`picsellia-pipelines-cli` is not included by default, you must add it:
 
-### 3. Running the docs
+```bash
+poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git
+```
 
-To explore the documentation, run:
+## 📘 Explore the documentation
+
+Start the docs server:
 
 ```bash
 poetry run mkdocs serve -a 127.0.0.1:8080
@@ -49,25 +58,32 @@ poetry run mkdocs serve -a 127.0.0.1:8080
 
 Then open `http://127.0.0.1:8080/` in your browser to see all available documentation.
 
-### 4. Start building your pipeline
+You’ll find:
 
-Once everything is set up, you can create your first pipeline:
+- [📦 Installation Guide](http://127.0.0.1:8080/installation/)
+- [🛠 Usage Examples](http://127.0.0.1:8080/usage/)
+- [📖 API Reference](http://127.0.0.1:8080/api/)
 
-```bash
-pipeline-cli init my_custom_pipeline
-```
+## 🛠 Build your first pipeline
 
-Modify the process_dataset.py file inside your pipeline folder, add any necessary dependencies to requirements.txt, and test your pipeline locally:
-
-```python
-pipeline-cli test my_custom_pipeline
-```
-
-If everything works correctly, deploy your pipeline to Picsellia:
+Create a pipeline (training or processing):
 
 ```bash
-pipeline-cli deploy my_custom_pipeline
+pipeline-cli training init my_pipeline --template simple
+```
+Then edit the generated files (e.g. `steps.py`, `requirements.txt`, `parameters.py`), and test locally:
+
+```bash
+pipeline-cli training test my_pipeline
 ```
 
-### Need More Info?
-For a detailed guide on building your pipeline, visit http://127.0.0.1:8080/usage once the docs are running.
+Once everything works:
+```bash
+pipeline-cli training deploy my_pipeline
+```
+
+### 🙋 Need help?
+
+- Follow the [Usage Guide](http://127.0.0.1:8080/usage)
+- Browse the full [API Reference](http://127.0.0.1:8080/api/)
+- Or reach out on the [Picsellia Platform](https://app.picsellia.com/signup)

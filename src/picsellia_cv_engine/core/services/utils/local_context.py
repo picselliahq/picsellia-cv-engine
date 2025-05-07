@@ -35,7 +35,7 @@ def infer_type(value: str) -> Any:
             return value  # Default to string
 
 
-def create_local_processing_parameters(processing_parameters: dict[str, Any]):
+def create_local_processing_parameters(processing_parameters: dict[str, Any]) -> Any:
     """
     Dynamically create a local ProcessingParameters dataclass from a dictionary.
 

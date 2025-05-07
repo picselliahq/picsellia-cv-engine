@@ -22,7 +22,10 @@ from picsellia_cv_engine.core.services.model.evaluator.model_evaluator import (
 
 
 def build_model_impl(
-    context,
+    context: PicselliaProcessingContext
+    | PicselliaTrainingContext
+    | LocalProcessingContext
+    | LocalTrainingContext,
     model_cls: type[TModel],
     pretrained_weights_name: str | None = None,
     trained_weights_name: str | None = None,
@@ -74,7 +77,10 @@ def build_model_impl(
 
 
 def evaluate_model_impl(
-    context,
+    context: PicselliaProcessingContext
+    | PicselliaTrainingContext
+    | LocalProcessingContext
+    | LocalTrainingContext,
     picsellia_predictions: (
         list[PicselliaClassificationPrediction]
         | list[PicselliaRectanglePrediction]
