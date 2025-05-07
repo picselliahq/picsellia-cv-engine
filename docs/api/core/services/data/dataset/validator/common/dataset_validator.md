@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Validator.Common.Dataset Validator
+# core.services.data.dataset.validator.common.dataset_validator
 
 ::: picsellia_cv_engine.core.services.data.dataset.validator.common.dataset_validator
     handler: python

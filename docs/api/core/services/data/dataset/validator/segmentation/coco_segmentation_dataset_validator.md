@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Validator.Segmentation.Coco Segmentation Dataset Validator
+# core.services.data.dataset.validator.segmentation.coco_segmentation_dataset_validator
 
 ::: picsellia_cv_engine.core.services.data.dataset.validator.segmentation.coco_segmentation_dataset_validator
     handler: python

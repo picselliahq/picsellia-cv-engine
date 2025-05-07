@@ -1,4 +1,4 @@
-# Core.Contexts.Training.Local Training Context
+# core.contexts.training.local_training_context
 
 ::: picsellia_cv_engine.core.contexts.training.local_training_context
     handler: python

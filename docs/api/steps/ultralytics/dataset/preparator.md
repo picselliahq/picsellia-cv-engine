@@ -1,4 +1,4 @@
-# Steps.Ultralytics.Dataset.Preparator
+# steps.ultralytics.dataset.preparator
 
 ::: picsellia_cv_engine.steps.ultralytics.dataset.preparator
     handler: python

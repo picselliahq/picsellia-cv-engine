@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Parameters.Augmentation Parameters
+# frameworks.ultralytics.parameters.augmentation_parameters
 
 ::: picsellia_cv_engine.frameworks.ultralytics.parameters.augmentation_parameters
     handler: python

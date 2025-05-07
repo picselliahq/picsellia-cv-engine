@@ -1,4 +1,4 @@
-# Steps.Base.Model.Builder
+# steps.base.model.builder
 
 ::: picsellia_cv_engine.steps.base.model.builder
     handler: python

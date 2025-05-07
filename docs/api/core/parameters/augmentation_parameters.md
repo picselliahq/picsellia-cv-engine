@@ -1,4 +1,4 @@
-# Core.Parameters.Augmentation Parameters
+# core.parameters.augmentation_parameters
 
 ::: picsellia_cv_engine.core.parameters.augmentation_parameters
     handler: python

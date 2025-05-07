@@ -1,4 +1,4 @@
-# Steps.Ultralytics.Model.Exporter
+# steps.ultralytics.model.exporter
 
 ::: picsellia_cv_engine.steps.ultralytics.model.exporter
     handler: python

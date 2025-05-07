@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Logger.Segmentation
+# frameworks.ultralytics.services.model.logger.segmentation
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.logger.segmentation
     handler: python

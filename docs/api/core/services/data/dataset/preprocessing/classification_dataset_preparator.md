@@ -1,4 +1,4 @@
-# Core.Services.Data.Dataset.Preprocessing.Classification Dataset Preparator
+# core.services.data.dataset.preprocessing.classification_dataset_preparator
 
 ::: picsellia_cv_engine.core.services.data.dataset.preprocessing.classification_dataset_preparator
     handler: python

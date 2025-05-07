@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Trainer
+# frameworks.ultralytics.services.model.trainer
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.trainer
     handler: python

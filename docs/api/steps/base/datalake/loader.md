@@ -1,4 +1,4 @@
-# Steps.Base.Datalake.Loader
+# steps.base.datalake.loader
 
 ::: picsellia_cv_engine.steps.base.datalake.loader
     handler: python

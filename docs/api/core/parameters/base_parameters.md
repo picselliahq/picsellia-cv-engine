@@ -1,4 +1,4 @@
-# Core.Parameters.Base Parameters
+# core.parameters.base_parameters
 
 ::: picsellia_cv_engine.core.parameters.base_parameters
     handler: python

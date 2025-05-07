@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Exporter
+# frameworks.ultralytics.services.model.exporter
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.exporter
     handler: python

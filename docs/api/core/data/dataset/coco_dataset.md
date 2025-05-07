@@ -1,4 +1,4 @@
-# Core.Data.Dataset.Coco Dataset
+# core.data.dataset.coco_dataset
 
 ::: picsellia_cv_engine.core.data.dataset.coco_dataset
     handler: python

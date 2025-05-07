@@ -1,4 +1,4 @@
-# Decorators.Step Metadata
+# decorators.step_metadata
 
 ::: picsellia_cv_engine.decorators.step_metadata
     handler: python

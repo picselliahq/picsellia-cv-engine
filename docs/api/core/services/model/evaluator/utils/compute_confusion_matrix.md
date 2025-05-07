@@ -1,4 +1,4 @@
-# Core.Services.Model.Evaluator.Utils.Compute Confusion Matrix
+# core.services.model.evaluator.utils.compute_confusion_matrix
 
 ::: picsellia_cv_engine.core.services.model.evaluator.utils.compute_confusion_matrix
     handler: python

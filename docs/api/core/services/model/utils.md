@@ -1,4 +1,4 @@
-# Core.Services.Model.Utils
+# core.services.model.utils
 
 ::: picsellia_cv_engine.core.services.model.utils
     handler: python

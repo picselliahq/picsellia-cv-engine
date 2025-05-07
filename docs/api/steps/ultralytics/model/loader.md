@@ -1,4 +1,4 @@
-# Steps.Ultralytics.Model.Loader
+# steps.ultralytics.model.loader
 
 ::: picsellia_cv_engine.steps.ultralytics.model.loader
     handler: python

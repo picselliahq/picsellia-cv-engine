@@ -1,4 +1,4 @@
-# Steps.Base.Dataset.Preprocessor
+# steps.base.dataset.preprocessor
 
 ::: picsellia_cv_engine.steps.base.dataset.preprocessor
     handler: python

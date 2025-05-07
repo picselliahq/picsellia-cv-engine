@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Predictor.Object Detection
+# frameworks.ultralytics.services.model.predictor.object_detection
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.predictor.object_detection
     handler: python

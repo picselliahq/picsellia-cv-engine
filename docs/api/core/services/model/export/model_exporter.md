@@ -1,4 +1,4 @@
-# Core.Services.Model.Export.Model Exporter
+# core.services.model.export.model_exporter
 
 ::: picsellia_cv_engine.core.services.model.export.model_exporter
     handler: python

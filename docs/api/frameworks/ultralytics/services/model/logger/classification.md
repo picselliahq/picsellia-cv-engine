@@ -1,4 +1,4 @@
-# Frameworks.Ultralytics.Services.Model.Logger.Classification
+# frameworks.ultralytics.services.model.logger.classification
 
 ::: picsellia_cv_engine.frameworks.ultralytics.services.model.logger.classification
     handler: python

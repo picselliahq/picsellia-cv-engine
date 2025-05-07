@@ -1,4 +1,4 @@
-# Core.Services.Model.Evaluator.Model Evaluator
+# core.services.model.evaluator.model_evaluator
 
 ::: picsellia_cv_engine.core.services.model.evaluator.model_evaluator
     handler: python
