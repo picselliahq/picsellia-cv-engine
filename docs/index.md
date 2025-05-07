@@ -15,5 +15,5 @@ With **Pipeline CLI**, you can quickly initialize, test, and deploy your pipelin
 
 ## Get Started
 - 📦 [Installation](installation.md) – Set up Picsellia CV Engine
-- 🛠 [Usage Guide](usage.md) – Learn how to create & test your pipelines
-- 📖 [API Reference](api.md) – Explore available models, decorators, and steps
+- 🛠 [Usage Guide](usage/index.md) – Learn how to create & test your pipelines
+- 📖 [API Reference](api/index.md) – Explore available models, decorators, and steps
