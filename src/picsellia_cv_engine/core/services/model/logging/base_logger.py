@@ -126,7 +126,9 @@ class BaseLogger:
         if sanitized_value:
             self.experiment.log(log_name, value, log_type)
         else:
-            print(f"Value {value} is not loggable. Skipping logging for {log_name}.")
+            logger.info(
+                f"Value {value} is not loggable. Skipping logging for {log_name}."
+            )
 
     def log_value(
         self, name: str, value: float, phase: str | None = None, precision: int = 4
