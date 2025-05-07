@@ -1,0 +1,8 @@
+# Core.Services.Model.Evaluator.Utils.Coco Converter
+
+::: picsellia_cv_engine.core.services.model.evaluator.utils.coco_converter
+    handler: python
+    options:
+        show_submodules: false  # Hide submodules until clicked
+        show_if_no_docstring: true
+        show_root_heading: true
