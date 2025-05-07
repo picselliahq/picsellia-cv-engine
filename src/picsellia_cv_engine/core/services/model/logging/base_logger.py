@@ -1,6 +1,11 @@
+import logging
+import math
+
 import numpy as np
 from picsellia import Experiment
 from picsellia.types.enums import LogType
+
+logger = logging.getLogger(__name__)
 
 
 class Metric:
@@ -117,7 +122,13 @@ class BaseLogger:
             phase (str | None): Phase name.
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
-        self.experiment.log(log_name, value, log_type)
+        sanitized_value = Sanitizer.sanitize_value(value)
+        if sanitized_value:
+            self.experiment.log(log_name, value, log_type)
+        else:
+            logger.info(
+                f"Value {value} is not loggable. Skipping logging for {log_name}."
+            )
 
     def log_value(
         self, name: str, value: float, phase: str | None = None, precision: int = 4
@@ -133,7 +144,12 @@ class BaseLogger:
         """
         log_name = self.get_log_name(metric_name=name, phase=phase)
         sanitized_value = Sanitizer.sanitize_value(round(value, precision))
-        self.experiment.log(log_name, sanitized_value, LogType.VALUE)
+        if sanitized_value:
+            self.experiment.log(log_name, sanitized_value, LogType.VALUE)
+        else:
+            logger.info(
+                f"Value {value} is not loggable. Skipping logging for {log_name}."
+            )
 
     def log_image(self, name: str, image_path: str, phase: str | None = None):
         """
@@ -245,12 +261,22 @@ class Sanitizer:
         Returns:
             int | float | str: Clean value.
         """
+        # Convert NumPy types to native Python types
         if isinstance(value, (np.integer, np.floating)):
-            return value.item()
-        elif isinstance(value, (int, float, str)):
+            value = value.item()
+
+        # Handle floats and ints (including NaN or inf)
+        if isinstance(value, (float, int)):
+            if math.isnan(value) or math.isinf(value):
+                return None
             return value
-        else:
-            return str(value)  # fallback
+
+        # Strings are safe
+        if isinstance(value, str):
+            return value
+
+        # Fallback for unsupported types
+        return str(value)
 
     @classmethod
     def sanitize_dict(cls, data: dict) -> dict:
