@@ -10,7 +10,7 @@ The pipeline uses Ultralytics for training, with built-in integration for datase
 To generate a training pipeline project:
 
 ```bash
-pipeline-cli training init test_training --template simple
+pipeline-cli init test_training --type training --template simple
 ```
 
 This creates the pipeline under the pipelines/ folder:
@@ -99,7 +99,7 @@ A sync feature will be available soon to help push/pull parameter definitions au
 Before deploying, always run a local test:
 
 ```bash
-pipeline-cli training test test_training
+pipeline-cli test test_training
 ```
 
 This will:
@@ -129,7 +129,7 @@ If you update your parameters in `SimpleHyperParameters`, remember to update the
 When you're ready to deploy:
 
 ```bash
-pipeline-cli training deploy test_training
+pipeline-cli deploy test_training
 ```
 
 This will:
