@@ -1,8 +1,6 @@
-# 🛠 **Creating a custom processing pipeline**
+# 🛠 **Creating a Custom Dataset Processing Pipeline**
 
-If you want to create a **custom dataset processing pipeline**, `pipeline-cli` simplifies the setup by generating a structured template with all the necessary scripts.
-
-This guide walks you through:
+This guide walks you through how to create, customize, test, and deploy an image processing pipeline using the simple template from `pipeline-cli`. The pipeline is designed for dataset processing tasks such as image transformations, augmentations, or filtering.
 
 1. Generating a pipeline template
 2. Modifying the processing logic
@@ -12,40 +10,57 @@ This guide walks you through:
 
 ---
 
-## **Step 1: Generate a pipeline template**
+## **1. Initialize your pipeline**
 
-To create a new pipeline, run:
+To generate a custom processing pipeline project, run:
 
 ```sh
-pipeline-cli init my_custom_pipeline
+pipeline-cli init my_custom_pipeline --type processing --template simple
 ```
 
-This will:
+This will create the pipeline under the pipelines/ folder:
 
-- Create a directory `my_custom_pipeline/`
-- Generate pre-filled scripts
-- Register the pipeline in TinyDB for easy management
-
-Inside `my_custom_pipeline/`, you'll find:
 ```
-my_custom_pipeline/
-│── picsellia_pipeline.py
-│── local_pipeline.py
-│── process_dataset.py
-│── Dockerfile
-│── requirements.txt
+pipelines/
+└── my_custom_pipeline/
+    ├── Dockerfile
+    ├── requirements.txt
+    ├── local_pipeline.py
+    ├── picsellia_pipeline.py
+    ├── steps.py
+    ├── utils/
+    │   ├── processing.py
 ```
 
 - `picsellia_pipeline.py`: Defines the pipeline when running on Picsellia
 - `local_pipeline.py`: Used for local testing
-- `process_dataset.py`: Modify this file to define how your dataset is processed
+- `steps.py`: Contains the processing steps
 - `Dockerfile`: Used to package the pipeline
 - `requirements.txt`: Add dependencies here
+- `utils/processing.py`: Contains utility functions for processing
 
-## **Step 2: Modify `process_dataset.py`**
+## **2. Customize your pipeline**
 
-In your pipeline, the `process_dataset.py` file is where you define how your dataset is processed.
-You need to modify the `process_images` function to apply transformations, augmentations, or filtering.
+### Dataset Processing Logic: `steps.py`
+
+In your pipeline, the `steps.py` file is where you define how your dataset is processed. You will define processing steps such as image transformations, augmentations, or filtering within this file.
+
+```python
+from picsellia_cv_engine import step
+
+@step()
+def process_images(input_images_dir: str, input_coco: dict, output_images_dir: str, output_coco: dict, parameters: dict):
+    """
+    Modify and save processed images, then update the annotations.
+    """
+    # Your image processing logic here
+    ...
+    return output_coco
+```
+
+The `process_images` function will be responsible for processing the images in `input_images_dir`, applying transformations or augmentations, and saving the processed images to `output_images_dir`. The COCO annotations will also be updated in `output_coco`.
+
+You can add as many steps as needed in this file to structure the processing pipeline.
 
 ### **Understanding the inputs parameters**
 
@@ -116,7 +131,7 @@ output_coco["images"].append(
 - Return the updated `output_coco` dictionary.
 
 
-## **Step 3: Define dependencies**
+### ** Define dependencies**
 
 No need to create a virtual environment manually! 🎉
 When you run the test command, it will automatically create a `.venv` for you and install the dependencies from `requirements.txt`.
@@ -130,7 +145,7 @@ opencv-python
 torch
 ```
 
-## **Step 4: Test the pipeline locally**
+## **3. Test your pipeline locally**
 
 Run the pipeline test with:
 
@@ -152,7 +167,7 @@ During the test, you’ll be prompted for:
 
 ✅ If everything works correctly, you're ready to deploy!
 
-## **Step 5: Deploy the pipeline**
+## **4. Deploy to pipeline**
 
 Once your pipeline works locally, deploy it to Picsellia:
 
