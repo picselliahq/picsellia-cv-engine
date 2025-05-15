@@ -24,7 +24,7 @@ class YoloSegmentationDatasetValidator(DatasetValidator[YoloDataset]):
             "deleted_objects": 0,
         }
 
-    def validate(self):
+    def validate(self) -> YoloDataset:
         """
         Validates the YOLO segmentation dataset.
 
