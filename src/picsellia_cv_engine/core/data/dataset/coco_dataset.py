@@ -244,10 +244,19 @@ class CocoDataset(BaseDataset):
                     annotation["image_id"] += max_image_id
                     merged_coco_data["annotations"].append(annotation)
 
-                max_image_id = max(img["id"] for img in merged_coco_data["images"]) + 1
-                max_annotation_id = (
-                    max(ann["id"] for ann in merged_coco_data["annotations"]) + 1
-                )
+                if merged_coco_data["images"]:
+                    max_image_id = (
+                        max(img["id"] for img in merged_coco_data["images"]) + 1
+                    )
+                else:
+                    max_image_id = 0
+
+                if merged_coco_data["annotations"]:
+                    max_annotation_id = (
+                        max(ann["id"] for ann in merged_coco_data["annotations"]) + 1
+                    )
+                else:
+                    max_annotation_id = 0
 
                 if not merged_coco_data["categories"]:
                     merged_coco_data["categories"] = batch_data.get("categories", [])
