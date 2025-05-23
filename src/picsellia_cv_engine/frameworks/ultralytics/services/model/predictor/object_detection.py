@@ -8,6 +8,7 @@ from picsellia_cv_engine.core.data import (
 )
 from picsellia_cv_engine.core.models.picsellia_prediction import (
     PicselliaConfidence,
+    PicselliaLabel,
     PicselliaRectangle,
     PicselliaRectanglePrediction,
 )
@@ -167,7 +168,9 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
 
     def format_predictions(
         self, asset: Asset, prediction: Results, dataset: TBaseDataset
-    ):
+    ) -> tuple[
+        list[PicselliaRectangle], list[PicselliaLabel], list[PicselliaConfidence]
+    ]:
         """
         Transforms raw model predictions into Picsellia-compatible rectangle, label, and confidence objects.
 
@@ -204,7 +207,7 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
         return picsellia_boxes, picsellia_labels, picsellia_confidences
 
     @staticmethod
-    def rescale_normalized_box(box, width, height):
+    def rescale_normalized_box(box, width, height) -> list[int]:
         """
         Rescales a bounding box from normalized coordinates to pixel dimensions.
 
@@ -225,7 +228,7 @@ class UltralyticsDetectionModelPredictor(ModelPredictor[UltralyticsModel]):
         ]
 
     @staticmethod
-    def cast_type_list_to_int(box):
+    def cast_type_list_to_int(box) -> list[int]:
         """
         Converts all values in a box list to integers.
 

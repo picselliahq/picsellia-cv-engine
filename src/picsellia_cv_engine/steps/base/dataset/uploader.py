@@ -9,9 +9,9 @@ from picsellia_cv_engine.core.services.data.dataset.uploader.utils import (
     configure_dataset_type,
     get_datalake_and_tag,
     initialize_coco_data,
-    upload_annotations_based_on_inference_type,
-    upload_dataset_based_on_type,
+    upload_annotations,
     upload_images,
+    upload_images_and_annotations,
 )
 
 
@@ -63,7 +63,7 @@ def upload_full_dataset(
                 replace_annotations = False
                 print("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
-        upload_dataset_based_on_type(
+        upload_images_and_annotations(
             dataset=dataset,
             datalake=datalake,
             data_tag=data_tag,
@@ -134,7 +134,7 @@ def upload_dataset_annotations(
                 replace_annotations = False
                 print("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
-        upload_annotations_based_on_inference_type(
+        upload_annotations(
             dataset=dataset,
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,

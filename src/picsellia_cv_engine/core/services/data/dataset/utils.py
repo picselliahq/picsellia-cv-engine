@@ -21,7 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 def load_coco_datasets_impl(
-    context, skip_asset_listing: bool
+    context: PicselliaTrainingContext
+    | LocalTrainingContext
+    | PicselliaProcessingContext
+    | LocalProcessingContext,
+    skip_asset_listing: bool,
 ) -> DatasetCollection[CocoDataset] | CocoDataset:
     """
     Implementation logic to load COCO datasets depending on the pipeline context type.
@@ -141,7 +145,11 @@ def load_coco_datasets_impl(
 
 
 def load_yolo_datasets_impl(
-    context, skip_asset_listing: bool
+    context: PicselliaTrainingContext
+    | LocalTrainingContext
+    | PicselliaProcessingContext
+    | LocalProcessingContext,
+    skip_asset_listing: bool,
 ) -> DatasetCollection[YoloDataset] | YoloDataset:
     """
     Implementation logic to load YOLO datasets depending on the pipeline context type.

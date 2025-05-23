@@ -2,25 +2,13 @@ import json
 import os
 
 from picsellia import Datalake
-from picsellia.types.enums import InferenceType
+from picsellia.types.enums import ImportAnnotationMode, InferenceType
 
 from picsellia_cv_engine.core.contexts.processing.dataset.picsellia_processing_context import (
     PicselliaProcessingContext,
 )
 from picsellia_cv_engine.core.data import (
     CocoDataset,
-)
-from picsellia_cv_engine.core.services.data.dataset.uploader.classification import (
-    ClassificationDatasetUploader,
-)
-from picsellia_cv_engine.core.services.data.dataset.uploader.common import (
-    DatasetUploader,
-)
-from picsellia_cv_engine.core.services.data.dataset.uploader.object_detection import (
-    ObjectDetectionDatasetUploader,
-)
-from picsellia_cv_engine.core.services.data.dataset.uploader.segmentation import (
-    SegmentationDatasetUploader,
 )
 
 
@@ -56,6 +44,12 @@ def initialize_coco_data(dataset: CocoDataset):
     return dataset
 
 
+def configure_dataset_type(dataset: CocoDataset, annotations):
+    """Configure dataset type if not already set."""
+    if dataset.dataset_version.type == InferenceType.NOT_CONFIGURED:
+        determine_inference_type(dataset, annotations)
+
+
 def determine_inference_type(dataset: CocoDataset, annotations: list):
     """Determine and set the inference type based on annotations."""
     first_annotation = annotations[0]
@@ -69,24 +63,7 @@ def determine_inference_type(dataset: CocoDataset, annotations: list):
         raise ValueError(f"Unsupported dataset type: {dataset.dataset_version.type}")
 
 
-def configure_dataset_type(dataset: CocoDataset, annotations):
-    """Configure dataset type if not already set."""
-    if dataset.dataset_version.type == InferenceType.NOT_CONFIGURED:
-        determine_inference_type(dataset, annotations)
-
-
-def upload_images(dataset: CocoDataset, datalake: Datalake, data_tag: str):
-    """Upload images to the dataset."""
-    uploader = DatasetUploader(dataset_version=dataset.dataset_version)
-    image_paths = [
-        os.path.join(dataset.images_dir, img) for img in os.listdir(dataset.images_dir)
-    ]
-    uploader._add_images_to_dataset_version_in_batches(
-        datalake=datalake, images_to_upload=image_paths, data_tags=[data_tag]
-    )
-
-
-def upload_dataset_based_on_type(
+def upload_images_and_annotations(
     dataset: CocoDataset,
     datalake: Datalake,
     data_tag: str,
@@ -99,40 +76,24 @@ def upload_dataset_based_on_type(
 
     Supports Classification, Object Detection, and Segmentation inference types.
     """
+    upload_images(dataset, datalake, data_tag)
+    upload_annotations(dataset, use_id, fail_on_asset_not_found, replace_annotations)
+
+
+def upload_images(dataset: CocoDataset, datalake: Datalake, data_tag: str):
+    """Upload images to the dataset."""
     data_tags: list[str] = [data_tag]
-
-    if dataset.dataset_version.type == InferenceType.CLASSIFICATION:
-        classification_uploader = ClassificationDatasetUploader(
-            dataset=dataset,
-        )
-        classification_uploader.upload_dataset(datalake=datalake, data_tags=data_tags)
-
-    elif dataset.dataset_version.type == InferenceType.OBJECT_DETECTION:
-        object_detection_uploader = ObjectDetectionDatasetUploader(
-            dataset=dataset,
-        )
-        object_detection_uploader.upload_dataset(
-            datalake=datalake,
-            data_tags=data_tags,
-            use_id=use_id,
-            fail_on_asset_not_found=fail_on_asset_not_found,
-            replace_annotations=replace_annotations,
-        )
-
-    elif dataset.dataset_version.type == InferenceType.SEGMENTATION:
-        segmentation_uploader = SegmentationDatasetUploader(
-            dataset=dataset,
-        )
-        segmentation_uploader.upload_dataset(
-            datalake=datalake,
-            data_tags=data_tags,
-            use_id=use_id,
-            fail_on_asset_not_found=fail_on_asset_not_found,
-            replace_annotations=replace_annotations,
-        )
+    data = datalake.upload_data(
+        filepaths=[
+            os.path.join(dataset.images_dir, image_filename)
+            for image_filename in os.listdir(dataset.images_dir)
+        ],
+        tags=data_tags,
+    )
+    dataset.dataset_version.add_data(data=data)
 
 
-def upload_annotations_based_on_inference_type(
+def upload_annotations(
     dataset: CocoDataset,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
@@ -143,28 +104,11 @@ def upload_annotations_based_on_inference_type(
 
     Supports Classification, Object Detection, and Segmentation inference types.
     """
-    if dataset.dataset_version.type == InferenceType.CLASSIFICATION:
-        classification_uploader = ClassificationDatasetUploader(
-            dataset=dataset,
-        )
-        classification_uploader.upload_annotations()
-
-    elif dataset.dataset_version.type == InferenceType.OBJECT_DETECTION:
-        object_detection_uploader = ObjectDetectionDatasetUploader(
-            dataset=dataset,
-        )
-        object_detection_uploader.upload_annotations(
-            use_id=use_id,
-            fail_on_asset_not_found=fail_on_asset_not_found,
-            replace_annotations=replace_annotations,
-        )
-
-    elif dataset.dataset_version.type == InferenceType.SEGMENTATION:
-        segmentation_uploader = SegmentationDatasetUploader(
-            dataset=dataset,
-        )
-        segmentation_uploader.upload_annotations(
-            use_id=use_id,
-            fail_on_asset_not_found=fail_on_asset_not_found,
-            replace_annotations=replace_annotations,
-        )
+    dataset.dataset_version.import_annotations_coco_file(
+        file_path=dataset.coco_file_path,
+        use_id=use_id,
+        fail_on_asset_not_found=fail_on_asset_not_found,
+        mode=ImportAnnotationMode.REPLACE
+        if replace_annotations
+        else ImportAnnotationMode.KEEP,
+    )

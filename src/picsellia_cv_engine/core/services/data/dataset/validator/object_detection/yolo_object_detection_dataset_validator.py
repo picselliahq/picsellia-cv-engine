@@ -26,7 +26,7 @@ class YoloObjectDetectionDatasetValidator(DatasetValidator[YoloDataset]):
             "height": 0,
         }
 
-    def validate(self):
+    def validate(self) -> YoloDataset:
         """
         Validates the YOLO object detection dataset.
 

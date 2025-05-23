@@ -143,7 +143,7 @@ def match_image_ids(
     logging.info(f"Corrected file saved as: {corrected_prediction_file}")
 
 
-def compute_tp_fp_fn(coco_eval: COCOeval):
+def compute_tp_fp_fn(coco_eval: COCOeval) -> dict:
     """
     Compute the number of True Positives (TP), False Positives (FP), and False Negatives (FN) per category
     using a COCOeval object.
@@ -218,7 +218,6 @@ def evaluate_category(
     Args:
         coco_gt (COCO): COCO object for the ground truth.
         coco_pred (COCO): COCO object for the predictions.
-        cat_id (int): Category ID to evaluate.
         cat_name (str): Category name.
         inference_type (InferenceType): Type of inference (classification, detection, or segmentation).
 
