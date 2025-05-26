@@ -1,5 +1,6 @@
 import ast
 import inspect
+import sys
 from collections.abc import Callable
 from typing import Any, Optional, TypeVar, Union, overload
 
@@ -70,7 +71,13 @@ class Pipeline:
             self.flag_pipeline(state=PipelineState.RUNNING)
             self._log_pipeline_context()
 
-            return self.entrypoint(*args, **kwargs)
+            result = self.entrypoint(*args, **kwargs)
+
+            if self.state == PipelineState.FAILED:
+                self.log_pipeline_warning("❌ Pipeline failed. Exiting with code 1.")
+                sys.exit(1)
+
+            return result
 
     def __enter__(self):
         """Activate the pipeline context.
