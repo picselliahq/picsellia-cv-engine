@@ -67,7 +67,7 @@ class Pipeline:
         with self:
             self._scan_steps()
             self._configure_logging()
-            self._flag_pipeline(state=PipelineState.RUNNING)
+            self.flag_pipeline(state=PipelineState.RUNNING)
             self._log_pipeline_context()
 
             return self.entrypoint(*args, **kwargs)
@@ -254,7 +254,7 @@ class Pipeline:
 
         return flat_parameters, nested_parameters
 
-    def _flag_pipeline(self, state: PipelineState) -> None:
+    def flag_pipeline(self, state: PipelineState) -> None:
         """Flags the pipeline with the provided state.
 
         Args:
