@@ -7,6 +7,7 @@ from picsellia_cv_engine.core.data import (
 )
 from picsellia_cv_engine.core.models.picsellia_prediction import (
     PicselliaConfidence,
+    PicselliaLabel,
     PicselliaPolygon,
     PicselliaPolygonPrediction,
 )
@@ -157,7 +158,9 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
 
         return processed_predictions
 
-    def format_predictions(self, prediction: Results, dataset: TBaseDataset):
+    def format_predictions(
+        self, prediction: Results, dataset: TBaseDataset
+    ) -> tuple[list[PicselliaPolygon], list[PicselliaLabel], list[PicselliaConfidence]]:
         """
         Extracts and formats segmentation predictions into Picsellia types.
 
@@ -193,7 +196,7 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
         return picsellia_polygons, picsellia_labels, picsellia_confidences
 
     @staticmethod
-    def format_polygons(polygon):
+    def format_polygons(polygon) -> list[list[int]]:
         """
         Converts a polygon array to a list of integer coordinates.
 

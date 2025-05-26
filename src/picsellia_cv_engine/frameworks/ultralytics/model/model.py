@@ -5,7 +5,7 @@ from picsellia import Label, ModelVersion
 from picsellia_cv_engine.core.models import Model
 
 
-def find_latest_run_dir(dir: str, model_name: str):
+def find_latest_run_dir(dir: str, model_name: str) -> str:
     """
     Finds the latest run directory for a given model name.
 

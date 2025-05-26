@@ -7,39 +7,55 @@
 
 ## Installation & Setup guide
 
-This guide will help you set up Picsellia CV Engine and Pipeline CLI to start building and testing your own dataset processing pipelines.
+You can either install this project locally for development, or use it directly as a dependency via Git.
 
-### 1. Clone the required repositories
+### Option 1 — Install via Git Only (No Local Clone)
 
-You need to clone two repositories:
+Use this method if you want to consume the CV Engine and Pipeline CLI without modifying the code.
+
+✅ Using Poetry
+
+```bash
+poetry add git+https://github.com/picselliahq/picsellia-cv-engine.git@main
+poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+```
+
+✅ Using uv
+
+```bash
+uv add git+https://github.com/picselliahq/picsellia-cv-engine.git@main
+uv add git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+
+```
+
+✅ Using pip
+
+```bash
+pip install git+https://github.com/picselliahq/picsellia-cv-engine.git@main
+pip install git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+```
+
+### Option 2 — Develop Locally
+
+Use this option if you want to contribute or make local changes.
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/picselliahq/picsellia-cv-engine.git
-git clone https://github.com/picselliahq/picsellia-pipelines-cli.git
-```
-
-Navigate to the picsellia-cv-engine directory:
-
-```bash
 cd picsellia-cv-engine
 ```
 
-### 2. Install dependencies with Poetry
-
-We use Poetry to manage dependencies. If you haven't installed Poetry yet, run:
-
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-Then, install the dependencies:
+#### 2. Install dependencies with Poetry
 
 ```bash
 poetry install
 ```
 
-This installs:
+#### 3. Add the Pipeline CLI (manually)
 
-- Picsellia SDK
-- Pipeline CLI (linked in dev mode)
-- NumPy, Tabulate, and other required packages
+`picsellia-pipelines-cli` is not included by default, you must add it:
+
+```bash
+poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git
+```

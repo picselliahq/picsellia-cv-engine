@@ -35,7 +35,7 @@ def infer_type(value: str) -> Any:
             return value  # Default to string
 
 
-def create_local_processing_parameters(processing_parameters: dict[str, Any]):
+def create_local_processing_parameters(processing_parameters: dict[str, Any]) -> Any:
     """
     Dynamically create a local ProcessingParameters dataclass from a dictionary.
 
@@ -84,6 +84,7 @@ def create_local_processing_context(
     output_dataset_version_name: str | None = None,
     model_version_id: str | None = None,
     working_dir: str | None = None,
+    host: str | None = None,
 ) -> LocalProcessingContext:
     """
     Create a local Picsellia processing context for testing a processing pipeline.
@@ -97,6 +98,7 @@ def create_local_processing_context(
         output_dataset_version_name (str | None): Name of the output dataset version (optional).
         model_version_id (str | None): ID of the model version to use (optional).
         working_dir (str | None): Working directory to store files locally (optional).
+        host (str | None): Picsellia API host (optional).
 
     Returns:
         LocalProcessingContext: Initialized processing context.
@@ -107,6 +109,7 @@ def create_local_processing_context(
     context = LocalProcessingContext(
         api_token=api_token,
         organization_name=organization_name,
+        host=host,
         job_type=job_type,
         input_dataset_version_id=input_dataset_version_id,
         output_dataset_version_name=output_dataset_version_name,
@@ -124,8 +127,8 @@ def create_local_training_context(
     api_token: str,
     organization_name: str,
     experiment_id: str,
-    host: str | None = None,
     working_dir: str | None = None,
+    host: str | None = None,
 ) -> LocalTrainingContext:
     """
     Create a local training context for testing training workflows.
@@ -137,8 +140,8 @@ def create_local_training_context(
         api_token (str): API token for Picsellia access.
         organization_name (str): Name of the organization.
         experiment_id (str): ID of the experiment to attach logs/artifacts.
-        host (str | None): Picsellia API host (optional).
         working_dir (str | None): Local working directory (optional).
+        host (str | None): Picsellia API host (optional).
 
     Returns:
         LocalTrainingContext: Initialized training context.

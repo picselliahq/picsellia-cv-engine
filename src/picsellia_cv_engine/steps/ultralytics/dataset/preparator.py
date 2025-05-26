@@ -1,6 +1,7 @@
 from picsellia.types.enums import InferenceType
 
 from picsellia_cv_engine import Pipeline, step
+from picsellia_cv_engine.core import DatasetCollection
 from picsellia_cv_engine.core.services.data.dataset.utils import (
     load_coco_datasets_impl,
     load_yolo_datasets_impl,
@@ -14,7 +15,7 @@ from picsellia_cv_engine.frameworks.ultralytics.services.data.utils import (
 
 
 @step
-def prepare_ultralytics_dataset():
+def prepare_ultralytics_dataset() -> DatasetCollection:
     """
     Prepare and validate a dataset for training with the Ultralytics framework.
 

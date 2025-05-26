@@ -1,4 +1,4 @@
-# Decorators.Pipeline Decorator
+# decorators.pipeline_decorator
 
 ::: picsellia_cv_engine.decorators.pipeline_decorator
     handler: python

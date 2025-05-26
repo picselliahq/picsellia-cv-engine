@@ -15,8 +15,6 @@ numpy = "<2.0.0"
 pandas = "^2.2.3"
 pycocotools = "^2.0.8"
 scikit-learn = "^1.6.1"
-torch = "^2.6.0"
-ultralytics = "^8.3.113"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.6.1"
@@ -24,6 +22,10 @@ mkdocs-material = "^9.6.7"
 mkdocstrings-python = ">=1.16.2,<2.0.0"
 pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
+
+[tool.poetry.group.ultralytics.dependencies]
+torch = "^2.6.0"
+ultralytics = "^8.3.113"
 
 
 [build-system]
