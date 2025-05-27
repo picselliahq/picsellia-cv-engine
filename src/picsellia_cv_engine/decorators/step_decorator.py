@@ -62,11 +62,7 @@ class Step:
         self._metadata.state = StepState.RUNNING
         step_logger = self._prepare_step_logger(pipeline=current_pipeline)
 
-        if (
-            current_pipeline.state
-            not in [PipelineState.RUNNING, PipelineState.PARTIAL_SUCCESS]
-            and not self.continue_on_failure
-        ):
+        if current_pipeline.state != PipelineState.RUNNING:
             self._metadata.state = StepState.SKIPPED
             self.log_step_info(
                 pipeline=current_pipeline,
@@ -89,6 +85,7 @@ class Step:
             except Exception as e:
                 step_logger.error(f"Error in {self.step_name}: {e}", exc_info=True)
                 self._metadata.state = StepState.FAILED
+                current_pipeline.flag_pipeline(PipelineState.FAILED)
 
             else:
                 self._metadata.state = StepState.SUCCESS

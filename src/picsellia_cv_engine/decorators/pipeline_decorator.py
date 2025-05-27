@@ -1,5 +1,6 @@
 import ast
 import inspect
+import sys
 from collections.abc import Callable
 from typing import Any, Optional, TypeVar, Union, overload
 
@@ -67,10 +68,16 @@ class Pipeline:
         with self:
             self._scan_steps()
             self._configure_logging()
-            self._flag_pipeline(state=PipelineState.RUNNING)
+            self.flag_pipeline(state=PipelineState.RUNNING)
             self._log_pipeline_context()
 
-            return self.entrypoint(*args, **kwargs)
+            result = self.entrypoint(*args, **kwargs)
+
+            if self.state == PipelineState.FAILED:
+                self.log_pipeline_warning("❌ Pipeline failed. Exiting with code 1.")
+                sys.exit(1)
+
+            return result
 
     def __enter__(self):
         """Activate the pipeline context.
@@ -254,7 +261,7 @@ class Pipeline:
 
         return flat_parameters, nested_parameters
 
-    def _flag_pipeline(self, state: PipelineState) -> None:
+    def flag_pipeline(self, state: PipelineState) -> None:
         """Flags the pipeline with the provided state.
 
         Args:
