@@ -1,4 +1,3 @@
-import dataclasses
 from typing import Any
 
 from picsellia.types.enums import ProcessingType
@@ -12,101 +11,45 @@ from picsellia_cv_engine.core.parameters import (
     ExportParameters,
     HyperParameters,
 )
-
-
-def infer_type(value: str) -> Any:
-    """
-    Infer the Python type of string value.
-
-    Tries to cast the input to int, then float, and falls back to string.
-
-    Args:
-        value (str): The string to convert.
-
-    Returns:
-        Any: The value cast to int, float, or left as string.
-    """
-    try:
-        return int(value)  # Check if it's an integer
-    except ValueError:
-        try:
-            return float(value)  # Check if it's a float
-        except ValueError:
-            return value  # Default to string
-
-
-def create_local_processing_parameters(processing_parameters: dict[str, Any]) -> Any:
-    """
-    Dynamically create a local ProcessingParameters dataclass from a dictionary.
-
-    Args:
-        processing_parameters (dict[str, Any]): Dictionary of parameter values.
-
-    Returns:
-        ProcessingParameters: A dataclass instance with inferred types and values.
-    """
-
-    @dataclasses.dataclass
-    class ProcessingParameters:
-        defaulted_keys: set[str] = dataclasses.field(default_factory=set)
-
-        def __init__(self):
-            # Dynamically add attributes and infer types
-            for key, value in processing_parameters.items():
-                inferred_value = infer_type(value)
-                setattr(self, key, inferred_value)
-
-            # Initialize empty defaulted keys for logging purposes
-            self.defaulted_keys = set()
-
-        def to_dict(self) -> dict[str, Any]:
-            """Convert the parameters to a dictionary."""
-            filtered_dict = {
-                key: value
-                for key, value in self.__dict__.items()
-                if key not in ["defaulted_keys"]
-            }
-            return dict(sorted(filtered_dict.items()))
-
-        def set_defaulted_key(self, key: str):
-            """Log a key as defaulted."""
-            self.defaulted_keys.add(key)
-
-    return ProcessingParameters()
+from picsellia_cv_engine.core.parameters.base_parameters import TParameters
 
 
 def create_local_processing_context(
+    processing_parameters_cls: type[TParameters],
     api_token: str,
     organization_name: str,
     job_type: ProcessingType,
     input_dataset_version_id: str,
-    processing_parameters: dict[str, Any],
     output_dataset_version_name: str | None = None,
     model_version_id: str | None = None,
+    processing_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
     host: str | None = None,
 ) -> LocalProcessingContext:
     """
-    Create a local Picsellia processing context for testing a processing pipeline.
+    Create a local processing context for running a processing pipeline outside of Picsellia.
+
+    This is typically used for development and testing, with full local control over input/output paths
+    and parameter overrides.
 
     Args:
-        api_token (str): API token for authentication.
-        organization_name (str): Name of the organization.
-        job_type (ProcessingType): Type of processing (e.g., PRE_ANNOTATION).
-        input_dataset_version_id (str): ID of the dataset version to use as input.
-        processing_parameters (dict[str, Any]): Parameters for the processing step.
-        output_dataset_version_name (str | None): Name of the output dataset version (optional).
-        model_version_id (str | None): ID of the model version to use (optional).
-        working_dir (str | None): Working directory to store files locally (optional).
-        host (str | None): Picsellia API host (optional).
+        processing_parameters_cls (type[TParameters]): A subclass of `Parameters` used to define typed inputs.
+        api_token (str): API token for authentication with Picsellia.
+        organization_name (str): Name of the Picsellia organization.
+        job_type (ProcessingType): Type of processing job (e.g., `PRE_ANNOTATION`, `DATASET_VERSION_CREATION`).
+        input_dataset_version_id (str): ID of the dataset version used as input.
+        output_dataset_version_name (str | None): Optional name for the output dataset version.
+        model_version_id (str | None): Optional ID of a model version to include in the context.
+        processing_parameters (dict[str, Any] | None): Raw values to override defaults in the processing parameters.
+        working_dir (str | None): Optional working directory for local file operations.
+        host (str | None): Optional Picsellia API host override.
 
     Returns:
-        LocalProcessingContext: Initialized processing context.
+        LocalProcessingContext[TParameters]: A fully initialized local processing context.
     """
-    processing_parameters_data = create_local_processing_parameters(
-        processing_parameters
-    )
     context = LocalProcessingContext(
+        processing_parameters_cls=processing_parameters_cls,
+        processing_parameters=processing_parameters,
         api_token=api_token,
         organization_name=organization_name,
         host=host,
@@ -114,7 +57,6 @@ def create_local_processing_context(
         input_dataset_version_id=input_dataset_version_id,
         output_dataset_version_name=output_dataset_version_name,
         model_version_id=model_version_id,
-        processing_parameters=processing_parameters_data,
         working_dir=working_dir,
     )
     return context
@@ -131,20 +73,22 @@ def create_local_training_context(
     host: str | None = None,
 ) -> LocalTrainingContext:
     """
-    Create a local training context for testing training workflows.
+    Create a local training context for testing model training logic locally.
+
+    This context allows for local execution of training steps with parameters pulled from experiment logs.
 
     Args:
-        hyperparameters_cls (type): Class used to extract hyperparameters.
-        augmentation_parameters_cls (type): Class used to extract augmentation parameters.
-        export_parameters_cls (type): Class used to extract export parameters.
-        api_token (str): API token for Picsellia access.
-        organization_name (str): Name of the organization.
-        experiment_id (str): ID of the experiment to attach logs/artifacts.
-        working_dir (str | None): Local working directory (optional).
-        host (str | None): Picsellia API host (optional).
+        hyperparameters_cls (type): Class defining training hyperparameters.
+        augmentation_parameters_cls (type): Class defining augmentation strategy parameters.
+        export_parameters_cls (type): Class defining model export configuration.
+        api_token (str): API token to authenticate with Picsellia.
+        organization_name (str): Name of the organization linked to the experiment.
+        experiment_id (str): Experiment ID from which parameter logs are retrieved.
+        working_dir (str | None): Optional local working directory.
+        host (str | None): Optional Picsellia host override.
 
     Returns:
-        LocalTrainingContext: Initialized training context.
+        LocalTrainingContext: Fully initialized context for local model training.
     """
     return LocalTrainingContext(
         api_token=api_token,

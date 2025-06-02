@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.types.enums import ProcessingType
@@ -7,15 +7,20 @@ from picsellia.types.enums import ProcessingType
 from picsellia_cv_engine.core.contexts import (
     PicselliaContext,
 )
+from picsellia_cv_engine.core.parameters import Parameters
+
+TParameters = TypeVar("TParameters", bound=Parameters)
 
 
-class LocalProcessingContext(PicselliaContext):
+class LocalProcessingContext(PicselliaContext, Generic[TParameters]):
     """
     Local context for testing a processing pipeline without executing a real job on Picsellia.
     """
 
     def __init__(
         self,
+        processing_parameters_cls: type[TParameters],
+        processing_parameters: dict[str, Any] | None = None,
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
@@ -28,7 +33,6 @@ class LocalProcessingContext(PicselliaContext):
         use_id: bool | None = True,
         download_annotations: bool | None = True,
         model_version_id: str | None = None,
-        processing_parameters=None,
         working_dir: str | None = None,
     ):
         """
@@ -71,7 +75,9 @@ class LocalProcessingContext(PicselliaContext):
         if self.model_version_id:
             self.model_version = self.get_model_version()
 
-        self.processing_parameters = processing_parameters
+        self.processing_parameters = processing_parameters_cls(
+            log_data=processing_parameters or {}
+        )
         self.use_id = use_id
         self.download_annotations = download_annotations
 
