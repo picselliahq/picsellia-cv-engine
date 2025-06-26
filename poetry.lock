@@ -193,7 +193,7 @@ description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.7"
 groups = ["dev"]
-markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2"},
     {file = "click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a"},
@@ -237,7 +237,7 @@ version = "1.3.0"
 description = "Python library for calculating contours of 2D quadrilateral grids"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "contourpy-1.3.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:880ea32e5c774634f9fcd46504bf9f080a41ad855f4fef54f5380f5133d343c7"},
@@ -323,7 +323,7 @@ version = "1.3.2"
 description = "Python library for calculating contours of 2D quadrilateral grids"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version >= \"3.10\""
 files = [
     {file = "contourpy-1.3.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ba38e3f9f330af820c4b27ceb4b9c7feee5fe0493ea53a8720f4792667465934"},
@@ -485,7 +485,7 @@ version = "0.12.1"
 description = "Composable style cycles"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30"},
@@ -554,8 +554,8 @@ name = "fonttools"
 version = "4.58.4"
 description = "Tools to manipulate font files"
 optional = false
-python-versions = ">=3.8"
-groups = ["main", "ultralytics"]
+python-versions = ">=3.9"
+groups = ["ultralytics"]
 markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "fonttools-4.58.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:834542f13fee7625ad753b2db035edb674b07522fcbdd0ed9e9a9e2a1034467f"},
@@ -739,7 +739,7 @@ version = "6.5.2"
 description = "Read resources from Python packages"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "importlib_resources-6.5.2-py3-none-any.whl", hash = "sha256:789cfdc3ed28c78b67a06acb8126751ced69a3d5f79c095a98298cd8a760ccec"},
@@ -808,7 +808,7 @@ version = "1.4.7"
 description = "A fast implementation of the Cassowary constraint solver"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "kiwisolver-1.4.7-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:8a9c83f75223d5e48b0bc9cb1bf2776cf01563e00ade8775ffe13b0b6e1af3a6"},
@@ -933,7 +933,7 @@ version = "1.4.8"
 description = "A fast implementation of the Cassowary constraint solver"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version >= \"3.10\""
 files = [
     {file = "kiwisolver-1.4.8-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:88c6f252f6816a73b1f8c904f7bbe02fd67c09a69f7cb8a0eecdbf5ce78e63db"},
@@ -1116,7 +1116,7 @@ version = "3.9.4"
 description = "Python plotting package"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "matplotlib-3.9.4-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:c5fdd7abfb706dfa8d307af64a87f1a862879ec3cd8d0ec8637458f0885b9c50"},
@@ -1183,7 +1183,7 @@ version = "3.10.3"
 description = "Python plotting package"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "python_version >= \"3.10\""
 files = [
     {file = "matplotlib-3.10.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:213fadd6348d106ca7db99e113f1bea1e65e383c3ba76e8556ba4a3054b65ae7"},
@@ -1455,7 +1455,7 @@ description = "Python package for creating and manipulating graphs and networks"
 optional = false
 python-versions = ">=3.10"
 groups = ["ultralytics"]
-markers = "python_version >= \"3.10\""
+markers = "python_version == \"3.10\""
 files = [
     {file = "networkx-3.4.2-py3-none-any.whl", hash = "sha256:df5d4365b724cf81b8c6a7312509d0c22386097011ad1abe274afd5e9d3bbc5f"},
     {file = "networkx-3.4.2.tar.gz", hash = "sha256:307c3669428c5362aab27c8a1260aa8f47c4e91d3891f48be0141738d8d053e1"},
@@ -2466,7 +2466,7 @@ version = "3.2.3"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "ultralytics"]
+groups = ["ultralytics"]
 markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "pyparsing-3.2.3-py3-none-any.whl", hash = "sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf"},
@@ -2760,7 +2760,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "ultralytics"]
-markers = "python_version >= \"3.10\""
+markers = "python_version == \"3.10\""
 files = [
     {file = "scipy-1.15.3-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:a345928c86d535060c9c2b25e71e87c39ab2f22fc96e9636bd74d1dbf9de448c"},
     {file = "scipy-1.15.3-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:ad3432cb0f9ed87477a8d97f03b763fd1d57709f1bbde3c9369b1dff5503b253"},
@@ -2823,9 +2823,9 @@ name = "scipy"
 version = "1.16.0"
 description = "Fundamental algorithms for scientific computing in Python"
 optional = false
-python-versions = ">=3.8"
-groups = ["ultralytics"]
-markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\""
+python-versions = ">=3.11"
+groups = ["main", "ultralytics"]
+markers = "python_version >= \"3.11\""
 files = [
     {file = "scipy-1.16.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:deec06d831b8f6b5fb0b652433be6a09db29e996368ce5911faf673e78d20085"},
     {file = "scipy-1.16.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:d30c0fe579bb901c61ab4bb7f3eeb7281f0d4c4a7b52dbf563c89da4fd2949be"},
@@ -3352,7 +3352,7 @@ version = "3.22.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "ultralytics"]
+groups = ["dev", "ultralytics"]
 markers = "python_version < \"3.10\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version == \"3.9\""
 files = [
     {file = "zipp-3.22.0-py3-none-any.whl", hash = "sha256:fe208f65f2aca48b81f9e6fd8cf7b8b32c26375266b009b413d45306b6148343"},
@@ -3369,5 +3369,5 @@ type = ["pytest-mypy"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.9,<3.13"
-content-hash = "d1526d711ecc5c2f9e33d447d2e2b2390506c004e8c152a8a0c6284ed1cb724d"
+python-versions = ">=3.9,<=3.13"
+content-hash = "df9a8f1e5b5c08ef840716c4ba15b265f9baf29bbe088ce6d4a46df6629828fe"
