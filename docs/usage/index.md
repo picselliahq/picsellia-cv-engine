@@ -6,7 +6,8 @@ This section includes real-world examples for both **processing** and **training
 
 ## 🔁 Processing Pipelines
 
-- [Simple Processing Template](./processing/simple.md)
+- [Dataset Version Creation Template](processing/dataset_version_creation.md)
+
 ## 🏋️ Training Pipelines
 
-- [Simple Training Template](./training/simple.md)
+- [Ultralytics Training Template](training/ultralytics.md)
