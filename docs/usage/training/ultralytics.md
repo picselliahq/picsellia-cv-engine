@@ -73,6 +73,26 @@ ultralytics_model.train(
 ⚠️ Make sure your parameter class stays in sync with your model version’s expected configuration.
 A sync feature will be added soon to help with this.
 
+### `pyproject.toml`: Customize your dependencies
+
+Dependencies are managed with uv.
+To add a new package to the pipeline environment:
+
+```bash
+uv add albumentations --project test_training
+```
+
+To install a Git-based package:
+
+```bash
+uv add git+https://github.com/picselliahq/picsellia-cv-engine.git --project test_training
+```
+
+This updates the `pyproject.toml` and `uv.lock`.
+The CLI will automatically install everything on the next test or deploy.
+
+See [dependency management with uv](../cli_overview.md#dependency-management-with-uv) for full details.
+
 ## 3. Test your pipeline locally
 
 ```bash
