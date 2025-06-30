@@ -68,11 +68,14 @@ PICSELLIA_HOST  # optional, defaults to https://app.picsellia.com
 ```
 
 They are:
+
 - Prompted once during init, test, or deploy
 - Saved in: `~/.config/picsellia/.env`
 - Automatically loaded on future runs
 
+
 You can:
+
 - Manually edit that file
 - Or override any value in the current terminal session with export VAR=...
 
@@ -93,7 +96,7 @@ The following is automatically done for you:
 
 - `uv lock` resolves all dependencies and generates/updates `uv.lock`
 - `uv sync`  installs packages into `.venv/` based on the lock file
--
+
 You don't need to install or activate anything manually — the CLI ensures the right environment is built.
 
 ### ➕ Adding dependencies
@@ -146,41 +149,26 @@ Inside each run folder:
 
 ## Working with pipeline parameters
 
-Each pipeline contains a `utils/parameters.py` file that defines a class responsible for extracting and validating parameters from Picsellia logs (experiment or processing metadata).
-
-All parameter classes inherit from:
-
-- `Parameters` → for processing pipelines
-- `HyperParameters` → for training pipelines (includes built-in defaults like `batch_size`, `image_size`, etc.)
-
-The class is declared in your config.toml under:
-
-```toml
-[execution]
-parameters_class = "utils/parameters.py:MyParameterClass"
-```
-
 ### ➕ Adding a custom parameter
-To add your own parameter:
 
-```python
-self.threshold = self.extract_parameter(
-    keys=["threshold"],
-    expected_type=float,
-    default=0.5,
-)
+Each pipeline includes a `utils/parameters.py` file containing a parameter class that extracts and validates values from Picsellia metadata (experiment or processing).
+
+#### 1. Locate your parameters file
+
+```
+my_pipeline/
+├── utils/
+│   └── parameters.py  ← edit this file
 ```
 
-You can provide:
+#### 2. Edit the parameter class
+Inside `parameters.py`, you’ll find a class that inherits from:
 
-- Multiple fallback keys (`keys=["lr", "learning_rate"]`)
-- An expected type: `int`, `float`, `bool`, `str`, `Optional[...]`, `Union[...]`
-- A default value (or `...` to mark as required)
-- An optional value range: `range_value=(0.0, 1.0)`
+- `Parameters` (for processing pipelines)
 
-More advanced use cases (enums, booleans, optional types) are documented in the base `Parameters` class via `extract_parameter`.
+- `HyperParameters` (for training pipelines)
 
-### 🏗 Example: Minimal parameter class
+Add your new fields by calling `self.extract_parameter(...)` in the constructor.
 
 ```python
 from picsellia_cv_engine.core.parameters import Parameters
@@ -188,23 +176,43 @@ from picsellia_cv_engine.core.parameters import Parameters
 class ProcessingParameters(Parameters):
     def __init__(self, log_data):
         super().__init__(log_data)
-        self.threshold = self.extract_parameter(["threshold"], expected_type=float, default=0.1)
-        self.use_filter = self.extract_parameter(["use_filter"], expected_type=bool, default=True)
+
+        # Add your custom parameters here 👇
+        self.threshold = self.extract_parameter(
+            keys=["threshold"],
+            expected_type=float,
+            default=0.5,
+        )
+
+        self.use_filter = self.extract_parameter(
+            keys=["use_filter"],
+            expected_type=bool,
+            default=True,
+        )
 ```
 
-### 🎓 For training pipelines
-If you inherit from `HyperParameters`, you get defaults like:
+3. Link the class in `config.toml`
 
-- `epochs`, `batch_size`, `image_size`, `seed`, `train_set_split_ratio`, etc.
+Make sure the class is declared in your pipeline’s `config.toml`:
 
-You can extend it easily:
-
-```python
-class MyHyperParams(HyperParameters):
-    def __init__(self, log_data):
-        super().__init__(log_data)
-        self.freeze_backbone = self.extract_parameter(["freeze_backbone"], expected_type=bool, default=False)
+```toml
+[execution]
+parameters_class = "utils/parameters.py:ProcessingParameters"
 ```
+
+#### ✅ What you can define
+
+Each parameter can include:
+
+| Field          | Description                                                           |
+|----------------|-----------------------------------------------------------------------|
+| `keys`         | One or more fallback keys (e.g. `["lr", "learning_rate"]`)            |
+| `expected_type`| Type validation (`int`, `float`, `bool`, `str`, `Optional[...]`)      |
+| `default`      | Optional default value (or `...` to mark as required)                 |
+| `range_value`  | Value bounds: `(min, max)` for numeric parameters                     |
+
+
+Advanced use cases (enums, optional types, dynamic validation) are documented in the base Parameters class via extract_parameter(...).
 
 ## ✅ Summary
 
