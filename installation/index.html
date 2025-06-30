@@ -444,9 +444,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-setup-guide" class="md-nav__link">
+  <a href="#install-via-pypi" class="md-nav__link">
     <span class="md-ellipsis">
-      Installation &amp; Setup guide
+      Install via PyPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#develop-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧑‍💻 Develop Locally
     </span>
   </a>
   
@@ -6327,9 +6336,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-setup-guide" class="md-nav__link">
+  <a href="#install-via-pypi" class="md-nav__link">
     <span class="md-ellipsis">
-      Installation &amp; Setup guide
+      Install via PyPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#develop-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧑‍💻 Develop Locally
     </span>
   </a>
   
@@ -6371,38 +6389,43 @@
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Python <strong>&gt;=3.10</strong></li>
-<li><a href="https://python-poetry.org/docs/">Poetry</a> installed</li>
-<li><a href="https://git-scm.com/downloads">Git</a> installed</li>
 </ul>
-<h2 id="installation-setup-guide">Installation &amp; Setup guide<a class="headerlink" href="#installation-setup-guide" title="Permanent link">&para;</a></h2>
-<p>You can either install this project locally for development, or use it directly as a dependency via Git.</p>
-<h3 id="option-1-install-via-git-only-no-local-clone">Option 1 — Install via Git Only (No Local Clone)<a class="headerlink" href="#option-1-install-via-git-only-no-local-clone" title="Permanent link">&para;</a></h3>
-<p>Use this method if you want to consume the CV Engine and Pipeline CLI without modifying the code.</p>
-<p>✅ Using Poetry</p>
-<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-poetry<span class="w"> </span>add<span class="w"> </span>git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+<h2 id="install-via-pypi">Install via PyPI<a class="headerlink" href="#install-via-pypi" title="Permanent link">&para;</a></h2>
+<p>Use this option if you want to use the CV Engine and Pipeline CLI without modifying the code.</p>
+<p>✅ With <code>poetry</code></p>
+<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>picsellia-cv-engine
+poetry<span class="w"> </span>add<span class="w"> </span>picsellia-pipelines-cli
 </code></pre></div>
-<p>✅ Using uv</p>
-<div class="language-bash highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+<p>✅ With uv</p>
+<div class="language-bash highlight"><pre><span></span><code>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>picsellia-cv-engine
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>picsellia-pipelines-cli
 </code></pre></div>
-<p>✅ Using pip</p>
-<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+<p>✅ With pip</p>
+<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>picsellia-cv-engine
+pip<span class="w"> </span>install<span class="w"> </span>picsellia-pipelines-cli
 </code></pre></div>
-<h3 id="option-2-develop-locally">Option 2 — Develop Locally<a class="headerlink" href="#option-2-develop-locally" title="Permanent link">&para;</a></h3>
-<p>Use this option if you want to contribute or make local changes.</p>
-<h4 id="1-clone-the-repository">1. Clone the repository<a class="headerlink" href="#1-clone-the-repository" title="Permanent link">&para;</a></h4>
+<p>After that, the CLI is available as:</p>
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>--help
+</code></pre></div>
+<h2 id="develop-locally">🧑‍💻 Develop Locally<a class="headerlink" href="#develop-locally" title="Permanent link">&para;</a></h2>
+<p>Use this setup if you're contributing or exploring the codebase.</p>
+<ol>
+<li>Clone the repository</li>
+</ol>
 <div class="language-bash highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/picselliahq/picsellia-cv-engine.git
 <span class="nb">cd</span><span class="w"> </span>picsellia-cv-engine
 </code></pre></div>
-<h4 id="2-install-dependencies-with-poetry">2. Install dependencies with Poetry<a class="headerlink" href="#2-install-dependencies-with-poetry" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Install dependencies</li>
+</ol>
 <div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>install
 </code></pre></div>
-<h4 id="3-add-the-pipeline-cli-manually">3. Add the Pipeline CLI (manually)<a class="headerlink" href="#3-add-the-pipeline-cli-manually" title="Permanent link">&para;</a></h4>
-<p><code>picsellia-pipelines-cli</code> is not included by default, you must add it:</p>
-<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>git+https://github.com/picselliahq/picsellia-pipelines-cli.git
+<ol>
+<li>Serve the documentation locally (optional)</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>serve<span class="w"> </span>-a<span class="w"> </span><span class="m">127</span>.0.0.1:8080
 </code></pre></div>
+<p>Then open http://127.0.0.1:8080 in your browser.</p>
 
 
 

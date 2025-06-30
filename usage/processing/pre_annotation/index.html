@@ -6435,11 +6435,11 @@
 
 
 <h1 id="pre-annotation-pipeline">Pre-Annotation Pipeline<a class="headerlink" href="#pre-annotation-pipeline" title="Permanent link">&para;</a></h1>
-<p>This guide explains how to create, customize, test, and deploy a pre-annotation pipeline using <code>pipeline-cli</code> with the <code>pre_annotation</code> template.</p>
+<p>This guide explains how to create, customize, test, and deploy a pre-annotation pipeline using <code>pxl-pipeline</code> cli with the <code>pre_annotation</code> template.</p>
 <p>These pipelines apply an existing model (e.g. YOLOv8, GroundingDINO) to automatically annotate a dataset.</p>
 <hr />
 <h2 id="1-initialize-your-pipeline"><strong>1. Initialize your pipeline</strong><a class="headerlink" href="#1-initialize-your-pipeline" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>init<span class="w"> </span>my_preannotation_pipeline<span class="w"> </span>--type<span class="w"> </span>processing<span class="w"> </span>--template<span class="w"> </span>pre_annotation
+<div class="language-sh highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>init<span class="w"> </span>my_preannotation_pipeline<span class="w"> </span>--type<span class="w"> </span>processing<span class="w"> </span>--template<span class="w"> </span>pre_annotation
 </code></pre></div>
 <p>This generates a pipeline folder with standard files. See <a href="../../cli_overview/#project-structure">project structure</a> for details.</p>
 <h2 id="2-customize-your-pipeline"><strong>2. Customize your pipeline</strong><a class="headerlink" href="#2-customize-your-pipeline" title="Permanent link">&para;</a></h2>
@@ -6477,7 +6477,7 @@ uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/pics
 </code></pre></div>
 See <a href="../../cli_overview/#dependency-management-with-uv">dependency management with uv</a> for full details.</p>
 <h2 id="4-test-locally">4. Test locally<a class="headerlink" href="#4-test-locally" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_preannotation_pipeline
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_preannotation_pipeline
 </code></pre></div>
 <p>You’ll be prompted for:</p>
 <ul>
@@ -6486,11 +6486,11 @@ See <a href="../../cli_overview/#dependency-management-with-uv">dependency manag
 </ul>
 <p>A new folder will be created under <code>runs/</code>, storing config and results.</p>
 <p>To reuse the same folder and avoid re-downloading assets, use:</p>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_preannotation_pipeline<span class="w"> </span>--reuse-dir
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_preannotation_pipeline<span class="w"> </span>--reuse-dir
 </code></pre></div>
 <p>See <a href="../../cli_overview/#how-runs-work">how runs/ work</a> for more details.</p>
 <h2 id="5-deploy-to-picsellia">5. Deploy to Picsellia<a class="headerlink" href="#5-deploy-to-picsellia" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>deploy<span class="w"> </span>my_preannotation_pipeline
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>deploy<span class="w"> </span>my_preannotation_pipeline
 </code></pre></div>
 <p>This will:</p>
 <ul>

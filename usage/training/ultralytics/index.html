@@ -6417,10 +6417,10 @@
 
 
 <h1 id="ultralytics-training-pipeline-template">Ultralytics Training Pipeline Template<a class="headerlink" href="#ultralytics-training-pipeline-template" title="Permanent link">&para;</a></h1>
-<p>This guide explains how to create, customize, test, and deploy a training pipeline using the <code>ultralytics</code> template from <code>pipeline-cli</code>.</p>
+<p>This guide explains how to create, customize, test, and deploy a training pipeline using the <code>ultralytics</code> template from <code>pxl-pipeline</code> cli.</p>
 <p>This pipeline integrates tightly with Picsellia for model logging, dataset handling, and experiment tracking.</p>
 <h2 id="1-initialize-your-pipeline">1. Initialize your pipeline<a class="headerlink" href="#1-initialize-your-pipeline" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>init<span class="w"> </span>test_training<span class="w"> </span>--type<span class="w"> </span>training<span class="w"> </span>--template<span class="w"> </span>ultralytics
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>init<span class="w"> </span>test_training<span class="w"> </span>--type<span class="w"> </span>training<span class="w"> </span>--template<span class="w"> </span>ultralytics
 </code></pre></div>
 <p>This generates a pipeline folder with standard files. See <a href="../../cli_overview/#project-structure">project structure</a> for details.</p>
 <p>During init, you'll be prompted to:</p>
@@ -6475,7 +6475,7 @@ To add a new package to the pipeline environment:</p>
 The CLI will automatically install everything on the next test or deploy.</p>
 <p>See <a href="../../cli_overview/#dependency-management-with-uv">dependency management with uv</a> for full details.</p>
 <h2 id="3-test-your-pipeline-locally">3. Test your pipeline locally<a class="headerlink" href="#3-test-your-pipeline-locally" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>test_training
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>test_training
 </code></pre></div>
 <p>This will:</p>
 <ol>
@@ -6497,7 +6497,7 @@ The CLI will automatically install everything on the next test or deploy.</p>
 <p>See <a href="../../cli_overview/#how-runs-work">how runs/ work</a> for details on configuration reuse.</p>
 <p>💡 If you update the parameters in TrainingHyperParameters, make sure to update them in the experiment config in the UI as well.</p>
 <h2 id="4-deploy-to-picsellia">4. Deploy to Picsellia<a class="headerlink" href="#4-deploy-to-picsellia" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>deploy<span class="w"> </span>test_training
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>deploy<span class="w"> </span>test_training
 </code></pre></div>
 <p>This will:</p>
 <ol>

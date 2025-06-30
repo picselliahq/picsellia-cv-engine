@@ -6453,11 +6453,11 @@
 
 
 <h1 id="dataset-version-creation-pipeline">Dataset Version Creation Pipeline<a class="headerlink" href="#dataset-version-creation-pipeline" title="Permanent link">&para;</a></h1>
-<p>This guide explains how to create, customize, test, and deploy a dataset processing pipeline using <code>pipeline-cli</code> with the <code>dataset_version_creation</code> template.</p>
+<p>This guide explains how to create, customize, test, and deploy a dataset processing pipeline using <code>pxl-pipeline</code> cli with the <code>dataset_version_creation</code> template.</p>
 <p>These pipelines are typically used to modify images and annotations — for example, applying augmentations or filtering classes.</p>
 <hr />
 <h2 id="1-initialize-your-pipeline"><strong>1. Initialize your pipeline</strong><a class="headerlink" href="#1-initialize-your-pipeline" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>init<span class="w"> </span>my_custom_pipeline<span class="w"> </span>--type<span class="w"> </span>processing<span class="w"> </span>--template<span class="w"> </span>dataset_version_creation
+<div class="language-sh highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>init<span class="w"> </span>my_custom_pipeline<span class="w"> </span>--type<span class="w"> </span>processing<span class="w"> </span>--template<span class="w"> </span>dataset_version_creation
 </code></pre></div>
 <p>This generates a pipeline folder with standard files. See <a href="../../cli_overview/#project-structure">project structure</a> for details.</p>
 <h2 id="2-customize-your-pipeline-logic"><strong>2. Customize your pipeline logic</strong><a class="headerlink" href="#2-customize-your-pipeline-logic" title="Permanent link">&para;</a></h2>
@@ -6534,7 +6534,7 @@ uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/pics
 You don’t need to activate or install manually — see <a href="../../cli_overview/#dependency-management-with-uv">dependency management with uv</a>.</p>
 <h2 id="5-test-your-pipeline-locally">5. Test your pipeline locally<a class="headerlink" href="#5-test-your-pipeline-locally" title="Permanent link">&para;</a></h2>
 <p>Run your test with:</p>
-<div class="language-sh highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_custom_pipeline
+<div class="language-sh highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_custom_pipeline
 </code></pre></div>
 <p>This will:</p>
 <ul>
@@ -6543,11 +6543,11 @@ You don’t need to activate or install manually — see <a href="../../cli_over
 <li>Save everything under runs/runX/ (see How runs work)</li>
 </ul>
 <p>To reuse the same folder and avoid re-downloading assets, use:</p>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_custom_pipeline<span class="w"> </span>--reuse-dir
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_custom_pipeline<span class="w"> </span>--reuse-dir
 </code></pre></div>
 <p>See <a href="../../cli_overview/#how-runs-work">how runs/ work</a> for more details.</p>
 <h2 id="6-deploy-to-pipeline"><strong>6. Deploy to pipeline</strong><a class="headerlink" href="#6-deploy-to-pipeline" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span>deploy<span class="w"> </span>my_custom_pipeline
+<div class="language-sh highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span>deploy<span class="w"> </span>my_custom_pipeline
 </code></pre></div>
 <p>This will:</p>
 <ul>

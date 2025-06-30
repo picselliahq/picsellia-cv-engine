@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-the-pipeline-cli-works" class="md-skip">
+        <a href="#how-the-pxl-pipeline-cli-works" class="md-skip">
           Skip to content
         </a>
       
@@ -6486,7 +6486,7 @@
   
 
 
-<h1 id="how-the-pipeline-cli-works">🧠 How the pipeline-cli works<a class="headerlink" href="#how-the-pipeline-cli-works" title="Permanent link">&para;</a></h1>
+<h1 id="how-the-pxl-pipeline-cli-works">🧠 How the pxl-pipeline cli works<a class="headerlink" href="#how-the-pxl-pipeline-cli-works" title="Permanent link">&para;</a></h1>
 <h2 id="pipeline-lifecycle">🚀 Pipeline lifecycle<a class="headerlink" href="#pipeline-lifecycle" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>init</code> → generate template</li>
@@ -6544,7 +6544,7 @@
 </li>
 <li>
 <p><strong><code>.venv/</code></strong>
-  Created automatically by the CLI when you run <code>pipeline-cli test</code>.</p>
+  Created automatically by the CLI when you run <code>pxl-pipeline test</code>.</p>
 </li>
 </ul>
 <h2 id="environment-variables">🔐 Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
@@ -6562,9 +6562,9 @@ PICSELLIA_HOST<span class="w">  </span><span class="c1"># optional, defaults to 
 - Or override any value in the current terminal session with export VAR=...</p>
 <h2 id="dependency-management-with-uv">🧰 Dependency management with uv<a class="headerlink" href="#dependency-management-with-uv" title="Permanent link">&para;</a></h2>
 <p>Each pipeline uses <code>uv</code> as the dependency manager. It handles package resolution and installation via <code>pyproject.toml</code>, without needing pip or poetry.</p>
-<h3 id="what-happens-during-pipeline-cli-test">📦 What happens during pipeline-cli test?<a class="headerlink" href="#what-happens-during-pipeline-cli-test" title="Permanent link">&para;</a></h3>
+<h3 id="what-happens-during-pxl-pipeline-test">📦 What happens during pxl-pipeline test?<a class="headerlink" href="#what-happens-during-pxl-pipeline-test" title="Permanent link">&para;</a></h3>
 <p>When you run:</p>
-<div class="language-bash highlight"><pre><span></span><code>pipeline-cli<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_pipeline
+<div class="language-bash highlight"><pre><span></span><code>pxl-pipeline<span class="w"> </span><span class="nb">test</span><span class="w"> </span>my_pipeline
 </code></pre></div>
 <p>The following is automatically done for you:</p>
 <ul>
@@ -6672,7 +6672,7 @@ You don't need to install or activate anything manually — the CLI ensures the 
 <p>Parameters are centralized and easy to extend</p>
 </li>
 <li>
-<p>You can deploy to Picsellia with <code>pipeline-cli deploy ...</code></p>
+<p>You can deploy to Picsellia with <code>pxl-pipeline deploy ...</code></p>
 </li>
 </ul>
 <p>For template-specific usage, see:</p>
