@@ -1,6 +1,6 @@
 site_name: Picsellia CV Engine
 repo_url: https://github.com/picselliahq/picsellia-cv-engine
-site_url: https://github.com/picselliahq/picsellia-cv-engine
+site_url: https://picselliahq.github.io/picsellia-cv-engine/
 theme:
   name: material
   features:
