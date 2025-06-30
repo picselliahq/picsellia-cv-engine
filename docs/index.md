@@ -23,7 +23,7 @@ Each unit of work is a step — a standalone function decorated with @step. You 
 - **Training Pipelines** – Structure model training (e.g. Ultralytics YOLO) with built-in logic
 - **Processing Pipelines** – Clean, transform, or validate datasets before use
 - **Framework Extensions** – Support custom training libraries via a pluggable architecture
-- **CLI Automation** – Use `pipeline-cli` to scaffold, test, and deploy pipelines locally or on Picsellia
+- **CLI Automation** – Use `pxl-pipeline` cli to scaffold, test, and deploy pipelines locally or on Picsellia
 
 ## 🚀 Get started
 - 📦 [Installation Guide](installation.md) – Set up the engine and CLI
