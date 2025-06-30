@@ -34,7 +34,7 @@ After that, the CLI is available as:
 pxl-pipeline --help
 ```
 
-## 🧑‍💻 Develop Locally
+## Develop Locally
 
 Use this setup if you're contributing or exploring the codebase.
 
