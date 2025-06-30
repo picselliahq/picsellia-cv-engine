@@ -2,60 +2,59 @@
 
 ## Prerequisites
 - Python **>=3.10**
-- [Poetry](https://python-poetry.org/docs/) installed
-- [Git](https://git-scm.com/downloads) installed
 
-## Installation & Setup guide
+## Install via PyPI
 
-You can either install this project locally for development, or use it directly as a dependency via Git.
+Use this option if you want to use the CV Engine and Pipeline CLI without modifying the code.
 
-### Option 1 — Install via Git Only (No Local Clone)
-
-Use this method if you want to consume the CV Engine and Pipeline CLI without modifying the code.
-
-✅ Using Poetry
+✅ With `poetry`
 
 ```bash
-poetry add git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+poetry add picsellia-cv-engine
+poetry add picsellia-pipelines-cli
 ```
 
-✅ Using uv
+✅ With uv
 
 ```bash
-uv add git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-uv add git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
-
+uv pip install picsellia-cv-engine
+uv pip install picsellia-pipelines-cli
 ```
 
-✅ Using pip
+✅ With pip
 
 ```bash
-pip install git+https://github.com/picselliahq/picsellia-cv-engine.git@main
-pip install git+https://github.com/picselliahq/picsellia-pipelines-cli.git@main
+pip install picsellia-cv-engine
+pip install picsellia-pipelines-cli
 ```
 
-### Option 2 — Develop Locally
+After that, the CLI is available as:
 
-Use this option if you want to contribute or make local changes.
+```bash
+pxl-pipeline --help
+```
 
-#### 1. Clone the repository
+## 🧑‍💻 Develop Locally
+
+Use this setup if you're contributing or exploring the codebase.
+
+1. Clone the repository
 
 ```bash
 git clone https://github.com/picselliahq/picsellia-cv-engine.git
 cd picsellia-cv-engine
 ```
 
-#### 2. Install dependencies with Poetry
+2. Install dependencies
 
 ```bash
 poetry install
 ```
 
-#### 3. Add the Pipeline CLI (manually)
-
-`picsellia-pipelines-cli` is not included by default, you must add it:
+3. Serve the documentation locally (optional)
 
 ```bash
-poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git
+poetry run mkdocs serve -a 127.0.0.1:8080
 ```
+
+Then open http://127.0.0.1:8080 in your browser.
