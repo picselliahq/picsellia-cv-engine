@@ -1,6 +1,6 @@
 # 📚 Pipeline Usage Examples
 
-This section includes real-world examples for both **processing** and **training** pipelines using the `pipeline-cli`.
+This section includes real-world examples for both **processing** and **training** pipelines using the `pxl-pipeline` cli.
 
 ---
 

@@ -1,7 +1,7 @@
 # Dataset Version Creation Pipeline
 
 
-This guide explains how to create, customize, test, and deploy a dataset processing pipeline using `pipeline-cli` with the `dataset_version_creation` template.
+This guide explains how to create, customize, test, and deploy a dataset processing pipeline using `pxl-pipeline` cli with the `dataset_version_creation` template.
 
 These pipelines are typically used to modify images and annotations — for example, applying augmentations or filtering classes.
 
@@ -10,7 +10,7 @@ These pipelines are typically used to modify images and annotations — for exam
 ## **1. Initialize your pipeline**
 
 ```sh
-pipeline-cli init my_custom_pipeline --type processing --template dataset_version_creation
+pxl-pipeline init my_custom_pipeline --type processing --template dataset_version_creation
 ```
 
 This generates a pipeline folder with standard files. See [project structure](../cli_overview.md#project-structure) for details.
@@ -109,7 +109,7 @@ You don’t need to activate or install manually — see [dependency management 
 Run your test with:
 
 ```sh
-pipeline-cli test my_custom_pipeline
+pxl-pipeline test my_custom_pipeline
 ```
 
 This will:
@@ -121,7 +121,7 @@ This will:
 To reuse the same folder and avoid re-downloading assets, use:
 
 ```bash
-pipeline-cli test my_custom_pipeline --reuse-dir
+pxl-pipeline test my_custom_pipeline --reuse-dir
 ```
 
 See [how runs/ work](../cli_overview.md#how-runs-work) for more details.
@@ -129,7 +129,7 @@ See [how runs/ work](../cli_overview.md#how-runs-work) for more details.
 ## **6. Deploy to pipeline**
 
 ```sh
-pipeline-cli deploy my_custom_pipeline
+pxl-pipeline deploy my_custom_pipeline
 ```
 
 This will:

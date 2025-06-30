@@ -1,7 +1,7 @@
 # Pre-Annotation Pipeline
 
 
-This guide explains how to create, customize, test, and deploy a pre-annotation pipeline using `pipeline-cli` with the `pre_annotation` template.
+This guide explains how to create, customize, test, and deploy a pre-annotation pipeline using `pxl-pipeline` cli with the `pre_annotation` template.
 
 These pipelines apply an existing model (e.g. YOLOv8, GroundingDINO) to automatically annotate a dataset.
 
@@ -9,7 +9,7 @@ These pipelines apply an existing model (e.g. YOLOv8, GroundingDINO) to automati
 ## **1. Initialize your pipeline**
 
 ```sh
-pipeline-cli init my_preannotation_pipeline --type processing --template pre_annotation
+pxl-pipeline init my_preannotation_pipeline --type processing --template pre_annotation
 ```
 
 This generates a pipeline folder with standard files. See [project structure](../cli_overview.md#project-structure) for details.
@@ -69,7 +69,7 @@ See [dependency management with uv](../cli_overview.md#dependency-management-wit
 ## 4. Test locally
 
 ```bash
-pipeline-cli test my_preannotation_pipeline
+pxl-pipeline test my_preannotation_pipeline
 ```
 
 You’ll be prompted for:
@@ -82,7 +82,7 @@ A new folder will be created under `runs/`, storing config and results.
 To reuse the same folder and avoid re-downloading assets, use:
 
 ```bash
-pipeline-cli test my_preannotation_pipeline --reuse-dir
+pxl-pipeline test my_preannotation_pipeline --reuse-dir
 ```
 
 See [how runs/ work](../cli_overview.md#how-runs-work) for more details.
@@ -90,7 +90,7 @@ See [how runs/ work](../cli_overview.md#how-runs-work) for more details.
 ## 5. Deploy to Picsellia
 
 ```bash
-pipeline-cli deploy my_preannotation_pipeline
+pxl-pipeline deploy my_preannotation_pipeline
 ```
 
 This will:

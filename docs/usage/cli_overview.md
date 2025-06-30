@@ -1,4 +1,4 @@
-# 🧠 How the pipeline-cli works
+# 🧠 How the pxl-pipeline cli works
 
 ## 🚀 Pipeline lifecycle
 
@@ -55,7 +55,7 @@ my_pipeline/
   Contains the parameter class (`TrainingHyperParameters`, `ProcessingParameters`, etc.) used to extract configuration at runtime.
 
 - **`.venv/`**
-  Created automatically by the CLI when you run `pipeline-cli test`.
+  Created automatically by the CLI when you run `pxl-pipeline test`.
 
 ## 🔐 Environment variables
 
@@ -81,12 +81,12 @@ You can:
 
 Each pipeline uses `uv` as the dependency manager. It handles package resolution and installation via `pyproject.toml`, without needing pip or poetry.
 
-### 📦 What happens during pipeline-cli test?
+### 📦 What happens during pxl-pipeline test?
 
 When you run:
 
 ```bash
-pipeline-cli test my_pipeline
+pxl-pipeline test my_pipeline
 ```
 
 The following is automatically done for you:
@@ -216,7 +216,7 @@ class MyHyperParams(HyperParameters):
 
 - Parameters are centralized and easy to extend
 
-- You can deploy to Picsellia with `pipeline-cli deploy ...`
+- You can deploy to Picsellia with `pxl-pipeline deploy ...`
 
 For template-specific usage, see:
 

@@ -1,6 +1,6 @@
 # Ultralytics Training Pipeline Template
 
-This guide explains how to create, customize, test, and deploy a training pipeline using the `ultralytics` template from `pipeline-cli`.
+This guide explains how to create, customize, test, and deploy a training pipeline using the `ultralytics` template from `pxl-pipeline` cli.
 
 This pipeline integrates tightly with Picsellia for model logging, dataset handling, and experiment tracking.
 
@@ -8,7 +8,7 @@ This pipeline integrates tightly with Picsellia for model logging, dataset handl
 ## 1. Initialize your pipeline
 
 ```bash
-pipeline-cli init test_training --type training --template ultralytics
+pxl-pipeline init test_training --type training --template ultralytics
 ```
 
 This generates a pipeline folder with standard files. See [project structure](../cli_overview.md#project-structure) for details.
@@ -96,7 +96,7 @@ See [dependency management with uv](../cli_overview.md#dependency-management-wit
 ## 3. Test your pipeline locally
 
 ```bash
-pipeline-cli test test_training
+pxl-pipeline test test_training
 ```
 
 This will:
@@ -126,7 +126,7 @@ See [how runs/ work](../cli_overview.md#how-runs-work) for details on configurat
 ## 4. Deploy to Picsellia
 
 ```bash
-pipeline-cli deploy test_training
+pxl-pipeline deploy test_training
 ```
 
 This will:
