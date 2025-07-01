@@ -9,6 +9,14 @@ class PicselliaLabel:
 
     value: Label
 
+    @property
+    def name(self) -> str:
+        return self.value.name
+
+    @property
+    def id(self) -> int:
+        return self.value.id
+
 
 @dataclass
 class PicselliaConfidence:
@@ -27,6 +35,22 @@ class PicselliaRectangle:
         """Initialize rectangle coordinates."""
         self.value = [int(x), int(y), int(w), int(h)]
 
+    @property
+    def x(self) -> int:
+        return self.value[0]
+
+    @property
+    def y(self) -> int:
+        return self.value[1]
+
+    @property
+    def width(self) -> int:
+        return self.value[2]
+
+    @property
+    def height(self) -> int:
+        return self.value[3]
+
 
 @dataclass
 class PicselliaText:
@@ -44,6 +68,16 @@ class PicselliaPolygon:
     def __init__(self, points: list[list[int]]):
         """Initialize polygon with a list of [x, y] points."""
         self.value = points
+
+    @property
+    def points(self) -> list[list[int]]:
+        return self.value
+
+    def compute_area(self) -> float:
+        # Optional: simple polygon area (Shoelace formula)
+        from shapely.geometry import Polygon
+
+        return Polygon(self.points).area if self.points else 0.0
 
 
 @dataclass
