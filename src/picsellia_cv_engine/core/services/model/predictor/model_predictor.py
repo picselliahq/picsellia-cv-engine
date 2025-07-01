@@ -1,3 +1,4 @@
+import os
 from abc import ABC
 from typing import Generic, TypeVar
 
@@ -37,6 +38,32 @@ class ModelPredictor(ABC, Generic[TModel]):
 
         if not hasattr(self.model, "loaded_model"):
             raise ValueError("The models does not have a loaded models attribute.")
+
+    def pre_process_dataset(self, dataset: TBaseDataset) -> list[str]:
+        """
+        Extracts all image paths from the dataset's image directory.
+
+        Args:
+            dataset (TBaseDataset): The dataset object containing the image directory.
+
+        Returns:
+            list[str]: A list of file paths to the dataset images.
+        """
+        if not dataset.images_dir:
+            raise ValueError("No images directory found in the dataset.")
+
+        return [
+            os.path.join(dataset.images_dir, image_name)
+            for image_name in os.listdir(dataset.images_dir)
+        ]
+
+    def prepare_batches(
+        self, image_paths: list[str], batch_size: int
+    ) -> list[list[str]]:
+        return [
+            image_paths[i : i + batch_size]
+            for i in range(0, len(image_paths), batch_size)
+        ]
 
     def get_picsellia_label(
         self, category_name: str, dataset: TBaseDataset

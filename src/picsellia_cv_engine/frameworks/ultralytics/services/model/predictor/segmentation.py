@@ -32,45 +32,6 @@ class UltralyticsSegmentationModelPredictor(ModelPredictor[UltralyticsModel]):
         """
         super().__init__(model)
 
-    def pre_process_dataset(self, dataset: TBaseDataset) -> list[str]:
-        """
-        Retrieves the list of image paths from the dataset.
-
-        Args:
-            dataset (TBaseDataset): The dataset containing image paths.
-
-        Returns:
-            list[str]: A list of full paths to image files.
-
-        Raises:
-            ValueError: If the dataset has no image directory defined.
-        """
-        if not dataset.images_dir:
-            raise ValueError("No images directory found in the dataset.")
-
-        return [
-            os.path.join(dataset.images_dir, image_name)
-            for image_name in os.listdir(dataset.images_dir)
-        ]
-
-    def prepare_batches(
-        self, image_paths: list[str], batch_size: int
-    ) -> list[list[str]]:
-        """
-        Splits image paths into batches of a given size.
-
-        Args:
-            image_paths (list[str]): All image file paths.
-            batch_size (int): Number of images per batch.
-
-        Returns:
-            list[list[str]]: List of batches, each a list of image paths.
-        """
-        return [
-            image_paths[i : i + batch_size]
-            for i in range(0, len(image_paths), batch_size)
-        ]
-
     def run_inference_on_batches(self, image_batches: list[list[str]]) -> list[Results]:
         """
         Runs inference on each batch of images.
