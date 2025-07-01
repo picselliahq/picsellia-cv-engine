@@ -22,6 +22,7 @@ PredictionType = Union[
 def convert_predictions_to_coco(
     predictions: list[PredictionType],
     dataset: CocoDataset,
+    use_id: bool = False,
 ) -> CocoDataset:
     """
     Convert a list of Picsellia predictions into COCO format annotations.
@@ -34,6 +35,8 @@ def convert_predictions_to_coco(
     Args:
         predictions: List of predictions (classification, detection or segmentation)
         dataset: Dataset containing image + category info
+        use_id: If True, match images using asset.id_with_extension instead of asset.filename
+
 
     Returns:
         Updated CocoDataset
@@ -51,12 +54,18 @@ def convert_predictions_to_coco(
     annotation_id = 0
 
     for prediction in predictions:
-        image_name = prediction.asset.filename
-        image_id = image_name_to_id[image_name]
+        image_name = (
+            prediction.asset.id_with_extension if use_id else prediction.asset.filename
+        )
+
+        image_id = image_name_to_id.get(image_name)
+
+        if image_id is None:
+            print(f"⚠️ Image not found in COCO dataset: {image_name}")
+            continue
 
         if isinstance(prediction, PicselliaClassificationPrediction):
             category_id = label_name_to_id[prediction.label.name]
-
             coco["annotations"].append(
                 {
                     "id": annotation_id,
@@ -67,13 +76,11 @@ def convert_predictions_to_coco(
             )
             annotation_id += 1
 
-        # Detection
         elif isinstance(prediction, PicselliaRectanglePrediction):
             for box, label, confidence in zip(
                 prediction.boxes, prediction.labels, prediction.confidences
             ):
                 category_id = label_name_to_id[label.name]
-
                 coco["annotations"].append(
                     {
                         "id": annotation_id,
@@ -86,13 +93,11 @@ def convert_predictions_to_coco(
                 )
                 annotation_id += 1
 
-        # Segmentation
         elif isinstance(prediction, PicselliaPolygonPrediction):
             for polygon, label, confidence in zip(
                 prediction.polygons, prediction.labels, prediction.confidences
             ):
                 category_id = label_name_to_id[label.name]
-
                 coco["annotations"].append(
                     {
                         "id": annotation_id,
