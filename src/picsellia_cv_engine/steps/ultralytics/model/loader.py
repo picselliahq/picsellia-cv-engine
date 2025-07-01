@@ -11,9 +11,6 @@ from picsellia_cv_engine.frameworks.ultralytics.parameters.augmentation_paramete
 from picsellia_cv_engine.frameworks.ultralytics.parameters.hyper_parameters import (
     UltralyticsHyperParameters,
 )
-from picsellia_cv_engine.frameworks.ultralytics.services.model.utils import (
-    load_yolo_weights,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +59,8 @@ def load_ultralytics_model(
     if not model.pretrained_weights_path:
         raise FileNotFoundError("No pretrained weights path found in model.")
 
-    loaded_model = load_yolo_weights(
-        weights_path_to_load=model.pretrained_weights_path,
+    loaded_model = model.load_yolo_weights(
+        weights_path=model.pretrained_weights_path,
         device=context.hyperparameters.device,
     )
     model.set_loaded_model(loaded_model)
