@@ -53,24 +53,6 @@ class UltralyticsClassificationModelPredictor(ModelPredictor[UltralyticsModel]):
             )
         return image_paths
 
-    def prepare_batches(
-        self, image_paths: list[str], batch_size: int
-    ) -> list[list[str]]:
-        """
-        Splits the image paths into smaller batches for batched inference.
-
-        Args:
-            image_paths (list[str]): List of full image file paths.
-            batch_size (int): Number of images per batch.
-
-        Returns:
-            list[list[str]]: A list of batches (each batch is a list of image paths).
-        """
-        return [
-            image_paths[i : i + batch_size]
-            for i in range(0, len(image_paths), batch_size)
-        ]
-
     def run_inference_on_batches(self, image_batches: list[list[str]]) -> list[Results]:
         """
         Runs inference on each batch of images using the model.
