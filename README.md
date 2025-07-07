@@ -17,73 +17,83 @@ Each action is implemented as a step — a small, focused function decorated wit
 
 You can chain together these steps inside a @pipeline, and run it locally or on Picsellia.
 
-## 🚀 Quickstart guide
+## 🚀 Getting Started
 
-### 1. Clone the repository
+Install from PyPI:
+
+- With poetry:
+
+```bash
+poetry add picsellia-cv-engine
+poetry add picsellia-pipelines-cli
+```
+
+ - With pip:
+
+```bash
+pip install picsellia-cv-engine
+pip install picsellia-pipelines-cli
+```
+
+## 🛠 Create and run your first pipeline
+
+Use the Picsellia Pipelines CLI to scaffold and manage your pipelines.
+
+### 1. Initialize a pipeline
+
+```bash
+pxl-pipeline init my_pipeline --type training --template ultralytics
+```
+This generates everything you need: config, Dockerfile, code templates, and a virtual environment.
+
+➡️ See [pipeline lifecycle and commands](https://picselliahq.github.io/picsellia-cv-engine/usage/cli_overview/)
+
+### 2. Run it locally
+```bash
+pxl-pipeline test my_pipeline
+```
+
+### 3. Deploy to Picsellia
+
+```bash
+pxl-pipeline deploy my_pipeline
+```
+
+🔎 Want real examples?
+Explore the [pipeline usage templates](https://picselliahq.github.io/picsellia-cv-engine/usage/) for training and processing workflows.
+
+## 📘 Documentation
+
+The full documentation is available at:
+👉 https://picselliahq.github.io/picsellia-cv-engine/
+
+It includes:
+
+- Getting Started
+- CLI Usage Guide
+- API Reference
+- Pipeline templates & examples
+
+## 🧑‍💻 Local Development
+
+To contribute or explore the code:
+
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/picselliahq/picsellia-cv-engine.git
 cd picsellia-cv-engine
 ```
 
-### 2. Install dependencies with Poetry
-
-We use Poetry to manage dependencies. If you haven't installed Poetry yet, run:
+### 2. Install dependencies
 
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+poetry sync
 ```
 
-Then, install the dependencies:
-
-```bash
-poetry install
-```
-
-### 3. Link the Pipeline CLI
-
-`picsellia-pipelines-cli` is not included by default, you must add it:
-
-```bash
-poetry add git+https://github.com/picselliahq/picsellia-pipelines-cli.git
-```
-
-## 📘 Explore the documentation
-
-Start the docs server:
+### 3. Run the documentation
 
 ```bash
 poetry run mkdocs serve -a 127.0.0.1:8080
 ```
-
-Then open `http://127.0.0.1:8080/` in your browser to see all available documentation.
-
-You’ll find:
-
-- [📦 Installation Guide](http://127.0.0.1:8080/installation/)
-- [🛠 Usage Examples](http://127.0.0.1:8080/usage/)
-- [📖 API Reference](http://127.0.0.1:8080/api/)
-
-## 🛠 Build your first pipeline
-
-Create a pipeline (training or processing):
-
-```bash
-pipeline-cli training init my_pipeline --template simple
-```
-Then edit the generated files (e.g. `steps.py`, `requirements.txt`, `parameters.py`), and test locally:
-
-```bash
-pipeline-cli training test my_pipeline
-```
-
-Once everything works:
-```bash
-pipeline-cli training deploy my_pipeline
-```
-
-### 🙋 Need help?
-
-- Follow the [Usage Guide](http://127.0.0.1:8080/usage)
-- Browse the full [API Reference](http://127.0.0.1:8080/api/)
-- Or reach out on the [Picsellia Platform](https://app.picsellia.com/signup)
+Then open http://127.0.0.1:8080 in your browser.
