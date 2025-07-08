@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from typing import Callable, TypeVar
@@ -11,6 +12,8 @@ from picsellia_cv_engine.core.services.model.logging import (
     MetricMapping,
 )
 from picsellia_cv_engine.frameworks.ultralytics.model.model import UltralyticsModel
+
+logger = logging.getLogger(__name__)
 
 TBaseLogger = TypeVar("TBaseLogger", bound=BaseLogger)
 TMetricMapping = TypeVar("TMetricMapping", bound=MetricMapping)
@@ -238,7 +241,7 @@ class UltralyticsCallbacks:
                 artifact_name="best-model",
                 artifact_path=best_weights_path,
             )
-            print(f"✅ Saved checkpoint for epoch {epoch}")
+            logger.info(f"✅ Saved checkpoint for epoch {epoch}")
             self.last_saved_epoch = epoch
 
 

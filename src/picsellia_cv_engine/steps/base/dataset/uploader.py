@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from picsellia import Datalake
@@ -13,6 +14,8 @@ from picsellia_cv_engine.core.services.data.dataset.uploader.utils import (
     upload_images,
     upload_images_and_annotations,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @step
@@ -61,7 +64,7 @@ def upload_full_dataset(
                 replace_annotations = context.processing_parameters.replace_annotations
             else:
                 replace_annotations = False
-                print("replace_annotations is not set, defaulting to False")
+                logger.info("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
         upload_images_and_annotations(
             dataset=dataset,
@@ -132,7 +135,7 @@ def upload_dataset_annotations(
                 replace_annotations = context.processing_parameters.replace_annotations
             else:
                 replace_annotations = False
-                print("replace_annotations is not set, defaulting to False")
+                logger.info("replace_annotations is not set, defaulting to False")
         configure_dataset_type(dataset=dataset, annotations=annotations)
         upload_annotations(
             dataset=dataset,

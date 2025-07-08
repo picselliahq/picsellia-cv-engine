@@ -1,7 +1,10 @@
 import json
+import logging
 
 from picsellia_cv_engine.core import CocoDataset
 from picsellia_cv_engine.core.services.data.dataset.validator import DatasetValidator
+
+logger = logging.getLogger(__name__)
 
 
 class CocoObjectDetectionDatasetValidator(DatasetValidator[CocoDataset]):
@@ -222,7 +225,7 @@ class CocoObjectDetectionDatasetValidator(DatasetValidator[CocoDataset]):
         try:
             with open(self.dataset.coco_file_path, "w") as coco_file:
                 json.dump(self.dataset.coco_data, coco_file, indent=4)
-            print(f"Updated COCO file saved to {self.dataset.coco_file_path}")
+            logger.info(f"Updated COCO file saved to {self.dataset.coco_file_path}")
         except Exception as e:
             raise RuntimeError(
                 f"Failed to save updated COCO file to {self.dataset.coco_file_path}: {e}"
@@ -234,12 +237,12 @@ class CocoObjectDetectionDatasetValidator(DatasetValidator[CocoDataset]):
 
         Iterates over the error counts and prints the details of each error type.
         """
-        print(f"⚠️ Found {sum(self.error_count.values())} bounding box issues:")
+        logger.warning(f"⚠️ Found {sum(self.error_count.values())} bounding box issues:")
         for error_type, count in self.error_count.items():
-            print(f" - {error_type}: {count} issues")
+            logger.info(f" - {error_type}: {count} issues")
 
         if self.fix_annotation:
-            print("🔧 Fixing these issues automatically...")
+            logger.info("🔧 Fixing these issues automatically...")
         else:
             raise ValueError(
                 "Bounding box issues detected. Set 'fix_annotation' to True to automatically fix them."
