@@ -15,5 +15,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install mkdocs mkdocs-material mkdocstrings[python]
-      - run: mkdocs gh-deploy --force
+      - uses: abatilo/actions-poetry@v3
+      - run: poetry install --with dev
+      - run: poetry run mkdocs gh-deploy --force
