@@ -42,12 +42,12 @@ def load_datalake() -> Datalake | DatalakeCollection:
 
     # Check if the function returned a single datalake or a collection
     if isinstance(datalake_data, DatalakeCollection):
-        print("Using both input and output datalakes.")
-        print(f"Input datalake images: {datalake_data.input.image_dir}")
-        print(f"Output datalake images: {datalake_data.output.image_dir}")
+       logger.info("Using both input and output datalakes.")
+       logger.info(f"Input datalake images: {datalake_data.input.image_dir}")
+       logger.info(f"Output datalake images: {datalake_data.output.image_dir}")
     else:
-        print("Using only input datalake.")
-        print(f"Input datalake images: {datalake_data.image_dir}")
+       logger.info("Using only input datalake.")
+       logger.info(f"Input datalake images: {datalake_data.image_dir}")
     ```
     """
     context: PicselliaDatalakeProcessingContext = Pipeline.get_active_context()

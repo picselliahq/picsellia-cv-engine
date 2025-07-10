@@ -1,7 +1,10 @@
 import json
+import logging
 
 from picsellia_cv_engine.core import CocoDataset
 from picsellia_cv_engine.core.services.data.dataset.validator import DatasetValidator
+
+logger = logging.getLogger(__name__)
 
 
 class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
@@ -92,7 +95,7 @@ class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
                 with open(self.dataset.coco_file_path, "w") as file:
                     json.dump(self.dataset.coco_data, file, indent=4)
             else:
-                print(
+                logger.info(
                     f'No COCO file path found for dataset "{self.dataset.name}, skipping saving.'
                 )
 
@@ -110,7 +113,7 @@ class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
         class_id = annotation["category_id"]
         if class_id < 0 or class_id >= len(self.dataset.labelmap):
             self.error_count["class_id"] += 1
-            print(
+            logger.info(
                 f"Deleting annotation {annotation['id']} for image {annotation['image_id']}: "
                 f"Invalid class_id {class_id}."
             )
@@ -174,7 +177,7 @@ class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
         y_coords = corrected_segmentation[1::2]
 
         if len(set(x_coords)) == 1 or len(set(y_coords)) == 1:
-            print(
+            logger.info(
                 f"Deleting polygon in annotation {annotation['id']} "
                 f"for image {annotation['image_id']}: All x or y have the same value."
             )
@@ -213,14 +216,14 @@ class CocoSegmentationDatasetValidator(DatasetValidator[CocoDataset]):
 
         This method prints out the number of issues detected for each error type.
         """
-        print(
+        logger.info(
             f"⚠️ Found {sum(self.error_count.values())} COCO segmentation annotation issues in dataset {self.dataset.name}:"
         )
         for error_type, count in self.error_count.items():
-            print(f" - {error_type}: {count} issues")
+            logger.info(f" - {error_type}: {count} issues")
 
         if self.fix_annotation:
-            print("🔧 Fixing these issues automatically...")
+            logger.info("🔧 Fixing these issues automatically...")
         else:
             raise ValueError(
                 "COCO segmentation annotation issues detected. Set 'fix_annotation' to True to automatically fix them."

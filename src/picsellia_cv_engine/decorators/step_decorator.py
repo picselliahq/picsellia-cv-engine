@@ -11,6 +11,9 @@ from picsellia_cv_engine.enums import PipelineState, StepState
 F = TypeVar("F", bound=Callable[..., Any])
 
 
+logger = logging.getLogger(__name__)
+
+
 class Step:
     def __init__(
         self,
@@ -52,7 +55,9 @@ class Step:
         current_pipeline = Pipeline.ACTIVE_PIPELINE
 
         if not current_pipeline:
-            print(f"⚠ Warning: Running step '{self.step_name}' outside of a pipeline.")
+            logger.info(
+                f"⚠ Warning: Running step '{self.step_name}' outside of a pipeline."
+            )
             return self.entrypoint(*args, **kwargs)
             # raise RuntimeError(
             #     "No current pipeline running."

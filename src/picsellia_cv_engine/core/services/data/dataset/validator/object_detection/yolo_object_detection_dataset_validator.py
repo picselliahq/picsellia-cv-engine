@@ -1,7 +1,10 @@
+import logging
 import os
 
 from picsellia_cv_engine.core import YoloDataset
 from picsellia_cv_engine.core.services.data.dataset.validator import DatasetValidator
+
+logger = logging.getLogger(__name__)
 
 
 class YoloObjectDetectionDatasetValidator(DatasetValidator[YoloDataset]):
@@ -210,7 +213,7 @@ class YoloObjectDetectionDatasetValidator(DatasetValidator[YoloDataset]):
             new_line (str): The updated line content.
         """
         if not self.dataset.annotations_dir:
-            print(
+            logger.info(
                 f"Annotations directory is missing for dataset {self.dataset.name}, skipping update."
             )
             return
@@ -229,12 +232,12 @@ class YoloObjectDetectionDatasetValidator(DatasetValidator[YoloDataset]):
         for each field (class ID, center coordinates, width, and height). If `fix_annotation` is enabled,
         the issues are automatically corrected.
         """
-        print(f"⚠️ Found {sum(self.error_count.values())} YOLO annotation issues:")
+        logger.info(f"⚠️ Found {sum(self.error_count.values())} YOLO annotation issues:")
         for error_type, count in self.error_count.items():
-            print(f" - {error_type}: {count} issues")
+            logger.info(f" - {error_type}: {count} issues")
 
         if self.fix_annotation:
-            print("🔧 Fixing these issues automatically...")
+            logger.info("🔧 Fixing these issues automatically...")
         else:
             raise ValueError(
                 "YOLO annotation issues detected. Set 'fix_annotation' to True to automatically fix them."

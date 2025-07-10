@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from copy import deepcopy
 from typing import Union
@@ -16,6 +17,8 @@ PredictionType = Union[
     PicselliaRectanglePrediction,
     PicselliaPolygonPrediction,
 ]
+
+logger = logging.getLogger(__name__)
 
 
 @step
@@ -36,7 +39,6 @@ def convert_predictions_to_coco(
         predictions: List of predictions (classification, detection or segmentation)
         dataset: Dataset containing image + category info
         use_id: If True, match images using asset.id_with_extension instead of asset.filename
-
 
     Returns:
         Updated CocoDataset
@@ -61,7 +63,7 @@ def convert_predictions_to_coco(
         image_id = image_name_to_id.get(image_name)
 
         if image_id is None:
-            print(f"⚠️ Image not found in COCO dataset: {image_name}")
+            logger.warning(f"Image not found in COCO dataset: {image_name}")
             continue
 
         if isinstance(prediction, PicselliaClassificationPrediction):
@@ -111,11 +113,11 @@ def convert_predictions_to_coco(
                 annotation_id += 1
 
         else:
-            print(f"⚠️ Unsupported prediction type: {type(prediction)}")
+            logger.warning(f"Unsupported prediction type: {type(prediction)}")
 
     dataset.coco_data = coco
     with open(dataset.coco_file_path, "w") as f:
         json.dump(coco, f)
 
-    print(f"✅ Converted {len(coco['annotations'])} annotations to COCO format.")
+    logger.info(f"Converted {len(coco['annotations'])} annotations to COCO format.")
     return dataset

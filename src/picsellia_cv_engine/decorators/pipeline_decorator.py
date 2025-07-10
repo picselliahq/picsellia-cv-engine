@@ -1,5 +1,6 @@
 import ast
 import inspect
+import logging
 import sys
 from collections.abc import Callable
 from typing import Any, Optional, TypeVar, Union, overload
@@ -12,6 +13,9 @@ from picsellia_cv_engine.enums import PipelineState, StepState
 from picsellia_cv_engine.logger import LoggerManager
 
 F = TypeVar("F", bound=Callable[..., Any])
+
+
+logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -377,7 +381,9 @@ class Pipeline:
             RuntimeError: If no context has been set for the current pipeline.
         """
         if Pipeline.ACTIVE_PIPELINE is None:
-            print("⚠ Warning: No active pipeline found. Using fallback context.")
+            logger.warning(
+                "⚠ Warning: No active pipeline found. Using fallback context."
+            )
             return {}
             # raise RuntimeError(
             #     "No current pipeline running."
