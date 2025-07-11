@@ -86,13 +86,20 @@ class GroundingDinoDetectionModelPredictor(ModelPredictor):
             for image_path, prediction_data in zip(
                 batch_paths, batch_results_per_image
             ):
-                all_predictions.append(
-                    self._post_process(
-                        image_path=image_path,
-                        prediction=prediction_data,
-                        dataset=dataset,
-                    )
+                if not prediction_data or any(
+                    prediction_data.get(k) is None
+                    for k in ["boxes", "classes", "confidences"]
+                ):
+                    continue
+
+                processed = self._post_process(
+                    image_path=image_path,
+                    prediction=prediction_data,
+                    dataset=dataset,
                 )
+                if processed:
+                    all_predictions.append(processed)
+
         return all_predictions
 
     def _post_process(
@@ -100,26 +107,33 @@ class GroundingDinoDetectionModelPredictor(ModelPredictor):
         image_path: str,
         prediction: dict,
         dataset: TBaseDataset,
-    ) -> PicselliaRectanglePrediction:
+    ) -> PicselliaRectanglePrediction | None:
         asset_id = os.path.basename(image_path).split(".")[0]
         asset = dataset.dataset_version.list_assets(ids=[asset_id])[0]
 
-        boxes = []
-        labels = []
-        confidences = []
+        if not prediction["boxes"]:
+            return None
+
+        boxes, labels, confidences = [], [], []
 
         for i, box in enumerate(prediction["boxes"]):
-            x_min, y_min, x_max, y_max = box
-            w = x_max - x_min
-            h = y_max - y_min
-            boxes.append(PicselliaRectangle(int(x_min), int(y_min), int(w), int(h)))
+            try:
+                x_min, y_min, x_max, y_max = box
+                w, h = x_max - x_min, y_max - y_min
+                boxes.append(PicselliaRectangle(int(x_min), int(y_min), int(w), int(h)))
 
-            label_idx = int(prediction["classes"][i])
-            label = self.get_picsellia_label(self.label_names[label_idx], dataset)
-            labels.append(label)
+                label_idx = int(prediction["classes"][i])
+                label = self.get_picsellia_label(self.label_names[label_idx], dataset)
+                labels.append(label)
 
-            confidence = float(prediction["confidences"][i])
-            confidences.append(PicselliaConfidence(confidence))
+                confidence = float(prediction["confidences"][i])
+                confidences.append(PicselliaConfidence(confidence))
+
+            except (ValueError, TypeError, IndexError):
+                continue
+
+        if not boxes:
+            return None
 
         return PicselliaRectanglePrediction(
             asset=asset,
