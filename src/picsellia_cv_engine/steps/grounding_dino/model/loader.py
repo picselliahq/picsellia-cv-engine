@@ -1,7 +1,7 @@
 import logging
 
 from picsellia_cv_engine import Pipeline, step
-from picsellia_cv_engine.core.contexts import PicselliaProcessingContext
+from picsellia_cv_engine.core.contexts import PicselliaDatasetProcessingContext
 from picsellia_cv_engine.core.services.model.utils import build_model_impl
 from picsellia_cv_engine.frameworks.grounding_dino.model.model import GroundingDinoModel
 
@@ -15,7 +15,7 @@ def load_grounding_dino_model(
     config_name: str | None = None,
     exported_weights_name: str | None = None,
 ) -> GroundingDinoModel:
-    context: PicselliaProcessingContext = Pipeline.get_active_context()
+    context: PicselliaDatasetProcessingContext = Pipeline.get_active_context()
 
     model = build_model_impl(
         context=context,

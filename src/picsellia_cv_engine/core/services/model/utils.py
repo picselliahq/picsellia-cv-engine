@@ -4,9 +4,9 @@ from picsellia.sdk.asset import Asset, MultiAsset
 from picsellia.types.enums import InferenceType
 
 from picsellia_cv_engine.core.contexts import (
-    LocalProcessingContext,
+    LocalDatasetProcessingContext,
     LocalTrainingContext,
-    PicselliaProcessingContext,
+    PicselliaDatasetProcessingContext,
     PicselliaTrainingContext,
 )
 from picsellia_cv_engine.core.models import (
@@ -22,9 +22,9 @@ from picsellia_cv_engine.core.services.model.evaluator.model_evaluator import (
 
 
 def build_model_impl(
-    context: PicselliaProcessingContext
+    context: PicselliaDatasetProcessingContext
     | PicselliaTrainingContext
-    | LocalProcessingContext
+    | LocalDatasetProcessingContext
     | LocalTrainingContext,
     model_cls: type[TModel],
     pretrained_weights_name: str | None = None,
@@ -54,7 +54,9 @@ def build_model_impl(
     """
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
         model_version = context.experiment.get_base_model_version()
-    elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
+    elif isinstance(
+        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
+    ):
         if context.model_version_id:
             model_version = context.model_version
         else:
@@ -77,9 +79,9 @@ def build_model_impl(
 
 
 def evaluate_model_impl(
-    context: PicselliaProcessingContext
+    context: PicselliaDatasetProcessingContext
     | PicselliaTrainingContext
-    | LocalProcessingContext
+    | LocalDatasetProcessingContext
     | LocalTrainingContext,
     picsellia_predictions: (
         list[PicselliaClassificationPrediction]

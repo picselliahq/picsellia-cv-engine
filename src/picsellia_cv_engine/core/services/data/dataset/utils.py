@@ -3,9 +3,9 @@ import os
 
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
 from picsellia_cv_engine.core.contexts import (
-    LocalProcessingContext,
+    LocalDatasetProcessingContext,
     LocalTrainingContext,
-    PicselliaProcessingContext,
+    PicselliaDatasetProcessingContext,
     PicselliaTrainingContext,
 )
 from picsellia_cv_engine.core.data import TBaseDataset
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 def load_coco_datasets_impl(
     context: PicselliaTrainingContext
     | LocalTrainingContext
-    | PicselliaProcessingContext
-    | LocalProcessingContext,
+    | PicselliaDatasetProcessingContext
+    | LocalDatasetProcessingContext,
     skip_asset_listing: bool,
 ) -> DatasetCollection[CocoDataset] | CocoDataset:
     """
@@ -76,7 +76,9 @@ def load_coco_datasets_impl(
         return dataset_collection
 
     # Processing Context Handling
-    elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
+    elif isinstance(
+        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
+    ):
         # If both input and output datasets are available
         if (
             context.input_dataset_version_id
@@ -147,8 +149,8 @@ def load_coco_datasets_impl(
 def load_yolo_datasets_impl(
     context: PicselliaTrainingContext
     | LocalTrainingContext
-    | PicselliaProcessingContext
-    | LocalProcessingContext,
+    | PicselliaDatasetProcessingContext
+    | LocalDatasetProcessingContext,
     skip_asset_listing: bool,
 ) -> DatasetCollection[YoloDataset] | YoloDataset:
     """
@@ -200,7 +202,9 @@ def load_yolo_datasets_impl(
         return dataset_collection
 
     # Processing Context Handling
-    elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
+    elif isinstance(
+        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
+    ):
         # If both input and output datasets are available
         if (
             context.input_dataset_version_id

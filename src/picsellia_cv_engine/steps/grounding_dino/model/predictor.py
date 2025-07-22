@@ -1,6 +1,6 @@
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core import CocoDataset
-from picsellia_cv_engine.core.contexts import PicselliaProcessingContext
+from picsellia_cv_engine.core.contexts import PicselliaDatasetProcessingContext
 from picsellia_cv_engine.core.models import PicselliaRectanglePrediction
 from picsellia_cv_engine.frameworks.grounding_dino.model.model import GroundingDinoModel
 from picsellia_cv_engine.frameworks.grounding_dino.services.predictor import (
@@ -12,7 +12,7 @@ from picsellia_cv_engine.frameworks.grounding_dino.services.predictor import (
 def run_grounding_dino_inference(
     model: GroundingDinoModel, dataset: CocoDataset
 ) -> list[PicselliaRectanglePrediction]:
-    context: PicselliaProcessingContext = Pipeline.get_active_context()
+    context: PicselliaDatasetProcessingContext = Pipeline.get_active_context()
     parameters = context.processing_parameters.to_dict()
 
     label_names = [cat["name"] for cat in dataset.coco_data.get("categories", [])]

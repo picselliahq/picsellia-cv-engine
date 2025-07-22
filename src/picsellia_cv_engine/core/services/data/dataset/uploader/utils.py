@@ -4,8 +4,8 @@ import os
 from picsellia import Datalake
 from picsellia.types.enums import ImportAnnotationMode, InferenceType
 
-from picsellia_cv_engine.core.contexts.processing.dataset.picsellia_processing_context import (
-    PicselliaProcessingContext,
+from picsellia_cv_engine.core.contexts.processing.dataset.picsellia_context import (
+    PicselliaDatasetProcessingContext,
 )
 from picsellia_cv_engine.core.data import (
     CocoDataset,
@@ -13,7 +13,7 @@ from picsellia_cv_engine.core.data import (
 
 
 def get_datalake_and_tag(
-    context: PicselliaProcessingContext | None,
+    context: PicselliaDatasetProcessingContext | None,
     datalake: Datalake | None,
     data_tag: str | None,
 ):
