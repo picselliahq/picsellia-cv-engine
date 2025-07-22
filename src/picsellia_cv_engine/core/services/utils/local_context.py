@@ -66,7 +66,8 @@ def create_local_dataset_processing_context(
 def create_local_datalake_processing_context(
     processing_parameters_cls: type[TParameters],
     api_token: str,
-    organization_id: str,
+    organization_name: str,
+    job_type: ProcessingType,
     input_datalake_id: str,
     output_datalake_id: str | None = None,
     model_version_id: str | None = None,
@@ -83,7 +84,8 @@ def create_local_datalake_processing_context(
     Args:
         processing_parameters_cls: Class used to parse processing parameters.
         api_token: Your Picsellia API token.
-        organization_id: ID of your organization.
+        organization_name: Name of your organization.
+        job_type: Type of processing job.
         input_datalake_id: ID of the input datalake.
         output_datalake_id: Optional ID of the output datalake.
         model_version_id: Optional ID of the model version.
@@ -102,7 +104,8 @@ def create_local_datalake_processing_context(
         processing_parameters=processing_parameters,
         api_token=api_token,
         host=host,
-        organization_id=organization_id,
+        organization_name=organization_name,
+        job_type=job_type,
         input_datalake_id=input_datalake_id,
         output_datalake_id=output_datalake_id,
         model_version_id=model_version_id,
