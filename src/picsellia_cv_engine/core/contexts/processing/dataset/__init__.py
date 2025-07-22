@@ -1,9 +1,7 @@
-from .local_processing_context import LocalProcessingContext
-from .picsellia_dataset_processing_context import PicselliaDatasetProcessingContext
-from .picsellia_processing_context import PicselliaProcessingContext
+from .local_context import LocalDatasetProcessingContext
+from .picsellia_context import PicselliaDatasetProcessingContext
 
 __all__ = [
-    "LocalProcessingContext",
+    "LocalDatasetProcessingContext",
     "PicselliaDatasetProcessingContext",
-    "PicselliaProcessingContext",
 ]

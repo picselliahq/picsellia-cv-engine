@@ -1,22 +1,21 @@
 from .common import PicselliaContext
 from .processing import (
     LocalDatalakeProcessingContext,
-    LocalProcessingContext,
+    LocalDatasetProcessingContext,
     PicselliaDatalakeProcessingContext,
     PicselliaDatasetProcessingContext,
     PicselliaModelProcessingContext,
-    PicselliaProcessingContext,
 )
 from .training import LocalTrainingContext, PicselliaTrainingContext
 
 __all__ = [
     "PicselliaContext",
     "LocalDatalakeProcessingContext",
-    "LocalProcessingContext",
+    "LocalDatasetProcessingContext",
     "PicselliaDatalakeProcessingContext",
     "PicselliaDatasetProcessingContext",
     "PicselliaModelProcessingContext",
-    "PicselliaProcessingContext",
+    "PicselliaDatasetProcessingContext",
     "LocalTrainingContext",
     "PicselliaTrainingContext",
 ]
