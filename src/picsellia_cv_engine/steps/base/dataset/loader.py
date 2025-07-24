@@ -8,6 +8,7 @@ from picsellia_cv_engine.core.services.data.dataset.utils import (
 
 @step
 def load_coco_datasets(
+    use_id: bool = True,
     skip_asset_listing: bool = False,
 ) -> DatasetCollection[CocoDataset] | CocoDataset:
     """
@@ -18,7 +19,9 @@ def load_coco_datasets(
     - **Processing Contexts**: Loads either a single dataset or multiple datasets depending on the context.
 
     Args:
-        skip_asset_listing (bool, optional): Flag to determine whether to skip listing dataset assets before downloading.
+        use_id (bool, optional): Whether to use asset UUIDs as filenames when downloading images/annotations.
+            If `False`, filenames from the original dataset will be used. Default is `True`.
+        skip_asset_listing (bool, optional): Whether to skip listing dataset assets before downloading.
             Default is `False`. This is applicable only for processing contexts.
 
     Returns:
@@ -41,12 +44,13 @@ def load_coco_datasets(
     """
     context = Pipeline.get_active_context()
     return load_coco_datasets_impl(
-        context=context, skip_asset_listing=skip_asset_listing
+        context=context, use_id=use_id, skip_asset_listing=skip_asset_listing
     )
 
 
 @step
 def load_yolo_datasets(
+    use_id: bool = True,
     skip_asset_listing: bool = False,
 ) -> DatasetCollection[YoloDataset] | YoloDataset:
     """
@@ -57,13 +61,18 @@ def load_yolo_datasets(
     - **Processing Contexts**: Loads either a single dataset or multiple datasets depending on the context.
 
     Args:
-        skip_asset_listing (bool, optional): Flag to determine whether to skip listing dataset assets before downloading.
+        use_id (bool, optional): Whether to use asset UUIDs as filenames when downloading images/annotations.
+            If `False`, filenames from the original dataset will be used. Default is `True`.
+        skip_asset_listing (bool, optional): Whether to skip listing dataset assets before downloading.
             Default is `False`. This is applicable only for processing contexts.
 
     Returns:
         Union[DatasetCollection[YoloDataset], YoloDataset]: The loaded dataset(s) based on the context.
+
+    Raises:
+        ValueError: If no datasets are found or if the context type is unsupported.
     """
     context = Pipeline.get_active_context()
     return load_yolo_datasets_impl(
-        context=context, skip_asset_listing=skip_asset_listing
+        context=context, use_id=use_id, skip_asset_listing=skip_asset_listing
     )
