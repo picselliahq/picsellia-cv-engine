@@ -98,13 +98,9 @@ def prepare_caption_model(device: str):
     processor = InstructBlipProcessor.from_pretrained(
         "Salesforce/instructblip-flan-t5-xl"
     )
-    model = (
-        InstructBlipForConditionalGeneration.from_pretrained(
-            "Salesforce/instructblip-flan-t5-xl", device_map="auto"
-        )
-        .eval()
-        .to(device)
-    )
+    model = InstructBlipForConditionalGeneration.from_pretrained(
+        "Salesforce/instructblip-flan-t5-xl", device_map="auto"
+    ).eval()
     return model, processor
 
 
