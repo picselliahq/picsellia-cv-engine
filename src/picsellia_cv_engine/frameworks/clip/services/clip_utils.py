@@ -1,0 +1,216 @@
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+from typing import Union
+
+import torch
+from picsellia.types.enums import LogType
+from PIL import Image
+from transformers import InstructBlipForConditionalGeneration, InstructBlipProcessor
+
+from picsellia_cv_engine.core import CocoDataset
+from picsellia_cv_engine.core.contexts.training.local_training_context import (
+    LocalTrainingContext,
+)
+from picsellia_cv_engine.core.contexts.training.picsellia_training_context import (
+    PicselliaTrainingContext,
+)
+
+
+def prepare_caption_model(device: str):
+    processor = InstructBlipProcessor.from_pretrained(
+        "Salesforce/instructblip-flan-t5-xl"
+    )
+    model = (
+        InstructBlipForConditionalGeneration.from_pretrained(
+            "Salesforce/instructblip-flan-t5-xl", device_map="auto"
+        )
+        .eval()
+        .to(device)
+    )
+    return model, processor
+
+
+def generate_caption(
+    model, processor, image_path: str, prompt: str, device: str
+) -> str:
+    try:
+        image = Image.open(image_path).convert("RGB")
+    except Exception as e:
+        raise RuntimeError(f"Failed to open image: {image_path}") from e
+
+    inputs = processor(images=image, text=prompt, return_tensors="pt").to(device)
+    with torch.no_grad():
+        output = model.generate(**inputs, max_new_tokens=50)
+
+    caption = processor.decode(output[0], skip_special_tokens=True).strip()
+
+    if not caption.endswith((".", "!", "?")):
+        sentences = re.split(r"(?<=[.!?])\s+", caption)
+        if len(sentences) > 1:
+            caption = " ".join(sentences[:-1])
+
+    return caption
+
+
+def export_dataset_to_clip_json(
+    model, processor, dataset: CocoDataset, output_path: str, device: str, prompt: str
+):
+    coco = dataset.coco_data
+    images_dir = dataset.images_dir
+    enriched_images = []
+
+    for img in coco["images"]:
+        image_path = os.path.join(images_dir, img["file_name"])
+        caption = generate_caption(model, processor, image_path, prompt, device)
+        enriched_images.append(
+            {
+                "image": image_path,
+                "caption": caption,
+                **img,
+            }
+        )
+
+    with open(output_path, "w") as f:
+        for item in enriched_images:
+            f.write(json.dumps(item, separators=(",", ":")) + "\n")
+
+
+def build_clip_command(
+    model_name_or_path: str,
+    script_path: str,
+    output_dir: str,
+    train_file: str,
+    val_file: str,
+    test_file: str,
+    epochs: int,
+    batch_size: int,
+    learning_rate: float,
+    warmup_steps: int,
+    weight_decay: float,
+) -> list[str]:
+    return [
+        sys.executable,
+        script_path,
+        "--output_dir",
+        output_dir,
+        "--model_name_or_path",
+        model_name_or_path,
+        "--do_train",
+        "--do_eval",
+        "--do_predict",
+        "--train_file",
+        train_file,
+        "--validation_file",
+        val_file,
+        "--test_file",
+        test_file,
+        "--image_column",
+        "image",
+        "--caption_column",
+        "caption",
+        "--remove_unused_columns",
+        "False",
+        "--max_seq_length",
+        "77",
+        "--per_device_train_batch_size",
+        str(batch_size),
+        "--num_train_epochs",
+        str(epochs),
+        "--learning_rate",
+        str(learning_rate),
+        "--warmup_steps",
+        str(warmup_steps),
+        "--weight_decay",
+        str(weight_decay),
+        "--overwrite_output_dir",
+        "--logging_strategy",
+        "epoch",
+        "--eval_strategy",
+        "epoch",
+        "--save_strategy",
+        "best",
+        "--metric_for_best_model",
+        "loss",
+    ]
+
+
+def parse_and_log_training_output(process, context, log_file_path):
+    train_pattern = re.compile(
+        r"\{.*?'loss':\s*([\d.eE+-]+),\s*'grad_norm':\s*([\d.eE+-]+),"
+        r"\s*'learning_rate':\s*([\d.eE+-]+),\s*'epoch':\s*([\d.]+).*?\}"
+    )
+    metrics_pattern = re.compile(r"'(\w+)'[\s]*:[\s]*([\d.eE+-]+)")
+
+    with open(log_file_path, "w") as log_file:
+        for line in process.stdout:
+            print(line, end="")
+            log_file.write(line)
+
+            match = train_pattern.search(line)
+            if match:
+                loss, grad_norm, lr, epoch = map(float, match.groups())
+                context.experiment.log("train/loss", loss, LogType.LINE)
+                context.experiment.log("train/grad_norm", grad_norm, LogType.LINE)
+                context.experiment.log("train/learning_rate", lr, LogType.LINE)
+            elif "'eval_loss'" in line and "'epoch'" in line:
+                metrics = dict(metrics_pattern.findall(line))
+                if "eval_loss" in metrics:
+                    context.experiment.log(
+                        "val/loss", float(metrics["eval_loss"]), LogType.LINE
+                    )
+
+
+def run_clip_training(
+    run_script_path: str,
+    output_dir: str,
+    train_json: str,
+    val_json: str,
+    test_json: str,
+    batch_size: int,
+    epochs: int,
+    context: Union[PicselliaTrainingContext, LocalTrainingContext],
+):
+    command = build_clip_command(
+        model_name_or_path=context.hyperparameters.model_name,
+        script_path=run_script_path,
+        output_dir=output_dir,
+        train_file=train_json,
+        val_file=val_json,
+        test_file=test_json,
+        epochs=epochs,
+        batch_size=batch_size,
+        learning_rate=context.hyperparameters.learning_rate,
+        warmup_steps=context.hyperparameters.warmup_steps,
+        weight_decay=context.hyperparameters.weight_decay,
+    )
+
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+    log_file_path = os.path.join(output_dir, "training_stdout.log")
+    parse_and_log_training_output(process, context, log_file_path)
+
+    process.wait()
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(process.returncode, command)
+
+
+def save_best_checkpoint(
+    output_dir: str, context: Union[PicselliaTrainingContext, LocalTrainingContext]
+):
+    checkpoint_dirs = [
+        d
+        for d in glob.glob(os.path.join(output_dir, "checkpoint-*"))
+        if os.path.isdir(d)
+    ]
+    if not checkpoint_dirs:
+        print("❌ No checkpoint directory found.")
+        return
+
+    best_ckpt = max(checkpoint_dirs, key=lambda p: int(p.split("-")[-1]))
+    print(f"📦 Saving best checkpoint: {os.path.basename(best_ckpt)}")
+    context.experiment.store(name="model-latest", path=best_ckpt, do_zip=True)
