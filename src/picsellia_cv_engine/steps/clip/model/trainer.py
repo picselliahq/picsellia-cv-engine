@@ -1,5 +1,3 @@
-import os
-
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, Model
 from picsellia_cv_engine.frameworks.clip.services.trainer import ClipModelTrainer
@@ -13,13 +11,10 @@ def train(model: Model, dataset_collection: DatasetCollection[CocoDataset]):
     """
     context = Pipeline.get_active_context()
 
-    # 📁 Répertoire d'entraînement (où seront stockés JSON + checkpoints)
-    output_dir = os.path.join(model.results_dir, "clip_finetuned")
-    os.makedirs(output_dir, exist_ok=True)
-
     # 🚀 Lancer le training
     trainer = ClipModelTrainer(
+        model=model,
         context=context,
-        model_dir=output_dir,
     )
-    trainer.train_model(dataset_collection=dataset_collection)
+    model = trainer.train_model(dataset_collection=dataset_collection)
+    return model
