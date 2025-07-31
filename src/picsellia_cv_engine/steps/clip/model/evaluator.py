@@ -8,6 +8,7 @@ from picsellia_cv_engine.core import CocoDataset, Model
 from picsellia_cv_engine.core.contexts import (
     PicselliaTrainingContext,
 )
+from picsellia_cv_engine.frameworks.clip.model.model import CLIPModel
 from picsellia_cv_engine.frameworks.clip.services.evaluator import (
     apply_dbscan_clustering,
     find_best_eps,
@@ -29,7 +30,19 @@ def evaluate(model: Model, dataset: CocoDataset):
     context: PicselliaTrainingContext = Pipeline.get_active_context()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    predictor = CLIPModelPredictor(model=model, device=device)
+    clip_model = CLIPModel(name=model.name, model_version=model.model_version)
+
+    if not clip_model.trained_weights_path:
+        raise FileNotFoundError("No trained weights path found in model.")
+
+    loaded_model, loaded_processor = clip_model.load_weights(
+        weights_path=model.pretrained_weights_path,
+        repo_id=context.hyperparameters.model_name,
+    )
+    clip_model.set_loaded_model(loaded_model)
+    clip_model.set_loaded_processor(loaded_processor)
+
+    predictor = CLIPModelPredictor(model=clip_model, device=device)
 
     # 🔍 Récupère les chemins des images
     image_paths = predictor.pre_process_dataset(dataset)
