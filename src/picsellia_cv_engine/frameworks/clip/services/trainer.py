@@ -11,7 +11,7 @@ from picsellia.types.enums import LogType
 from PIL import Image
 from transformers import InstructBlipForConditionalGeneration, InstructBlipProcessor
 
-from picsellia_cv_engine.core import CocoDataset, DatasetCollection
+from picsellia_cv_engine.core import CocoDataset, DatasetCollection, Model
 from picsellia_cv_engine.core.contexts.training.local_training_context import (
     LocalTrainingContext,
 )
@@ -29,21 +29,22 @@ class ClipModelTrainer:
 
     def __init__(
         self,
+        model: Model,
         context: PicselliaTrainingContext | LocalTrainingContext,
-        model_dir: str,
     ):
         """
         Args:
             context: Training context with experiment, hyperparameters, etc.
-            model_dir: Path where model outputs/checkpoints will be saved.
         """
+        self.model = model
         self.context = context
-        self.model_dir = model_dir
+        self.model_dir = os.path.join(model.results_dir, "clip_finetuned")
+        os.makedirs(self.model_dir, exist_ok=True)
         self.run_script_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "clip_utils.py"
         )
 
-    def train_model(self, dataset_collection: DatasetCollection) -> None:
+    def train_model(self, dataset_collection: DatasetCollection) -> Model:
         """
         Executes full training cycle:
         - Generate captions with BLIP.
@@ -91,7 +92,28 @@ class ClipModelTrainer:
             context=self.context,
         )
 
-        save_best_checkpoint(output_dir=self.model_dir, context=self.context)
+        self.save_best_checkpoint(output_dir=self.model_dir, context=self.context)
+
+        return self.model
+
+    def save_best_checkpoint(
+        self,
+        output_dir: str,
+        context: Union[PicselliaTrainingContext, LocalTrainingContext],
+    ):
+        checkpoint_dirs = [
+            d
+            for d in glob.glob(os.path.join(output_dir, "checkpoint-*"))
+            if os.path.isdir(d)
+        ]
+        if not checkpoint_dirs:
+            print("❌ No checkpoint directory found.")
+            return
+
+        best_ckpt = max(checkpoint_dirs, key=lambda p: int(p.split("-")[-1]))
+        print(f"📦 Saving best checkpoint: {os.path.basename(best_ckpt)}")
+        context.experiment.store(name="model-latest", path=best_ckpt, do_zip=True)
+        self.model.trained_weights_path = best_ckpt
 
 
 def prepare_caption_model(device: str):
@@ -267,20 +289,3 @@ def run_clip_training(
     process.wait()
     if process.returncode != 0:
         raise subprocess.CalledProcessError(process.returncode, command)
-
-
-def save_best_checkpoint(
-    output_dir: str, context: Union[PicselliaTrainingContext, LocalTrainingContext]
-):
-    checkpoint_dirs = [
-        d
-        for d in glob.glob(os.path.join(output_dir, "checkpoint-*"))
-        if os.path.isdir(d)
-    ]
-    if not checkpoint_dirs:
-        print("❌ No checkpoint directory found.")
-        return
-
-    best_ckpt = max(checkpoint_dirs, key=lambda p: int(p.split("-")[-1]))
-    print(f"📦 Saving best checkpoint: {os.path.basename(best_ckpt)}")
-    context.experiment.store(name="model-latest", path=best_ckpt, do_zip=True)
