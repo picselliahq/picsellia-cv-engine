@@ -18,15 +18,15 @@ class Sam2Trainer:
         model: Model,
         dataset_collection: DatasetCollection[CocoDataset],
         context,
-        sam2_root: str,
+        sam2_repo_path: str,
     ):
         self.model = model
         self.dataset_collection = dataset_collection
         self.context = context
-        self.sam2_root = sam2_root
+        self.sam2_repo_path = sam2_repo_path
 
-        self.img_root = os.path.join(sam2_root, "data", "JPEGImages")
-        self.ann_root = os.path.join(sam2_root, "data", "Annotations")
+        self.img_root = os.path.join(sam2_repo_path, "data", "JPEGImages")
+        self.ann_root = os.path.join(sam2_repo_path, "data", "Annotations")
         prepare_directories(self.img_root, self.ann_root)
 
     def prepare_data(self):
@@ -42,11 +42,11 @@ class Sam2Trainer:
 
         shutil.copy(
             self.model.pretrained_weights_path,
-            os.path.join(self.sam2_root, "checkpoints"),
+            os.path.join(self.sam2_repo_path, "checkpoints"),
         )
         pretrained_weights_name = os.path.basename(self.model.pretrained_weights_path)
         self.model.pretrained_weights_path = os.path.join(
-            self.sam2_root, "checkpoints", pretrained_weights_name
+            self.sam2_repo_path, "checkpoints", pretrained_weights_name
         )
 
         coco = load_coco_annotations(
@@ -64,8 +64,8 @@ class Sam2Trainer:
         env = os.environ.copy()
         env["PYTHONPATH"] = os.pathsep.join(
             [
-                self.sam2_root,
-                os.path.join(self.sam2_root, "training"),
+                self.sam2_repo_path,
+                os.path.join(self.sam2_repo_path, "training"),
             ]
         )
 
@@ -80,7 +80,7 @@ class Sam2Trainer:
         ]
 
         self.model.results_dir = os.path.join(
-            self.sam2_root, "sam2_logs", "configs", "train.yaml"
+            self.sam2_repo_path, "sam2_logs", "configs", "train.yaml"
         )
 
         command = [
@@ -98,7 +98,7 @@ class Sam2Trainer:
 
         process = subprocess.Popen(
             command,
-            cwd=self.sam2_root,
+            cwd=self.sam2_repo_path,
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

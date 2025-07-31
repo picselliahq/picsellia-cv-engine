@@ -1,4 +1,3 @@
-import os
 import sys
 
 from picsellia_cv_engine import Pipeline, step
@@ -7,17 +6,19 @@ from picsellia_cv_engine.frameworks.sam2.services.trainer import Sam2Trainer
 
 
 @step()
-def train(model: Model, dataset_collection: DatasetCollection[CocoDataset]):
+def train(
+    model: Model,
+    dataset_collection: DatasetCollection[CocoDataset],
+    sam2_repo_path: str,
+):
     context = Pipeline.get_active_context()
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    sam2_root = os.path.join(current_dir, "sam2")
-    sys.path.insert(0, sam2_root)
+    sys.path.insert(0, sam2_repo_path)
 
     trainer = Sam2Trainer(
         model=model,
         dataset_collection=dataset_collection,
         context=context,
-        sam2_root=sam2_root,
+        sam2_repo_path=sam2_repo_path,
     )
 
     pretrained_weights_name = trainer.prepare_data()
