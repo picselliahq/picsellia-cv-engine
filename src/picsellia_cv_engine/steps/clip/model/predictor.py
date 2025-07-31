@@ -11,7 +11,7 @@ from picsellia_cv_engine.frameworks.clip.services.predictor import (
 
 
 @step
-def run_clip_inference(
+def predict(
     model: CLIPModel, dataset: CocoDataset
 ) -> list[PicselliaCLIPEmbeddingPrediction]:
     """

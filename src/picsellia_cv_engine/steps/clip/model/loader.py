@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @step
-def load_clip_model(
+def load_model(
     pretrained_weights_name: str,
     trained_weights_name: str | None = None,
     config_name: str | None = None,
