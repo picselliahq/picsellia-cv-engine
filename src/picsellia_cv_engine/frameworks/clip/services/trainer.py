@@ -31,17 +31,17 @@ class ClipModelTrainer:
         self,
         context: PicselliaTrainingContext | LocalTrainingContext,
         model_dir: str,
-        run_script_path: str,
     ):
         """
         Args:
             context: Training context with experiment, hyperparameters, etc.
             model_dir: Path where model outputs/checkpoints will be saved.
-            run_script_path: Path to the `run_clip.py` script for training.
         """
         self.context = context
         self.model_dir = model_dir
-        self.run_script_path = run_script_path
+        self.run_script_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "clip_utils.py"
+        )
 
     def train_model(self, dataset_collection: DatasetCollection) -> None:
         """
