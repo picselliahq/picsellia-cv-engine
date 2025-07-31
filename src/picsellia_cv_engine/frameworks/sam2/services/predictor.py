@@ -57,7 +57,7 @@ class SAM2ModelPredictor:
 
                 poly_list = sv.mask_to_polygons(mask.astype(np.uint8))
                 for poly in poly_list:
-                    if not poly:
+                    if len(poly) == 0:
                         continue
                     polygons.append(
                         PicselliaPolygon([[int(x), int(y)] for x, y in poly])
