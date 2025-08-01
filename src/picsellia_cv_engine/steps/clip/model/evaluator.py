@@ -4,7 +4,7 @@ import torch
 from picsellia.types.enums import LogType
 
 from picsellia_cv_engine import Pipeline, step
-from picsellia_cv_engine.core import CocoDataset, Model
+from picsellia_cv_engine.core import CocoDataset
 from picsellia_cv_engine.core.contexts import (
     PicselliaTrainingContext,
 )
@@ -22,7 +22,7 @@ from picsellia_cv_engine.frameworks.clip.services.predictor import CLIPModelPred
 
 
 @step()
-def evaluate(model: Model, dataset: CocoDataset):
+def evaluate(model: CLIPModel, dataset: CocoDataset):
     """
     Step d’évaluation CLIP via embeddings image uniquement.
     Effectue l'inférence avec le modèle CLIP, puis UMAP + clustering DBSCAN + logs.
@@ -30,19 +30,17 @@ def evaluate(model: Model, dataset: CocoDataset):
     context: PicselliaTrainingContext = Pipeline.get_active_context()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    clip_model = CLIPModel(name=model.name, model_version=model.model_version)
-
-    if not clip_model.trained_weights_path:
+    if not model.trained_weights_path:
         raise FileNotFoundError("No trained weights path found in model.")
 
-    loaded_model, loaded_processor = clip_model.load_weights(
-        weights_path=model.pretrained_weights_path,
+    loaded_model, loaded_processor = model.load_weights(
+        weights_path=model.trained_weights_path,
         repo_id=context.hyperparameters.model_name,
     )
-    clip_model.set_loaded_model(loaded_model)
-    clip_model.set_loaded_processor(loaded_processor)
+    model.set_loaded_model(loaded_model)
+    model.set_loaded_processor(loaded_processor)
 
-    predictor = CLIPModelPredictor(model=clip_model, device=device)
+    predictor = CLIPModelPredictor(model=model, device=device)
 
     # 🔍 Récupère les chemins des images
     image_paths = predictor.pre_process_dataset(dataset)
