@@ -12,10 +12,8 @@ from PIL import Image
 from transformers import InstructBlipForConditionalGeneration, InstructBlipProcessor
 
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, Model
-from picsellia_cv_engine.core.contexts.training.local_training_context import (
+from picsellia_cv_engine.core.contexts import (
     LocalTrainingContext,
-)
-from picsellia_cv_engine.core.contexts.training.picsellia_training_context import (
     PicselliaTrainingContext,
 )
 

@@ -1,7 +1,10 @@
 import logging
 
 from picsellia_cv_engine import Pipeline, step
-from picsellia_cv_engine.core.contexts import PicselliaProcessingContext
+from picsellia_cv_engine.core.contexts import (
+    PicselliaDatalakeProcessingContext,
+    PicselliaDatasetProcessingContext,
+)
 from picsellia_cv_engine.core.services.model.utils import build_model_impl
 from picsellia_cv_engine.frameworks.clip.model.model import CLIPModel
 
@@ -32,7 +35,9 @@ def load_model(
     Raises:
         FileNotFoundError: If no pretrained weights path is found on the model.
     """
-    context: PicselliaProcessingContext = Pipeline.get_active_context()
+    context: PicselliaDatasetProcessingContext | PicselliaDatalakeProcessingContext = (
+        Pipeline.get_active_context()
+    )
 
     model = build_model_impl(
         context=context,
