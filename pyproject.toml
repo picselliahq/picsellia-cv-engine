@@ -3,12 +3,12 @@ name = "picsellia-cv-engine"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "SoniaGrh",email = "sonia.garrouch@hotmail.fr"}
+    { name = "SoniaGrh", email = "sonia.garrouch@hotmail.fr" }
 ]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<=3.13"
+python = ">=3.10,<3.14"
 picsellia = ">=6.20.0,<7.0.0"
 tabulate = ">=0.8,<0.10"
 numpy = ">=1.21,<2.0.0"
@@ -35,14 +35,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501", # line too long, handled by black
 ]
