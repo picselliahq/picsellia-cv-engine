@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
 import umap
+from picsellia import Experiment
 from picsellia.types.enums import LogType
 from sklearn.metrics import silhouette_score
 
@@ -48,7 +49,7 @@ def save_clustering_visualizations(
     image_paths: list[str],
     results_dir: str,
     log_images: bool = True,
-    experiment_logger=None,
+    experiment: Experiment = None,
 ):
     """
     Save clustering plots, cluster image grids, and outlier grids. Optionally logs them to an experiment.
@@ -59,7 +60,7 @@ def save_clustering_visualizations(
         image_paths: Corresponding image file paths.
         results_dir: Output directory for saved plots.
         log_images: Whether to log images via experiment.
-        experiment_logger: Experiment logger with `.log()` method if logging is enabled.
+        experiment: Experiment if logging is enabled.
     """
     os.makedirs(results_dir, exist_ok=True)
 
@@ -67,10 +68,10 @@ def save_clustering_visualizations(
     save_cluster_images_plot(image_paths, cluster_labels, results_dir=results_dir)
     save_outliers_images(image_paths, cluster_labels, results_dir=results_dir)
 
-    if log_images and experiment_logger is not None:
+    if log_images and experiment is not None:
         for file in os.listdir(results_dir):
             if file.endswith(".png"):
-                experiment_logger.log(
+                experiment.log(
                     name=f"clip-eval/{file}",
                     data=os.path.join(results_dir, file),
                     type=LogType.IMAGE,
