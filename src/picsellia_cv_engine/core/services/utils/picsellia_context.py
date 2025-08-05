@@ -1,5 +1,6 @@
 from picsellia_cv_engine.core.contexts import (
-    PicselliaProcessingContext,
+    PicselliaDatalakeProcessingContext,
+    PicselliaDatasetProcessingContext,
     PicselliaTrainingContext,
 )
 from picsellia_cv_engine.core.parameters import (
@@ -10,11 +11,11 @@ from picsellia_cv_engine.core.parameters import (
 from picsellia_cv_engine.core.parameters.base_parameters import TParameters
 
 
-def create_picsellia_processing_context(
+def create_picsellia_dataset_processing_context(
     processing_parameters_cls: type[TParameters],
-) -> PicselliaProcessingContext:
+) -> PicselliaDatasetProcessingContext:
     """
-    Create a remote PicselliaProcessingContext using a static class to define parameters.
+    Create a remote PicselliaDatasetProcessingContext using a static class to define parameters.
 
     This context is used during pipeline execution on the Picsellia platform.
 
@@ -22,12 +23,32 @@ def create_picsellia_processing_context(
         processing_parameters_cls (type[TParameters]): A class inheriting from `Parameters` defining expected processing parameters.
 
     Returns:
-        PicselliaProcessingContext: An initialized context for use in remote processing pipelines.
+        PicselliaDatasetProcessingContext: An initialized context for use in remote processing pipelines.
     """
-    context = PicselliaProcessingContext(
+    context = PicselliaDatasetProcessingContext(
         processing_parameters_cls=processing_parameters_cls,
     )
     return context
+
+
+def create_picsellia_datalake_processing_context(
+    processing_parameters_cls: type[TParameters],
+) -> PicselliaDatalakeProcessingContext:
+    """
+    Create a remote PicselliaDatalakeProcessingContext using a static parameters class.
+
+    This context is used during pipeline execution on the Picsellia platform for datalake-based jobs.
+
+    Args:
+        processing_parameters_cls (type[TParameters]): A class inheriting from `Parameters`
+            defining expected processing parameters.
+
+    Returns:
+        PicselliaDatalakeProcessingContext: An initialized context for remote processing pipelines.
+    """
+    return PicselliaDatalakeProcessingContext(
+        processing_parameters_cls=processing_parameters_cls
+    )
 
 
 def create_picsellia_training_context(

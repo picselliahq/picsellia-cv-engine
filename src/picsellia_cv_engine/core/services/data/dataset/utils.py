@@ -3,9 +3,9 @@ import os
 
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
 from picsellia_cv_engine.core.contexts import (
-    LocalProcessingContext,
+    LocalDatasetProcessingContext,
     LocalTrainingContext,
-    PicselliaProcessingContext,
+    PicselliaDatasetProcessingContext,
     PicselliaTrainingContext,
 )
 from picsellia_cv_engine.core.data import TBaseDataset
@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 def load_coco_datasets_impl(
     context: PicselliaTrainingContext
     | LocalTrainingContext
-    | PicselliaProcessingContext
-    | LocalProcessingContext,
+    | PicselliaDatasetProcessingContext
+    | LocalDatasetProcessingContext,
+    use_id: bool,
     skip_asset_listing: bool,
 ) -> DatasetCollection[CocoDataset] | CocoDataset:
     """
@@ -34,6 +35,7 @@ def load_coco_datasets_impl(
 
     Args:
         context: Either a training or processing context instance.
+        use_id (bool): Whether to preserve the original asset UUIDs when naming files (instead of filenames).
         skip_asset_listing (bool): Whether to skip asset listing before download.
 
     Returns:
@@ -69,14 +71,16 @@ def load_coco_datasets_impl(
             annotations_destination_dir=os.path.join(
                 dataset_collection.dataset_path, "annotations"
             ),
-            use_id=True,
+            use_id=use_id,
             skip_asset_listing=False,
         )
 
         return dataset_collection
 
     # Processing Context Handling
-    elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
+    elif isinstance(
+        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
+    ):
         # If both input and output datasets are available
         if (
             context.input_dataset_version_id
@@ -102,7 +106,7 @@ def load_coco_datasets_impl(
                 annotations_destination_dir=os.path.join(
                     context.working_dir, "annotations"
                 ),
-                use_id=True,
+                use_id=use_id,
                 skip_asset_listing=skip_asset_listing,
             )
             return dataset_collection
@@ -125,14 +129,14 @@ def load_coco_datasets_impl(
                 destination_dir=os.path.join(
                     context.working_dir, "images", dataset.name
                 ),
-                use_id=True,
+                use_id=use_id,
                 skip_asset_listing=skip_asset_listing,
             )
             dataset.download_annotations(
                 destination_dir=os.path.join(
                     context.working_dir, "annotations", dataset.name
                 ),
-                use_id=True,
+                use_id=use_id,
             )
 
             return dataset
@@ -147,8 +151,9 @@ def load_coco_datasets_impl(
 def load_yolo_datasets_impl(
     context: PicselliaTrainingContext
     | LocalTrainingContext
-    | PicselliaProcessingContext
-    | LocalProcessingContext,
+    | PicselliaDatasetProcessingContext
+    | LocalDatasetProcessingContext,
+    use_id: bool,
     skip_asset_listing: bool,
 ) -> DatasetCollection[YoloDataset] | YoloDataset:
     """
@@ -158,6 +163,7 @@ def load_yolo_datasets_impl(
 
     Args:
         context: Either a training or processing context instance.
+        use_id (bool): Whether to preserve the original asset UUIDs when naming files (instead of filenames).
         skip_asset_listing (bool): Whether to skip asset listing before download.
 
     Returns:
@@ -193,14 +199,16 @@ def load_yolo_datasets_impl(
             annotations_destination_dir=os.path.join(
                 dataset_collection.dataset_path, "labels"
             ),
-            use_id=True,
+            use_id=use_id,
             skip_asset_listing=False,
         )
 
         return dataset_collection
 
     # Processing Context Handling
-    elif isinstance(context, PicselliaProcessingContext | LocalProcessingContext):
+    elif isinstance(
+        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
+    ):
         # If both input and output datasets are available
         if (
             context.input_dataset_version_id
@@ -224,7 +232,7 @@ def load_yolo_datasets_impl(
             dataset_collection.download_all(
                 images_destination_dir=os.path.join(context.working_dir, "images"),
                 annotations_destination_dir=os.path.join(context.working_dir, "labels"),
-                use_id=True,
+                use_id=use_id,
                 skip_asset_listing=skip_asset_listing,
             )
             return dataset_collection
@@ -247,14 +255,14 @@ def load_yolo_datasets_impl(
                 destination_dir=os.path.join(
                     context.working_dir, "images", dataset.name
                 ),
-                use_id=True,
+                use_id=use_id,
                 skip_asset_listing=skip_asset_listing,
             )
             dataset.download_annotations(
                 destination_dir=os.path.join(
                     context.working_dir, "labels", dataset.name
                 ),
-                use_id=True,
+                use_id=use_id,
             )
 
             return dataset

@@ -11,7 +11,7 @@ from picsellia_cv_engine.core.parameters import Parameters
 TParameters = TypeVar("TParameters", bound=Parameters)
 
 
-class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
+class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
     """
     Context for processing jobs in Picsellia using dataset versions and optional model version.
     """

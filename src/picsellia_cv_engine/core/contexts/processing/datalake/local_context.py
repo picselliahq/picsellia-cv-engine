@@ -1,4 +1,5 @@
-from typing import Any
+import os
+from typing import Any, TypeVar
 from uuid import UUID
 
 import orjson
@@ -6,6 +7,9 @@ from picsellia import Client, Datalake, Job, ModelVersion
 from picsellia.types.enums import ProcessingType
 
 from picsellia_cv_engine.core.contexts import PicselliaContext
+from picsellia_cv_engine.core.parameters import Parameters
+
+TParameters = TypeVar("TParameters", bound=Parameters)
 
 
 def create_processing(
@@ -97,18 +101,21 @@ class LocalDatalakeProcessingContext(PicselliaContext):
 
     def __init__(
         self,
+        processing_parameters_cls: type[TParameters],
+        processing_parameters: dict[str, Any] | None = None,
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
+        organization_name: str | None = None,
         job_id: str | None = None,
-        job_type: str | None = None,
+        job_type: ProcessingType | None = None,
         input_datalake_id: str | None = None,
         output_datalake_id: str | None = None,
         model_version_id: str | None = None,
-        offset: int | None = 0,
-        limit: int | None = 100,
+        offset: int = 0,
+        limit: int = 100,
         use_id: bool | None = True,
-        processing_parameters=None,
+        working_dir: str | None = None,
     ):
         """
         Initialize the local datalake processing context.
@@ -116,11 +123,17 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         Raises:
             ValueError: If the input datalake ID is missing or invalid.
         """
-        super().__init__(api_token, host, organization_id)
+        super().__init__(
+            api_token=api_token,
+            host=host,
+            organization_id=organization_id,
+            organization_name=organization_name,
+            working_dir=working_dir,
+        )
 
         self.job_id = job_id
         self.job_type = job_type
-
+        self.use_id = use_id
         self.input_datalake_id = input_datalake_id
         self.output_datalake_id = output_datalake_id
         self.model_version_id = model_version_id
@@ -147,8 +160,16 @@ class LocalDatalakeProcessingContext(PicselliaContext):
                 datalake=self.input_datalake, offset=self.offset, limit=self.limit
             )
 
-        self.use_id = use_id
-        self.processing_parameters = processing_parameters
+        self.processing_parameters = processing_parameters_cls(
+            log_data=processing_parameters or {}
+        )
+
+    @property
+    def working_dir(self) -> str:
+        """Return the working directory path for the job."""
+        if self._working_dir_override:
+            return self._working_dir_override
+        return os.path.join(os.getcwd(), f"job_{self.job_id}")
 
     def get_datalake(self, datalake_id: str) -> Datalake:
         """Retrieve a datalake by its ID."""
@@ -178,5 +199,8 @@ class LocalDatalakeProcessingContext(PicselliaContext):
                 "limit": self.limit,
                 "use_id": self.use_id,
             },
-            "processing_parameters": self.processing_parameters,
+            "processing_parameters": self._process_parameters(
+                parameters_dict=self.processing_parameters.to_dict(),
+                defaulted_keys=self.processing_parameters.defaulted_keys,
+            ),
         }

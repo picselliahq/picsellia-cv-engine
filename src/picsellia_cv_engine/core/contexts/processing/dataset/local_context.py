@@ -12,7 +12,7 @@ from picsellia_cv_engine.core.parameters import Parameters
 TParameters = TypeVar("TParameters", bound=Parameters)
 
 
-class LocalProcessingContext(PicselliaContext, Generic[TParameters]):
+class LocalDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
     """
     Local context for testing a processing pipeline without executing a real job on Picsellia.
     """

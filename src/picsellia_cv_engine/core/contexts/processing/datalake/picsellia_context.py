@@ -26,9 +26,10 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
+        organization_name: str | None = None,
         job_id: str | None = None,
         use_id: bool | None = True,
-        download_annotations: bool | None = True,
+        working_dir: str | None = None,
     ):
         """
         Initialize the datalake processing context.
@@ -36,7 +37,13 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         Raises:
             ValueError: If required information is missing (e.g., job ID or input datalake).
         """
-        super().__init__(api_token, host, organization_id)
+        super().__init__(
+            api_token=api_token,
+            host=host,
+            organization_id=organization_id,
+            organization_name=organization_name,
+            working_dir=working_dir,
+        )
 
         self.job_id = job_id or os.environ.get("job_id")
         if not self.job_id:
@@ -69,11 +76,17 @@ class PicselliaDatalakeProcessingContext(PicselliaContext, Generic[TParameters])
         self.data_ids = self.get_data_ids()
 
         self.use_id = use_id
-        self.download_annotations = download_annotations
 
         self.processing_parameters = processing_parameters_cls(
             log_data=self.job_context["parameters"]
         )
+
+    @property
+    def working_dir(self) -> str:
+        """Return the working directory path for the job."""
+        if self._working_dir_override:
+            return self._working_dir_override
+        return os.path.join(os.getcwd(), f"job_{self.job_id}")
 
     @property
     def model_version_id(self) -> str | None:

@@ -5,7 +5,7 @@ from picsellia import Datalake
 
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core import CocoDataset
-from picsellia_cv_engine.core.contexts import PicselliaProcessingContext
+from picsellia_cv_engine.core.contexts import PicselliaDatasetProcessingContext
 from picsellia_cv_engine.core.services.data.dataset.uploader.utils import (
     configure_dataset_type,
     get_datalake_and_tag,
@@ -49,7 +49,7 @@ def upload_full_dataset(
         fail_on_asset_not_found (bool): If True, raises an error when a corresponding asset is not found.
         replace_annotations (Optional[bool]): Whether to overwrite existing annotations. Fetched from context if None.
     """
-    context: PicselliaProcessingContext = Pipeline.get_active_context()
+    context: PicselliaDatasetProcessingContext = Pipeline.get_active_context()
     datalake, data_tag = get_datalake_and_tag(
         context=context, datalake=datalake, data_tag=data_tag
     )
@@ -95,7 +95,7 @@ def upload_dataset_images(
         datalake (Optional[Datalake]): The target datalake. Inferred from the context if not provided.
         data_tag (Optional[str]): Optional tag to associate with the uploaded data. Inferred from the context if not provided.
     """
-    context: PicselliaProcessingContext = Pipeline.get_active_context()
+    context: PicselliaDatasetProcessingContext = Pipeline.get_active_context()
     datalake, data_tag = get_datalake_and_tag(
         context=context, datalake=datalake, data_tag=data_tag
     )
