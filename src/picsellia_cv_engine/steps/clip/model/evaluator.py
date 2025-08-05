@@ -16,6 +16,23 @@ from picsellia_cv_engine.frameworks.clip.services.predictor import CLIPModelPred
 
 @step()
 def evaluate(model: CLIPModel, dataset: CocoDataset):
+    """
+    Evaluate a CLIP model on an image-only dataset using clustering.
+
+    This step:
+    - Loads the trained CLIP model and processor.
+    - Runs inference on the dataset to extract image embeddings.
+    - Applies UMAP to reduce dimensionality.
+    - Uses DBSCAN to identify clusters in the embedding space.
+    - Saves and logs clustering visualizations (UMAP plot, cluster image grids, outliers).
+
+    Args:
+        model (CLIPModel): The trained CLIP model to evaluate.
+        dataset (CocoDataset): The image dataset to evaluate the model on.
+
+    Raises:
+        FileNotFoundError: If no trained weights are found in the model.
+    """
     context: PicselliaTrainingContext = Pipeline.get_active_context()
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -46,7 +63,5 @@ def evaluate(model: CLIPModel, dataset: CocoDataset):
         image_paths=paths,
         results_dir=evaluation_dir,
         log_images=True,
-        experiment_logger=context.experiment,
+        experiment=context.experiment,
     )
-
-    print("✅ CLIP evaluation completed and visual logs saved.")
