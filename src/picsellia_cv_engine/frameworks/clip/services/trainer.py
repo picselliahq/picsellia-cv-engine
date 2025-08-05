@@ -22,9 +22,7 @@ from picsellia_cv_engine.core.contexts.training.picsellia_training_context impor
 
 class ClipModelTrainer:
     """
-    Trainer class for CLIP fine-tuning using BLIP-generated captions.
-
-    This class prepares the dataset with captions, then launches the CLIP training script and logs the results.
+    CLIP model trainer using BLIP-generated captions for fine-tuning.
     """
 
     def __init__(
@@ -33,8 +31,11 @@ class ClipModelTrainer:
         context: PicselliaTrainingContext | LocalTrainingContext,
     ):
         """
+        Initialize the trainer.
+
         Args:
-            context: Training context with experiment, hyperparameters, etc.
+            model: The Picsellia model wrapper.
+            context: Training context containing experiment, paths, and hyperparameters.
         """
         self.model = model
         self.context = context
@@ -46,14 +47,13 @@ class ClipModelTrainer:
 
     def train_model(self, dataset_collection: DatasetCollection) -> Model:
         """
-        Executes full training cycle:
-        - Generate captions with BLIP.
-        - Export to CLIP JSON format.
-        - Run training script.
-        - Save best checkpoint.
+        Run the full CLIP fine-tuning process using BLIP captions.
 
         Args:
-            dataset_collection: DatasetCollection with train/val/test sets.
+            dataset_collection: Collection with train, validation, and test datasets.
+
+        Returns:
+            The trained model with exported weights set.
         """
         working_dir = self.context.working_dir
         os.makedirs(json_dir := os.path.join(working_dir, "json"), exist_ok=True)
@@ -93,7 +93,6 @@ class ClipModelTrainer:
         )
 
         self.save_best_checkpoint(output_dir=self.model_dir, context=self.context)
-
         return self.model
 
     def save_best_checkpoint(
@@ -101,6 +100,13 @@ class ClipModelTrainer:
         output_dir: str,
         context: Union[PicselliaTrainingContext, LocalTrainingContext],
     ):
+        """
+        Save the best checkpoint by selecting the latest one.
+
+        Args:
+            output_dir: Directory where checkpoints are stored.
+            context: Training context for logging.
+        """
         checkpoint_dirs = [
             d
             for d in glob.glob(os.path.join(output_dir, "checkpoint-*"))
@@ -117,6 +123,15 @@ class ClipModelTrainer:
 
 
 def prepare_caption_model(device: str):
+    """
+    Load the BLIP processor and model for caption generation.
+
+    Args:
+        device: Target device.
+
+    Returns:
+        A tuple containing the model and processor.
+    """
     processor = InstructBlipProcessor.from_pretrained(
         "Salesforce/instructblip-flan-t5-xl"
     )
@@ -129,6 +144,19 @@ def prepare_caption_model(device: str):
 def generate_caption(
     model, processor, image_path: str, prompt: str, device: str
 ) -> str:
+    """
+    Generate a caption from an image using BLIP.
+
+    Args:
+        model: Captioning model.
+        processor: Processor for BLIP input formatting.
+        image_path: Path to the image.
+        prompt: Prompt to guide the captioning.
+        device: Target device.
+
+    Returns:
+        A string caption.
+    """
     try:
         image = Image.open(image_path).convert("RGB")
     except Exception as e:
@@ -149,8 +177,24 @@ def generate_caption(
 
 
 def export_dataset_to_clip_json(
-    model, processor, dataset: CocoDataset, output_path: str, device: str, prompt: str
+    model,
+    processor,
+    dataset: CocoDataset,
+    output_path: str,
+    device: str,
+    prompt: str,
 ):
+    """
+    Convert a COCO-format dataset to a JSONL file for CLIP training.
+
+    Args:
+        model: Captioning model.
+        processor: Processor for image and prompt.
+        dataset: Dataset to process.
+        output_path: Where to save the JSONL file.
+        device: Target device.
+        prompt: Prompt to use for all captions.
+    """
     coco = dataset.coco_data
     images_dir = dataset.images_dir
     enriched_images = []
@@ -184,6 +228,12 @@ def build_clip_command(
     warmup_steps: int,
     weight_decay: float,
 ) -> list[str]:
+    """
+    Build CLI command for CLIP training.
+
+    Returns:
+        List of command-line arguments.
+    """
     return [
         sys.executable,
         script_path,
@@ -231,6 +281,14 @@ def build_clip_command(
 
 
 def parse_and_log_training_output(process, context, log_file_path):
+    """
+    Parse stdout of subprocess and log relevant training metrics.
+
+    Args:
+        process: Running training process.
+        context: Training context to log metrics.
+        log_file_path: Path to write full logs.
+    """
     train_pattern = re.compile(
         r"\{.*?'loss':\s*([\d.eE+-]+),\s*'grad_norm':\s*([\d.eE+-]+),"
         r"\s*'learning_rate':\s*([\d.eE+-]+),\s*'epoch':\s*([\d.]+).*?\}"
@@ -266,6 +324,19 @@ def run_clip_training(
     epochs: int,
     context: Union[PicselliaTrainingContext, LocalTrainingContext],
 ):
+    """
+    Run CLIP training with provided hyperparameters and log the output.
+
+    Args:
+        run_script_path: Path to training script.
+        output_dir: Output directory for results.
+        train_json: Path to training JSON file.
+        val_json: Path to validation JSON file.
+        test_json: Path to test JSON file.
+        batch_size: Batch size for training.
+        epochs: Number of training epochs.
+        context: Context holding hyperparameters and experiment.
+    """
     command = build_clip_command(
         model_name_or_path=context.hyperparameters.model_name,
         script_path=run_script_path,

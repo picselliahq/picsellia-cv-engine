@@ -14,7 +14,10 @@ from picsellia_cv_engine.frameworks.clip.model.model import CLIPModel
 
 @dataclass
 class PicselliaCLIPEmbeddingPrediction:
-    """Predictions contenant les embeddings CLIP image + texte"""
+    """
+    Dataclass representing a CLIP prediction for an image,
+    optionally including a text embedding.
+    """
 
     asset: Asset
     image_embedding: list[float]
@@ -22,13 +25,32 @@ class PicselliaCLIPEmbeddingPrediction:
 
 
 class CLIPModelPredictor(ModelPredictor):
+    """
+    Predictor class for CLIP-based inference on image and text data.
+    """
+
     def __init__(self, model: CLIPModel, device: str):
+        """
+        Initialize the predictor with the given CLIP model and device.
+
+        Args:
+            model: The CLIP model instance.
+            device: Target device ("cuda" or "cpu").
+        """
         super().__init__(model=model)
         self.model = model
         self.device = device
 
     def embed_image(self, image_path: str) -> list[float]:
-        """Encode an image into a CLIP embedding."""
+        """
+        Encode an image into a CLIP embedding.
+
+        Args:
+            image_path: Path to the input image.
+
+        Returns:
+            A list of float values representing the image embedding.
+        """
         image = Image.open(image_path).convert("RGB")
         inputs = self.model.loaded_processor(images=image, return_tensors="pt").to(
             self.device
@@ -40,7 +62,15 @@ class CLIPModelPredictor(ModelPredictor):
         return image_emb[0].cpu().tolist()
 
     def embed_text(self, text: str) -> list[float]:
-        """Encode a text string into a CLIP embedding."""
+        """
+        Encode a text string into a CLIP embedding.
+
+        Args:
+            text: Input text string.
+
+        Returns:
+            A list of float values representing the text embedding.
+        """
         inputs = self.model.loaded_processor(
             text=[text], return_tensors="pt", padding=True
         ).to(self.device)
@@ -53,6 +83,15 @@ class CLIPModelPredictor(ModelPredictor):
     def run_image_inference_on_batches(
         self, image_batches: list[list[str]]
     ) -> list[list[dict]]:
+        """
+        Perform inference on batches of images.
+
+        Args:
+            image_batches: List of batches, each batch is a list of image paths.
+
+        Returns:
+            Nested list of dictionaries containing image embeddings.
+        """
         results = []
         for batch in image_batches:
             batch_results = []
@@ -65,6 +104,15 @@ class CLIPModelPredictor(ModelPredictor):
     def run_inference_on_batches(
         self, image_text_batches: list[list[tuple[str, str]]]
     ) -> list[list[dict]]:
+        """
+        Perform inference on batches of image-text pairs.
+
+        Args:
+            image_text_batches: List of batches containing (image_path, text) tuples.
+
+        Returns:
+            Nested list of dictionaries with image and text embeddings.
+        """
         results = []
         for batch in image_text_batches:
             batch_results = []
@@ -83,6 +131,17 @@ class CLIPModelPredictor(ModelPredictor):
         batch_results: list[list[dict]],
         dataset: TBaseDataset,
     ) -> list[PicselliaCLIPEmbeddingPrediction]:
+        """
+        Convert image-text batch results into Picsellia prediction objects.
+
+        Args:
+            image_text_batches: Input image-text batches.
+            batch_results: Corresponding results from inference.
+            dataset: Dataset object to resolve asset references.
+
+        Returns:
+            List of PicselliaCLIPEmbeddingPrediction.
+        """
         all_predictions = []
 
         for image_texts, results in zip(image_text_batches, batch_results):
@@ -105,6 +164,17 @@ class CLIPModelPredictor(ModelPredictor):
         batch_results: list[list[dict]],
         dataset: TBaseDataset,
     ) -> list[PicselliaCLIPEmbeddingPrediction]:
+        """
+        Convert image-only batch results into Picsellia prediction objects.
+
+        Args:
+            image_batches: List of image batches.
+            batch_results: Corresponding image-only inference results.
+            dataset: Dataset object to resolve asset references.
+
+        Returns:
+            List of PicselliaCLIPEmbeddingPrediction with empty text embeddings.
+        """
         all_predictions = []
         for batch, results in zip(image_batches, batch_results):
             for image_path, result in zip(batch, results):
@@ -114,7 +184,7 @@ class CLIPModelPredictor(ModelPredictor):
                 prediction = PicselliaCLIPEmbeddingPrediction(
                     asset=asset,
                     image_embedding=result["image_embedding"],
-                    text_embedding=[],  # vide pour l’instant
+                    text_embedding=[],
                 )
                 all_predictions.append(prediction)
         return all_predictions
