@@ -16,6 +16,22 @@ def load_model(
     exported_weights_name: str | None = None,
     repo_id: str = "openai/clip-vit-large-patch14-336",
 ) -> CLIPModel:
+    """
+    Load a CLIP model using the Picsellia model interface.
+
+    Args:
+        pretrained_weights_name: Name of the pretrained weights artifact.
+        trained_weights_name: Optional name of the trained weights.
+        config_name: Optional name of the model config file.
+        exported_weights_name: Optional name of exported weights for evaluation or inference.
+        repo_id: HuggingFace repo ID used for loading the processor (default is OpenAI's ViT-L/14-336).
+
+    Returns:
+        A loaded instance of CLIPModel, ready for inference.
+
+    Raises:
+        FileNotFoundError: If no pretrained weights path is found on the model.
+    """
     context: PicselliaProcessingContext = Pipeline.get_active_context()
 
     model = build_model_impl(

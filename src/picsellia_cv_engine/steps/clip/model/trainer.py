@@ -7,12 +7,18 @@ from picsellia_cv_engine.frameworks.clip.services.trainer import ClipModelTraine
 @step()
 def train(model: CLIPModel, dataset_collection: DatasetCollection[CocoDataset]):
     """
-    Step d'entraînement pour CLIP via le moteur de training Picsellia.
-    Cette step utilise BLIP pour générer les captions et entraîne CLIP en ligne de commande.
+    Training step for CLIP using the Picsellia training engine.
+
+    This step uses BLIP to generate captions for the dataset and runs CLIP fine-tuning using a CLI script.
+
+    Args:
+        model: CLIP model instance to be trained.
+        dataset_collection: Dataset collection containing train/val/test splits.
+
+    Returns:
+        The trained CLIP model with updated weights.
     """
     context = Pipeline.get_active_context()
-
-    # 🚀 Lancer le training
     trainer = ClipModelTrainer(
         model=model,
         context=context,

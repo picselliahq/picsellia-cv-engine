@@ -6,7 +6,75 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
 import umap
+from picsellia.types.enums import LogType
 from sklearn.metrics import silhouette_score
+
+
+def run_umap_dbscan_clustering(
+    embeddings: np.ndarray,
+    min_samples: int = 5,
+    initial_eps_list: list[float] | None = None,
+    fallback_eps_list: list[float] | None = None,
+    default_eps: float = 0.3,
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """
+    Run UMAP dimensionality reduction followed by DBSCAN clustering with automatic eps search.
+    """
+    if initial_eps_list is None:
+        initial_eps_list = [0.1, 0.2, 0.3, 0.5, 0.8]
+    if fallback_eps_list is None:
+        fallback_eps_list = [0.05, 0.15, 0.25, 0.35, 0.6, 1.0]
+
+    reduced = reduce_dimensionality_umap(embeddings, n_components=2)
+
+    best_eps = find_best_eps(reduced, initial_eps_list)
+    if best_eps is None:
+        print("⚠️ No clusters found in first pass. Retrying with extended eps...")
+        best_eps = find_best_eps(reduced, fallback_eps_list)
+    if best_eps is None:
+        print(f"⚠️ Still no clusters found. Falling back to eps={default_eps}")
+        best_eps = default_eps
+
+    labels = apply_dbscan_clustering(
+        reduced, dbscan_eps=best_eps, dbscan_min_samples=min_samples
+    )
+
+    return reduced, labels, best_eps
+
+
+def save_clustering_visualizations(
+    reduced_embeddings: np.ndarray,
+    cluster_labels: np.ndarray,
+    image_paths: list[str],
+    results_dir: str,
+    log_images: bool = True,
+    experiment_logger=None,
+):
+    """
+    Save clustering plots, cluster image grids, and outlier grids. Optionally logs them to an experiment.
+
+    Args:
+        reduced_embeddings: UMAP-reduced 2D embeddings.
+        cluster_labels: DBSCAN-assigned cluster labels.
+        image_paths: Corresponding image file paths.
+        results_dir: Output directory for saved plots.
+        log_images: Whether to log images via experiment.
+        experiment_logger: Experiment logger with `.log()` method if logging is enabled.
+    """
+    os.makedirs(results_dir, exist_ok=True)
+
+    save_clustering_plots(reduced_embeddings, cluster_labels, results_dir=results_dir)
+    save_cluster_images_plot(image_paths, cluster_labels, results_dir=results_dir)
+    save_outliers_images(image_paths, cluster_labels, results_dir=results_dir)
+
+    if log_images and experiment_logger is not None:
+        for file in os.listdir(results_dir):
+            if file.endswith(".png"):
+                experiment_logger.log(
+                    name=f"clip-eval/{file}",
+                    data=os.path.join(results_dir, file),
+                    type=LogType.IMAGE,
+                )
 
 
 def generate_embeddings_from_results(image_batches, batch_results):
