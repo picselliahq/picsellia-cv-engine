@@ -64,6 +64,7 @@ sam2 = [
     "tensorboard",
     "fvcore",
     "sam-2",
+    "opencv-python"
 ]
 
 [tool.poetry.group.dev.dependencies]
