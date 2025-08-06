@@ -1,8 +1,9 @@
 from typing import Any
 
 from picsellia import Label, ModelVersion
-from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2
+from sam2.modeling.sam2_base import SAM2Base
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 from picsellia_cv_engine.core.models import Model
 
@@ -19,7 +20,7 @@ class SAM2Model(Model):
     def __init__(
         self,
         name: str,
-        model_version: ModelVersion,
+        model_version: ModelVersion | None = None,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
         config_name: str | None = None,
@@ -47,37 +48,37 @@ class SAM2Model(Model):
             exported_weights_name=exported_weights_name,
             labelmap=labelmap,
         )
-        self._loaded_generator: Any | None = None
+        self._loaded_predictor: Any | None = None
 
     @property
-    def loaded_generator(self) -> Any:
+    def loaded_predictor(self) -> Any:
         """
-        Return the loaded SAM2AutomaticMaskGenerator instance.
+        Return the loaded SAM2ImagePredictor instance.
 
         Returns:
-            SAM2AutomaticMaskGenerator: The initialized generator for mask predictions.
+            SAM2ImagePredictor: The initialized predictor for mask predictions.
 
         Raises:
             ValueError: If the generator has not been loaded yet.
         """
-        if self._loaded_generator is None:
+        if self._loaded_predictor is None:
             raise ValueError(
-                "Generator is not loaded. Please load the generator before accessing it."
+                "Predictor is not loaded. Please load the predictor before accessing it."
             )
-        return self._loaded_generator
+        return self._loaded_predictor
 
-    def set_loaded_generator(self, generator: Any) -> None:
+    def set_loaded_predictor(self, predictor: Any) -> None:
         """
-        Attach a loaded SAM2AutomaticMaskGenerator instance to the model.
+        Attach a loaded SAM2ImagePredictor instance to the model.
 
         Args:
-            generator (Any): The generator instance to attach.
+            predictor (Any): The predictor instance to attach.
         """
-        self._loaded_generator = generator
+        self._loaded_predictor = predictor
 
     def load_weights(
         self, weights_path: str, config_path: str, device: str
-    ) -> tuple[Any, SAM2AutomaticMaskGenerator]:
+    ) -> tuple[SAM2Base, SAM2ImagePredictor]:
         """
         Load a SAM2 model and its mask generator from disk.
 
@@ -87,8 +88,8 @@ class SAM2Model(Model):
             device (str): Target device for inference, e.g., "cuda" or "cpu".
 
         Returns:
-            tuple: A tuple of (SAM2 model, SAM2AutomaticMaskGenerator).
+            tuple: A tuple of (SAM2 model, SAM2ImagePredictor).
         """
         model = build_sam2(config_path, weights_path, device=device)
-        generator = SAM2AutomaticMaskGenerator(model)
+        generator = SAM2ImagePredictor(sam_model=model)
         return model, generator
