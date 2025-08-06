@@ -1,7 +1,6 @@
 import os
 
 import numpy as np
-import supervision as sv
 from PIL import Image
 
 from picsellia_cv_engine.core import CocoDataset
@@ -14,6 +13,7 @@ from picsellia_cv_engine.core.models.picsellia_prediction import (
 from picsellia_cv_engine.core.services.model.predictor.model_predictor import (
     ModelPredictor,
 )
+from picsellia_cv_engine.core.services.utils.annotations import mask_to_polygons
 from picsellia_cv_engine.frameworks.sam2.model.model import SAM2Model
 
 
@@ -92,7 +92,7 @@ class SAM2ModelPredictor(ModelPredictor):
                 if mask is None:
                     continue
 
-                poly_list = sv.mask_to_polygons(mask.astype(np.uint8))
+                poly_list = mask_to_polygons(mask.astype(np.uint8))
                 for poly in poly_list:
                     if len(poly) == 0:
                         continue
