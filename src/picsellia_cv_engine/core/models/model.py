@@ -14,7 +14,7 @@ class Model:
     def __init__(
         self,
         name: str,
-        model_version: ModelVersion,
+        model_version: ModelVersion | None = None,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
         config_name: str | None = None,
@@ -103,6 +103,11 @@ class Model:
         Args:
             destination_dir (str): Root directory for downloaded files.
         """
+        if self.model_version is None:
+            raise ValueError(
+                f"No model version available for model '{self.name}', cannot download files."
+            )
+
         downloader = ModelDownloader()
 
         # Set destination directories
