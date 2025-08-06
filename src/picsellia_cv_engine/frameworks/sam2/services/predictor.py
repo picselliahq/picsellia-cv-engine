@@ -1,15 +1,10 @@
 import os
+from typing import Optional
 
 import numpy as np
 from PIL import Image
 
 from picsellia_cv_engine.core import CocoDataset
-from picsellia_cv_engine.core.models.picsellia_prediction import (
-    PicselliaConfidence,
-    PicselliaLabel,
-    PicselliaPolygon,
-    PicselliaPolygonPrediction,
-)
 from picsellia_cv_engine.core.services.model.predictor.model_predictor import (
     ModelPredictor,
 )
@@ -29,7 +24,7 @@ class SAM2ModelPredictor(ModelPredictor):
         super().__init__(model=model)
         self.model = model
 
-    def pre_process_dataset(self, dataset: CocoDataset) -> list[str]:
+    def pre_process_dataset(self, dataset: CocoDataset) -> list[np.ndarray]:
         """
         Collects image file paths from the dataset.
 
@@ -39,77 +34,53 @@ class SAM2ModelPredictor(ModelPredictor):
         Returns:
             list[str]: List of full paths to image files.
         """
-        return [
-            os.path.join(dataset.images_dir, f)
-            for f in os.listdir(dataset.images_dir)
-            if f.lower().endswith((".jpg", ".jpeg", ".png"))
-        ]
+        images = []
+        for f in os.listdir(dataset.images_dir):
+            if f.lower().endswith((".jpg", ".jpeg", ".png")):
+                image_path = os.path.join(dataset.images_dir, f)
+                img = Image.open(image_path).convert("RGB")
+                img_np = np.array(img)
+                images.append(img_np)
+        return images
 
-    def run_inference_on_images(self, image_paths: list[str]) -> list[list[dict]]:
-        """
-        Runs segmentation mask inference using SAM2 on a batch of image paths.
+    def preprocess_images(self, image_list: list[np.ndarray]):
+        self.model.loaded_predictor.set_image_batch(image_list=image_list)
 
-        Args:
-            image_paths (list[str]): List of image file paths.
+    def preprocess(self, image: np.ndarray):
+        self.model.loaded_predictor.set_image(image=image)
 
-        Returns:
-            list[list[dict]]: A list of prediction dictionaries per image.
-        """
-        return [
-            self.model.loaded_generator.generate(np.array(Image.open(p).convert("RGB")))
-            for p in image_paths
-        ]
-
-    def post_process_results(
+    def run_inference(
         self,
-        image_paths: list[str],
-        results: list[list[dict]],
-        dataset: CocoDataset,
-    ) -> list[PicselliaPolygonPrediction]:
-        """
-        Converts raw SAM2 masks into Picsellia polygon predictions.
+        point_coords: Optional[np.ndarray] = None,
+        point_labels: Optional[np.ndarray] = None,
+        box: Optional[np.ndarray] = None,
+        mask_input: Optional[np.ndarray] = None,
+        multimask_output: bool = True,
+    ):
+        masks, ious, _ = self.model.loaded_predictor.predict(
+            point_coords=point_coords,
+            point_labels=point_labels,
+            box=box,
+            mask_input=mask_input,
+            multimask_output=multimask_output,
+        )
 
-        Args:
-            image_paths (list[str]): List of image paths used for inference.
-            results (list[list[dict]]): Corresponding list of mask outputs from SAM2.
-            dataset (CocoDataset): Dataset object to resolve asset and label metadata.
+        mask_dicts = [
+            {"segmentation": masks[i], "score": float(ious[i])}
+            for i in range(len(masks))
+        ]
+        return mask_dicts
 
-        Returns:
-            list[PicselliaPolygonPrediction]: List of predictions ready to be logged to Picsellia.
-        """
-        predictions = []
-        label_id = list(dataset.labelmap.values())[0]
+    def post_process(self, results: list[dict]):
+        polygons = []
+        for mask_dict in results:
+            mask = mask_dict.get("segmentation")
+            if mask is None:
+                continue
 
-        for img_path, mask_result in zip(image_paths, results):
-            filename = os.path.basename(img_path)
-            asset_id = os.path.splitext(filename)[0]
-            asset = dataset.dataset_version.list_assets(ids=[asset_id])[0]
-
-            polygons, labels, confidences = [], [], []
-
-            for mask_dict in mask_result:
-                mask = mask_dict.get("segmentation")
-                if mask is None:
+            poly_list = mask_to_polygons(mask.astype(np.uint8))
+            for poly in poly_list:
+                if len(poly) == 0:
                     continue
-
-                poly_list = mask_to_polygons(mask.astype(np.uint8))
-                for poly in poly_list:
-                    if len(poly) == 0:
-                        continue
-                    polygons.append(
-                        PicselliaPolygon([[int(x), int(y)] for x, y in poly])
-                    )
-                    labels.append(PicselliaLabel(label_id))
-                    confidences.append(PicselliaConfidence(1.0))
-
-            if polygons:
-                predictions.append(
-                    PicselliaPolygonPrediction(
-                        asset=asset,
-                        polygons=polygons,
-                        labels=labels,
-                        confidences=confidences,
-                    )
-                )
-
-        return predictions
+                polygons.append([[int(x), int(y)] for x, y in poly])
+        return polygons
