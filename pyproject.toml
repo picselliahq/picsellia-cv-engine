@@ -25,10 +25,10 @@ Pillow = { version = "10.3.0", extras = ["clip"] }
 transformers = { version = "4.54.1", extras = ["clip"] }
 accelerate = { version = "1.9.0", extras = ["clip"] }
 protobuf = { version = "6.31.1", extras = ["clip"] }
-opencv-python = { version = "4.11.0.86", extras = ["clip"] }
 matplotlib = { version = "3.10.5", extras = ["clip"] }
 umap-learn = { version = "0.5.9.post2", extras = ["clip"] }
 hdbscan = { version = "0.8.40", extras = ["clip"] }
+opencv-python = { version = "4.11.0.86", extras = ["clip", "sam2"] }
 
 tqdm = { version = "4.67.1", extras = ["sam2"] }
 hydra-core = { version = "1.3.2", extras = ["sam2"] }
@@ -39,32 +39,32 @@ tensorboard = { version = "2.20.0", extras = ["sam2"] }
 fvcore = { version = "0.1.5.post20221221", extras = ["sam2"] }
 sam-2 = { git = "https://github.com/facebookresearch/sam2.git", extras = ["sam2"] }
 
-[tool.poetry.extras]
-ultralytics = ["torch", "ultralytics"]
-clip = [
-  "torch",
-  "torchvision",
-  "datasets",
-  "transformers",
-  "accelerate",
-  "protobuf",
-  "opencv-python",
-  "matplotlib",
-  "umap-learn",
-  "hdbscan",
-]
-sam2 = [
-#    "torch",
-#    "torchvision",
-    "tqdm",
-    "hydra-core",
-    "iopath",
-    "submitit",
-    "tensordict",
-    "tensorboard",
-    "fvcore",
-    "sam-2",
-]
+#[tool.poetry.extras]
+#ultralytics = ["torch", "ultralytics"]
+#clip = [
+#  "torch",
+#  "torchvision",
+#  "datasets",
+#  "transformers",
+#  "accelerate",
+#  "protobuf",
+#  "opencv-python",
+#  "matplotlib",
+#  "umap-learn",
+#  "hdbscan",
+#]
+#sam2 = [
+##    "torch",
+##    "torchvision",
+#    "tqdm",
+#    "hydra-core",
+#    "iopath",
+#    "submitit",
+#    "tensordict",
+#    "tensorboard",
+#    "fvcore",
+#    "sam-2",
+#]
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = ">=1.4,<2.0"
