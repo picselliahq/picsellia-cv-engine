@@ -54,8 +54,6 @@ clip = [
   "hdbscan",
 ]
 sam2 = [
-#    "torch",
-#    "torchvision",
     "tqdm",
     "hydra-core",
     "iopath",
