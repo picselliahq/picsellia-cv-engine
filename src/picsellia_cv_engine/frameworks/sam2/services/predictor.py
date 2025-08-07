@@ -83,23 +83,3 @@ class SAM2ModelPredictor(ModelPredictor):
                     continue
                 polygons.append([[int(x), int(y)] for x, y in poly])
         return polygons
-
-
-def predict(
-    model: SAM2Model,
-    image: Image,
-    input_points: list[tuple[int, int]],
-    input_labels: list[int],
-) -> list[list[list[int]]]:
-    image = np.array(image)
-    input_points = np.array(input_points)
-    input_labels = np.array(input_labels)
-    predictor = SAM2ModelPredictor(model=model)
-    predictor.preprocess(image=image)
-    masks_dict = predictor.run_inference(
-        point_coords=input_points,
-        point_labels=input_labels,
-        multimask_output=True,
-    )
-    polygons = predictor.post_process(results=masks_dict)
-    return polygons

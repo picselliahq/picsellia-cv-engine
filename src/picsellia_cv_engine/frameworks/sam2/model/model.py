@@ -1,11 +1,14 @@
 from typing import Any
 
+import numpy as np
 from picsellia import Label, ModelVersion
+from PIL.Image import Image
 from sam2.build_sam import build_sam2
 from sam2.modeling.sam2_base import SAM2Base
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 from picsellia_cv_engine.core.models import Model
+from picsellia_cv_engine.frameworks.sam2.services.predictor import SAM2ModelPredictor
 
 
 class SAM2Model(Model):
@@ -93,3 +96,22 @@ class SAM2Model(Model):
         model = build_sam2(config_path, weights_path, device=device)
         generator = SAM2ImagePredictor(sam_model=model)
         return model, generator
+
+    def predict(
+        self,
+        image: Image,
+        input_points: list[tuple[int, int]],
+        input_labels: list[int],
+    ) -> list[list[list[int]]]:
+        image = np.array(image)
+        input_points = np.array(input_points)
+        input_labels = np.array(input_labels)
+        predictor = SAM2ModelPredictor(model=self)
+        predictor.preprocess(image=image)
+        masks_dict = predictor.run_inference(
+            point_coords=input_points,
+            point_labels=input_labels,
+            multimask_output=True,
+        )
+        polygons = predictor.post_process(results=masks_dict)
+        return polygons
