@@ -2,26 +2,15 @@ import os
 
 import numpy as np
 from PIL import Image
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 from picsellia_cv_engine.core import CocoDataset
-from picsellia_cv_engine.core.services.model.predictor.model_predictor import (
-    ModelPredictor,
-)
 from picsellia_cv_engine.core.services.utils.annotations import mask_to_polygons
-from picsellia_cv_engine.frameworks.sam2.model.model import SAM2Model
 
 
-class SAM2ModelPredictor(ModelPredictor):
-    """
-    Predictor class for generating segmentation predictions using a fine-tuned SAM2 model.
-
-    This class wraps loading the model, preprocessing the dataset, running inference,
-    and formatting results into Picsellia-compatible predictions.
-    """
-
-    def __init__(self, model: SAM2Model):
-        super().__init__(model=model)
-        self.model = model
+class SAM2ModelPredictor:
+    def __init__(self, predictor: SAM2ImagePredictor):
+        self.predictor = predictor
 
     def pre_process_dataset(self, dataset: CocoDataset) -> list[np.ndarray]:
         """
@@ -43,10 +32,10 @@ class SAM2ModelPredictor(ModelPredictor):
         return images
 
     def preprocess_images(self, image_list: list[np.ndarray]):
-        self.model.loaded_predictor.set_image_batch(image_list=image_list)
+        self.predictor.set_image_batch(image_list=image_list)
 
     def preprocess(self, image: np.ndarray):
-        self.model.loaded_predictor.set_image(image=image)
+        self.predictor.set_image(image=image)
 
     def run_inference(
         self,
@@ -56,7 +45,7 @@ class SAM2ModelPredictor(ModelPredictor):
         mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
     ):
-        masks, ious, _ = self.model.loaded_predictor.predict(
+        masks, ious, _ = self.predictor.predict(
             point_coords=point_coords,
             point_labels=point_labels,
             box=box,

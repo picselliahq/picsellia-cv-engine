@@ -103,10 +103,10 @@ class SAM2Model(Model):
         input_points: list[tuple[int, int]],
         input_labels: list[int],
     ) -> list[list[list[int]]]:
+        predictor = SAM2ModelPredictor(predictor=self.loaded_predictor)
         image = np.array(image)
         input_points = np.array(input_points)
         input_labels = np.array(input_labels)
-        predictor = SAM2ModelPredictor(model=self)
         predictor.preprocess(image=image)
         masks_dict = predictor.run_inference(
             point_coords=input_points,
