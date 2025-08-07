@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import numpy as np
 from PIL import Image
@@ -51,10 +50,10 @@ class SAM2ModelPredictor(ModelPredictor):
 
     def run_inference(
         self,
-        point_coords: Optional[np.ndarray] = None,
-        point_labels: Optional[np.ndarray] = None,
-        box: Optional[np.ndarray] = None,
-        mask_input: Optional[np.ndarray] = None,
+        point_coords: np.ndarray | None = None,
+        point_labels: np.ndarray | None = None,
+        box: np.ndarray | None = None,
+        mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
     ):
         masks, ious, _ = self.model.loaded_predictor.predict(
@@ -84,3 +83,23 @@ class SAM2ModelPredictor(ModelPredictor):
                     continue
                 polygons.append([[int(x), int(y)] for x, y in poly])
         return polygons
+
+
+def predict(
+    model: SAM2Model,
+    image: Image,
+    input_points: list[tuple[int, int]],
+    input_labels: list[int],
+) -> list[list[list[int]]]:
+    image = np.array(image)
+    input_points = np.array(input_points)
+    input_labels = np.array(input_labels)
+    predictor = SAM2ModelPredictor(model=model)
+    predictor.preprocess(image=image)
+    masks_dict = predictor.run_inference(
+        point_coords=input_points,
+        point_labels=input_labels,
+        multimask_output=True,
+    )
+    polygons = predictor.post_process(results=masks_dict)
+    return polygons
