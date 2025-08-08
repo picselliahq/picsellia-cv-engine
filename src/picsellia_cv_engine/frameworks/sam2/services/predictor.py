@@ -81,7 +81,7 @@ class SAM2ModelPredictor:
             poly_list = mask_to_polygons(mask.astype(np.uint8))
 
             for poly in poly_list:
-                if not poly:  # empty polygon
+                if len(poly) == 0:
                     continue
                 polygons_with_scores.append(
                     {"polygon": [[int(x), int(y)] for x, y in poly], "score": score}
