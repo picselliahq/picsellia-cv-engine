@@ -59,16 +59,32 @@ class SAM2ModelPredictor:
         ]
         return mask_dicts
 
-    def post_process(self, results: list[dict]):
-        polygons = []
+    def post_process(self, results: list[dict]) -> list[dict]:
+        """
+        Converts mask predictions to polygons and associates them with their scores.
+
+        Args:
+            results (list[dict]): List of dictionaries with keys "segmentation" and "score".
+
+        Returns:
+            list[dict]: List of {"polygon": [...], "score": float} dictionaries.
+        """
+        polygons_with_scores = []
+
         for mask_dict in results:
             mask = mask_dict.get("segmentation")
+            score = mask_dict.get("score")
+
             if mask is None:
                 continue
 
             poly_list = mask_to_polygons(mask.astype(np.uint8))
+
             for poly in poly_list:
-                if len(poly) == 0:
+                if not poly:  # empty polygon
                     continue
-                polygons.append([[int(x), int(y)] for x, y in poly])
-        return polygons
+                polygons_with_scores.append(
+                    {"polygon": [[int(x), int(y)] for x, y in poly], "score": score}
+                )
+
+        return polygons_with_scores

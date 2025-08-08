@@ -102,16 +102,35 @@ class SAM2Model(Model):
         image: Image,
         input_points: list[tuple[int, int]],
         input_labels: list[int],
-    ) -> list[list[list[int]]]:
+        multimask_output: bool = True,
+    ) -> list[dict[str, Any]]:
+        """
+        Run prediction on an image with given input points and labels.
+
+        Args:
+            image (Image): The PIL image to segment.
+            input_points (list[tuple[int, int]]): Coordinates of user-provided points.
+            input_labels (list[int]): Labels for each point (1: foreground, 0: background).
+            multimask_output (bool): Whether to return multiple mask hypotheses.
+
+        Returns:
+            list[dict]: Each dict contains:
+                - "polygon": List of (x, y) coordinates
+                - "score": IoU score associated with the mask
+        """
         predictor = SAM2ModelPredictor(predictor=self.loaded_predictor)
-        image = np.array(image)
-        input_points = np.array(input_points)
-        input_labels = np.array(input_labels)
-        predictor.preprocess(image=image)
+
+        image_np = np.array(image)
+        points_np = np.array(input_points)
+        labels_np = np.array(input_labels)
+
+        predictor.preprocess(image=image_np)
+
         masks_dict = predictor.run_inference(
-            point_coords=input_points,
-            point_labels=input_labels,
-            multimask_output=True,
+            point_coords=points_np,
+            point_labels=labels_np,
+            multimask_output=multimask_output,
         )
-        polygons = predictor.post_process(results=masks_dict)
-        return polygons
+
+        polygons_with_scores = predictor.post_process(results=masks_dict)
+        return polygons_with_scores
