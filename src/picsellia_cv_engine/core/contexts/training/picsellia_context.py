@@ -1,5 +1,5 @@
 import os
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 from picsellia import Experiment  # type: ignore
 
@@ -35,7 +35,7 @@ class PicselliaTrainingContext(
         organization_id: str | None = None,
         organization_name: str | None = None,
         experiment_id: str | None = None,
-        working_dir: Optional[str] = None,
+        working_dir: str | None = None,
     ):
         """
         Initialize the training context with parameter classes and experiment data.
