@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from picsellia import Datalake
 
@@ -25,7 +24,7 @@ def upload_full_dataset(
     data_tag: str | None = None,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
-    replace_annotations: Optional[bool] = None,
+    replace_annotations: bool | None = None,
 ) -> None:
     """
     Upload both images and annotations for a COCO dataset.
@@ -108,7 +107,7 @@ def upload_dataset_annotations(
     dataset: CocoDataset,
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
-    replace_annotations: Optional[bool] = None,
+    replace_annotations: bool | None = None,
 ) -> None:
     """
     Upload only the annotations from a COCO dataset.
