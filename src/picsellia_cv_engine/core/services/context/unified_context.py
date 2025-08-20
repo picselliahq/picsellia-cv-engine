@@ -1,84 +1,137 @@
-from typing import Literal, TypeVar
+from pathlib import Path
+from typing import Literal
 
 from picsellia.types.enums import ProcessingType
+from toml import load as load_toml
 
-from picsellia_cv_engine.core.parameters import Parameters
+from picsellia_cv_engine.core.parameters.augmentation_parameters import (
+    TAugmentationParameters,
+)
+from picsellia_cv_engine.core.parameters.base_parameters import TParameters
+from picsellia_cv_engine.core.parameters.export_parameters import TExportParameters
+from picsellia_cv_engine.core.parameters.hyper_parameters import THyperParameters
 from picsellia_cv_engine.core.services.context.config import (
     DataAutoTaggingConfig,
     DatasetVersionCreationConfig,
     PreAnnotationConfig,
-    ProcessingConfig,
+    UnifiedConfig,
 )
 from picsellia_cv_engine.core.services.context.local_context import (
     create_local_datalake_processing_context,
     create_local_dataset_processing_context,
+    create_local_training_context,
 )
 from picsellia_cv_engine.core.services.context.picsellia_context import (
     create_picsellia_datalake_processing_context,
     create_picsellia_dataset_processing_context,
+    create_picsellia_training_context,
 )
 
 Mode = Literal["local", "picsellia"]
-TParameters = TypeVar("TParameters", bound=Parameters)
+
+
+def _load_and_validate_config(config_file: str | Path) -> UnifiedConfig:
+    path = Path(config_file)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {path}")
+    raw = load_toml(path)
+    return UnifiedConfig.model_validate(raw)
 
 
 def create_processing_context_from_config(
-    cfg: ProcessingConfig,
+    config_file_path: str | Path,
     processing_parameters_cls: type[TParameters],
     mode: Mode = "picsellia",
 ):
+    config = _load_and_validate_config(config_file_path)
+
     if mode == "picsellia":
-        if isinstance(cfg, PreAnnotationConfig) or isinstance(
-            cfg, DatasetVersionCreationConfig
+        if isinstance(config, PreAnnotationConfig) or isinstance(
+            config, DatasetVersionCreationConfig
         ):
             return create_picsellia_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
             )
-        elif isinstance(cfg, DataAutoTaggingConfig):
+        elif isinstance(config, DataAutoTaggingConfig):
             return create_picsellia_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
             )
 
-    if isinstance(cfg, PreAnnotationConfig):
-        return create_local_dataset_processing_context(
-            processing_parameters_cls=processing_parameters_cls,
-            api_token=cfg.auth.api_token or "",
-            organization_name=cfg.auth.organization_name,
-            host=cfg.run.host,
-            job_type=ProcessingType.PRE_ANNOTATION,
-            input_dataset_version_id=cfg.io.input_dataset_version_id,
-            output_dataset_version_name=None,
-            model_version_id=cfg.model.model_version_id,
-            processing_parameters=dict(cfg.parameters),
-            working_dir=cfg.run.working_dir,
-        )
+    elif mode == "local":
+        if isinstance(config, PreAnnotationConfig):
+            return create_local_dataset_processing_context(
+                processing_parameters_cls=processing_parameters_cls,
+                organization_name=config.auth.organization_name,
+                host=config.auth.host,
+                job_type=ProcessingType.PRE_ANNOTATION,
+                input_dataset_version_id=config.io.input_dataset_version_id,
+                output_dataset_version_name=None,
+                model_version_id=config.model.model_version_id,
+                processing_parameters=dict(config.parameters),
+                working_dir=config.run.working_dir,
+            )
 
-    if isinstance(cfg, DatasetVersionCreationConfig):
-        return create_local_dataset_processing_context(
-            processing_parameters_cls=processing_parameters_cls,
-            api_token=cfg.auth.api_token or "",
-            organization_name=cfg.auth.organization_name,
-            host=cfg.run.host,
-            job_type=ProcessingType.DATASET_VERSION_CREATION,
-            input_dataset_version_id=cfg.io.input_dataset_version_id,
-            output_dataset_version_name=cfg.io.output_dataset_version_name,
-            model_version_id=None,
-            processing_parameters=dict(cfg.parameters),
-            working_dir=cfg.run.working_dir,
-        )
+        elif isinstance(config, DatasetVersionCreationConfig):
+            return create_local_dataset_processing_context(
+                processing_parameters_cls=processing_parameters_cls,
+                organization_name=config.auth.organization_name,
+                host=config.auth.host,
+                job_type=ProcessingType.DATASET_VERSION_CREATION,
+                input_dataset_version_id=config.io.input_dataset_version_id,
+                output_dataset_version_name=config.io.output_dataset_version_name,
+                model_version_id=None,
+                processing_parameters=dict(config.parameters),
+                working_dir=config.run.working_dir,
+            )
 
-    if isinstance(cfg, DataAutoTaggingConfig):
-        return create_local_datalake_processing_context(
-            processing_parameters_cls=processing_parameters_cls,
-            api_token=cfg.auth.api_token or "",
-            organization_name=cfg.auth.organization_name,
-            host=cfg.run.host,
-            job_type=ProcessingType.DATA_AUTO_TAGGING,
-            model_version_id=cfg.model.model_version_id,
-            offset=cfg.run_parameters.offset,
-            limit=cfg.run_parameters.limit,
-            processing_parameters=dict(cfg.parameters),
-            working_dir=cfg.run.working_dir,
-        )
+        elif isinstance(config, DataAutoTaggingConfig):
+            return create_local_datalake_processing_context(
+                processing_parameters_cls=processing_parameters_cls,
+                organization_name=config.auth.organization_name,
+                host=config.auth.host,
+                job_type=ProcessingType.DATA_AUTO_TAGGING,
+                input_datalake_id=config.io.input_datalake_id,
+                output_datalake_id=config.io.output_datalake_id,
+                model_version_id=config.model.model_version_id,
+                offset=config.run_parameters.offset,
+                limit=config.run_parameters.limit,
+                processing_parameters=dict(config.parameters),
+                working_dir=config.run.working_dir,
+            )
+        else:
+            raise RuntimeError("Unsupported processing config type for local context")
 
-    raise RuntimeError("Unsupported processing config type")
+    else:
+        raise RuntimeError("Unsupported mode for processing context creation")
+
+
+def create_training_context_from_config(
+    config_file_path: str | Path,
+    hyperparameters_cls: type[THyperParameters],
+    augmentation_parameters_cls: type[TAugmentationParameters],
+    export_parameters_cls: type[TExportParameters],
+    mode: Mode = "picsellia",
+):
+    config = _load_and_validate_config(config_file=config_file_path)
+
+    if mode == "picsellia":
+        return create_picsellia_training_context(
+            hyperparameters_cls=hyperparameters_cls,
+            augmentation_parameters_cls=augmentation_parameters_cls,
+            export_parameters_cls=export_parameters_cls,
+        )
+    elif mode == "local":
+        return create_local_training_context(
+            hyperparameters_cls=hyperparameters_cls,
+            augmentation_parameters_cls=augmentation_parameters_cls,
+            export_parameters_cls=export_parameters_cls,
+            organization_name=config.auth.organization_name,
+            host=config.auth.host,
+            experiment_id=config.experiment.id,
+            hyperparameters=dict(config.hyperparameters),
+            augmentation_parameters=dict(config.augmentations_parameters),
+            export_parameters=dict(config.export_parameters),
+            working_dir=config.run.working_dir,
+        )
+    else:
+        raise (RuntimeError("Unsupported mode for training context creation"))
