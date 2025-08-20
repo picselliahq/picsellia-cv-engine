@@ -43,7 +43,6 @@ clip = [
   "matplotlib",
   "umap-learn",
   "hdbscan",
-  "scikit-learn"
 ]
 
 [tool.poetry.group.dev.dependencies]
