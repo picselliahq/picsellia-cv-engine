@@ -11,9 +11,6 @@ from picsellia_cv_engine.core.parameters.base_parameters import TParameters
 from picsellia_cv_engine.core.parameters.export_parameters import TExportParameters
 from picsellia_cv_engine.core.parameters.hyper_parameters import THyperParameters
 from picsellia_cv_engine.core.services.context.config import (
-    DataAutoTaggingConfig,
-    DatasetVersionCreationConfig,
-    PreAnnotationConfig,
     UnifiedConfig,
 )
 from picsellia_cv_engine.core.services.context.local_context import (
@@ -39,31 +36,34 @@ def _load_and_validate_config(config_file: str | Path) -> UnifiedConfig:
 
 
 def create_processing_context_from_config(
-    config_file_path: str | Path,
+    processing_type: ProcessingType,
     processing_parameters_cls: type[TParameters],
     mode: Mode = "picsellia",
+    config_file_path: str | Path | None = None,
 ):
-    config = _load_and_validate_config(config_file_path)
-
     if mode == "picsellia":
-        if isinstance(config, PreAnnotationConfig) or isinstance(
-            config, DatasetVersionCreationConfig
+        if (
+            processing_type == ProcessingType.PRE_ANNOTATION
+            or processing_type == ProcessingType.DATASET_VERSION_CREATION
         ):
             return create_picsellia_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
             )
-        elif isinstance(config, DataAutoTaggingConfig):
+        elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
             return create_picsellia_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
             )
 
     elif mode == "local":
-        if isinstance(config, PreAnnotationConfig):
+        if config_file_path is None:
+            raise ValueError("Config file path must be provided for local mode")
+        config = _load_and_validate_config(config_file_path)
+        if processing_type == ProcessingType.PRE_ANNOTATION:
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
-                job_type=ProcessingType.PRE_ANNOTATION,
+                job_type=processing_type,
                 input_dataset_version_id=config.io.input_dataset_version_id,
                 output_dataset_version_name=None,
                 model_version_id=config.model.model_version_id,
@@ -71,12 +71,12 @@ def create_processing_context_from_config(
                 working_dir=config.run.working_dir,
             )
 
-        elif isinstance(config, DatasetVersionCreationConfig):
+        elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
-                job_type=ProcessingType.DATASET_VERSION_CREATION,
+                job_type=processing_type,
                 input_dataset_version_id=config.io.input_dataset_version_id,
                 output_dataset_version_name=config.io.output_dataset_version_name,
                 model_version_id=None,
@@ -84,12 +84,12 @@ def create_processing_context_from_config(
                 working_dir=config.run.working_dir,
             )
 
-        elif isinstance(config, DataAutoTaggingConfig):
+        elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
             return create_local_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
-                job_type=ProcessingType.DATA_AUTO_TAGGING,
+                job_type=processing_type,
                 input_datalake_id=config.io.input_datalake_id,
                 output_datalake_id=config.io.output_datalake_id,
                 model_version_id=config.model.model_version_id,
@@ -99,21 +99,19 @@ def create_processing_context_from_config(
                 working_dir=config.run.working_dir,
             )
         else:
-            raise RuntimeError("Unsupported processing config type for local context")
+            raise RuntimeError("Unsupported processing type for local context")
 
     else:
         raise RuntimeError("Unsupported mode for processing context creation")
 
 
 def create_training_context_from_config(
-    config_file_path: str | Path,
     hyperparameters_cls: type[THyperParameters],
     augmentation_parameters_cls: type[TAugmentationParameters],
     export_parameters_cls: type[TExportParameters],
     mode: Mode = "picsellia",
+    config_file_path: str | Path | None = None,
 ):
-    config = _load_and_validate_config(config_file=config_file_path)
-
     if mode == "picsellia":
         return create_picsellia_training_context(
             hyperparameters_cls=hyperparameters_cls,
@@ -121,6 +119,9 @@ def create_training_context_from_config(
             export_parameters_cls=export_parameters_cls,
         )
     elif mode == "local":
+        if config_file_path is None:
+            raise ValueError("Config file path must be provided for local mode")
+        config = _load_and_validate_config(config_file_path)
         return create_local_training_context(
             hyperparameters_cls=hyperparameters_cls,
             augmentation_parameters_cls=augmentation_parameters_cls,
