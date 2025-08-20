@@ -4,7 +4,6 @@ import os
 import re
 import subprocess
 import sys
-from typing import Union
 
 import torch
 from picsellia.types.enums import LogType
@@ -96,7 +95,7 @@ class ClipModelTrainer:
     def save_best_checkpoint(
         self,
         output_dir: str,
-        context: Union[PicselliaTrainingContext, LocalTrainingContext],
+        context: PicselliaTrainingContext | LocalTrainingContext,
     ):
         """
         Save the best checkpoint by selecting the latest one.
@@ -320,7 +319,7 @@ def run_clip_training(
     test_json: str,
     batch_size: int,
     epochs: int,
-    context: Union[PicselliaTrainingContext, LocalTrainingContext],
+    context: PicselliaTrainingContext | LocalTrainingContext,
 ):
     """
     Run CLIP training with provided hyperparameters and log the output.
