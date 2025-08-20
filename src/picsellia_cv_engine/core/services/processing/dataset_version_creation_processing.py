@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Optional
 
 from picsellia import Client, Data, Datalake, DatasetVersion
 from picsellia.services.error_manager import ErrorManager
@@ -53,7 +52,7 @@ class DatasetVersionCreationProcessing:
         self.output_dataset_version.update(type=inference_type)
 
     def _upload_data_with_error_manager(
-        self, images_to_upload: list[str], images_tags: Optional[list[str]] = None
+        self, images_to_upload: list[str], images_tags: list[str] | None = None
     ) -> tuple[list[Data], list[str]]:
         """
         Uploads data to the datalake using an error manager. This method allows to handle errors during the upload process.
@@ -83,7 +82,7 @@ class DatasetVersionCreationProcessing:
     def _upload_images_to_datalake(
         self,
         images_to_upload: list[str],
-        images_tags: Optional[list[str]] = None,
+        images_tags: list[str] | None = None,
         max_retries: int = 5,
     ) -> list[Data]:
         """
@@ -118,7 +117,7 @@ class DatasetVersionCreationProcessing:
     def _add_images_to_dataset_version(
         self,
         images_to_upload: list[str],
-        images_tags: Optional[list[str]] = None,
+        images_tags: list[str] | None = None,
         max_retries: int = 5,
     ) -> None:
         """
