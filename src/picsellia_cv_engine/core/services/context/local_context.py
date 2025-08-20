@@ -123,26 +123,34 @@ def create_local_training_context(
     api_token: str,
     organization_name: str,
     experiment_id: str,
+    hyperparameters: dict[str, Any] | None = None,
+    augmentation_parameters: dict[str, Any] | None = None,
+    export_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
     host: str | None = None,
 ) -> LocalTrainingContext:
     """
-    Create a local training context for testing model training logic locally.
+    Create a local training context for running a training pipeline outside of Picsellia.
 
-    This context allows for local execution of training steps with parameters pulled from experiment logs.
+    This is typically used for development and debugging, with full local control over
+    hyperparameters, augmentation strategies, and export configuration. Parameters can be
+    pulled from the experiment logs or overridden manually.
 
     Args:
-        hyperparameters_cls (type): Class defining training hyperparameters.
-        augmentation_parameters_cls (type): Class defining augmentation strategy parameters.
-        export_parameters_cls (type): Class defining model export configuration.
-        api_token (str): API token to authenticate with Picsellia.
-        organization_name (str): Name of the organization linked to the experiment.
-        experiment_id (str): Experiment ID from which parameter logs are retrieved.
-        working_dir (str | None): Optional local working directory.
-        host (str | None): Optional Picsellia host override.
+        hyperparameters_cls (type[HyperParameters]): Class defining the training hyperparameters.
+        augmentation_parameters_cls (type[AugmentationParameters]): Class defining data augmentation parameters.
+        export_parameters_cls (type[ExportParameters]): Class defining model export parameters.
+        api_token (str): API token for authentication with Picsellia.
+        organization_name (str): Name of the Picsellia organization.
+        experiment_id (str): ID of the experiment from which to load parameter logs.
+        hyperparameters (dict[str, Any] | None): Optional overrides for training hyperparameters.
+        augmentation_parameters (dict[str, Any] | None): Optional overrides for augmentation parameters.
+        export_parameters (dict[str, Any] | None): Optional overrides for export parameters.
+        working_dir (str | None): Optional working directory for local file operations.
+        host (str | None): Optional Picsellia API host override.
 
     Returns:
-        LocalTrainingContext: Fully initialized context for local model training.
+        LocalTrainingContext: A fully initialized local training context.
     """
     return LocalTrainingContext(
         api_token=api_token,
@@ -152,5 +160,8 @@ def create_local_training_context(
         hyperparameters_cls=hyperparameters_cls,
         augmentation_parameters_cls=augmentation_parameters_cls,
         export_parameters_cls=export_parameters_cls,
+        hyperparameters=hyperparameters,
+        augmentation_parameters=augmentation_parameters,
+        export_parameters=export_parameters,
         working_dir=working_dir,
     )
