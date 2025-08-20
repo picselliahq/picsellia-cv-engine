@@ -28,6 +28,9 @@ class LocalTrainingContext(
         hyperparameters_cls: type[THyperParameters],
         augmentation_parameters_cls: type[TAugmentationParameters],
         export_parameters_cls: type[TExportParameters],
+        hyperparameters: dict[str, Any] | None = None,
+        augmentation_parameters: dict[str, Any] | None = None,
+        export_parameters: dict[str, Any] | None = None,
         api_token: str | None = None,
         host: str | None = None,
         organization_id: str | None = None,
@@ -53,13 +56,11 @@ class LocalTrainingContext(
         if self.experiment_id:
             self.experiment = self._initialize_experiment()
 
-        parameters_log_data = self.experiment.get_log("parameters").data
-
-        self.hyperparameters = hyperparameters_cls(log_data=parameters_log_data)
+        self.hyperparameters = hyperparameters_cls(log_data=hyperparameters or {})
         self.augmentation_parameters = augmentation_parameters_cls(
-            log_data=parameters_log_data
+            log_data=augmentation_parameters or {}
         )
-        self.export_parameters = export_parameters_cls(log_data=parameters_log_data)
+        self.export_parameters = export_parameters_cls(log_data=export_parameters or {})
 
         self._working_dir_override = working_dir
 
