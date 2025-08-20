@@ -14,8 +14,16 @@ class Run(BaseModel):
     mode: Literal["local", "picsellia"] | None = None
 
 
+class ExperimentBlk(BaseModel):
+    id: str
+
+
 class ModelBlk(BaseModel):
     model_version_id: str
+
+
+class JobTraining(BaseModel):
+    type: Literal["TRAINING"]
 
 
 class JobPreAnn(BaseModel):
@@ -49,6 +57,16 @@ class AutoTagRunParams(BaseModel):
     limit: int = 100
 
 
+class TrainingConfig(BaseModel):
+    job: JobTraining
+    auth: Auth
+    run: Run = Run()
+    experiment: ExperimentBlk
+    hyperparameters: dict[str, Any] = Field(default_factory=dict)
+    augmentations_parameters: dict[str, Any] = Field(default_factory=dict)
+    export_parameters: dict[str, Any] = Field(default_factory=dict)
+
+
 class PreAnnotationConfig(BaseModel):
     job: JobPreAnn
     auth: Auth
@@ -78,5 +96,15 @@ class DataAutoTaggingConfig(BaseModel):
 
 ProcessingConfig = Annotated[
     Union[PreAnnotationConfig, DatasetVersionCreationConfig, DataAutoTaggingConfig],
+    Field(discriminator="job.type"),
+]
+
+UnifiedConfig = Annotated[
+    Union[
+        PreAnnotationConfig,
+        DatasetVersionCreationConfig,
+        DataAutoTaggingConfig,
+        TrainingConfig,
+    ],
     Field(discriminator="job.type"),
 ]
