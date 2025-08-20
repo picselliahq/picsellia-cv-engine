@@ -17,7 +17,6 @@ from picsellia_cv_engine.core.parameters.base_parameters import TParameters
 
 def create_local_dataset_processing_context(
     processing_parameters_cls: type[TParameters],
-    api_token: str,
     organization_name: str,
     job_type: ProcessingType,
     input_dataset_version_id: str,
@@ -25,6 +24,7 @@ def create_local_dataset_processing_context(
     model_version_id: str | None = None,
     processing_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
+    api_token: str | None = None,
     host: str | None = None,
 ) -> LocalDatasetProcessingContext:
     """
@@ -65,7 +65,6 @@ def create_local_dataset_processing_context(
 
 def create_local_datalake_processing_context(
     processing_parameters_cls: type[TParameters],
-    api_token: str,
     organization_name: str,
     job_type: ProcessingType,
     input_datalake_id: str,
@@ -76,6 +75,7 @@ def create_local_datalake_processing_context(
     use_id: bool = True,
     processing_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
+    api_token: str | None = None,
     host: str | None = None,
 ) -> LocalDatalakeProcessingContext:
     """
@@ -120,13 +120,13 @@ def create_local_training_context(
     hyperparameters_cls: type[HyperParameters],
     augmentation_parameters_cls: type[AugmentationParameters],
     export_parameters_cls: type[ExportParameters],
-    api_token: str,
     organization_name: str,
     experiment_id: str,
     hyperparameters: dict[str, Any] | None = None,
     augmentation_parameters: dict[str, Any] | None = None,
     export_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
+    api_token: str | None = None,
     host: str | None = None,
 ) -> LocalTrainingContext:
     """
