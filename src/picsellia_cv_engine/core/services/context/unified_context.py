@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Literal
 
 from picsellia.types.enums import ProcessingType
+from pydantic import TypeAdapter
 from toml import load as load_toml
 
 from picsellia_cv_engine.core.parameters.augmentation_parameters import (
@@ -31,8 +32,9 @@ def _load_and_validate_config(config_file: str | Path) -> UnifiedConfig:
     path = Path(config_file)
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
+
     raw = load_toml(path)
-    return UnifiedConfig.model_validate(raw)
+    return TypeAdapter(UnifiedConfig).validate_python(raw)
 
 
 def create_processing_context_from_config(
