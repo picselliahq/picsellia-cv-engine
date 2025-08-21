@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Literal
 
 from picsellia.types.enums import ProcessingType
-from pydantic import TypeAdapter
 from toml import load as load_toml
 
 from picsellia_cv_engine.core.parameters.augmentation_parameters import (
@@ -12,7 +11,10 @@ from picsellia_cv_engine.core.parameters.base_parameters import TParameters
 from picsellia_cv_engine.core.parameters.export_parameters import TExportParameters
 from picsellia_cv_engine.core.parameters.hyper_parameters import THyperParameters
 from picsellia_cv_engine.core.services.context.config import (
-    UnifiedConfig,
+    DataAutoTaggingConfig,
+    DatasetVersionCreationConfig,
+    PreAnnotationConfig,
+    TrainingConfig,
 )
 from picsellia_cv_engine.core.services.context.local_context import (
     create_local_datalake_processing_context,
@@ -28,13 +30,33 @@ from picsellia_cv_engine.core.services.context.picsellia_context import (
 Mode = Literal["local", "picsellia"]
 
 
-def _load_and_validate_config(config_file: str | Path) -> UnifiedConfig:
+def _load_and_validate_processing_config(
+    config_file: str | Path, processing_type: ProcessingType
+) -> PreAnnotationConfig | DatasetVersionCreationConfig | DataAutoTaggingConfig:
     path = Path(config_file)
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
 
     raw = load_toml(path)
-    return TypeAdapter(UnifiedConfig).validate_python(raw)
+
+    if processing_type == ProcessingType.PRE_ANNOTATION:
+        return PreAnnotationConfig(**raw)
+    elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
+        return DatasetVersionCreationConfig(**raw)
+    elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
+        return DataAutoTaggingConfig(**raw)
+    else:
+        raise RuntimeError(f"Unsupported processing type: {processing_type}")
+
+
+def _load_and_validate_training_config(config_file: str | Path) -> TrainingConfig:
+    path = Path(config_file)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {path}")
+
+    raw = load_toml(path)
+
+    return TrainingConfig(**raw)
 
 
 def create_processing_context_from_config(
@@ -59,7 +81,9 @@ def create_processing_context_from_config(
     elif mode == "local":
         if config_file_path is None:
             raise ValueError("Config file path must be provided for local mode")
-        config = _load_and_validate_config(config_file_path)
+        config = _load_and_validate_processing_config(
+            config_file=config_file_path, processing_type=processing_type
+        )
         if processing_type == ProcessingType.PRE_ANNOTATION:
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
@@ -123,7 +147,7 @@ def create_training_context_from_config(
     elif mode == "local":
         if config_file_path is None:
             raise ValueError("Config file path must be provided for local mode")
-        config = _load_and_validate_config(config_file_path)
+        config = _load_and_validate_training_config(config_file=config_file_path)
         return create_local_training_context(
             hyperparameters_cls=hyperparameters_cls,
             augmentation_parameters_cls=augmentation_parameters_cls,
