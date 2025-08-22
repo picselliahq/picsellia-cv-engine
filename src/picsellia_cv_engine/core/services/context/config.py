@@ -63,6 +63,28 @@ class AutoTagRunParams(BaseModel):
     limit: int = 100
 
 
+class InputDatasetVersionCreation(BaseModel):
+    dataset_version: DatasetVersion
+
+
+class OutputDatasetVersionCreation(BaseModel):
+    dataset_version: DatasetVersion
+
+
+class InputPreAnnotation(BaseModel):
+    dataset_version: DatasetVersion | None = None
+    model_version: ModelVersion | None = None
+
+
+class InputDataAutoTagging(BaseModel):
+    datalake: Datalake
+    model_version: ModelVersion | None = None
+
+
+class OutputDataAutoTagging(BaseModel):
+    datalake: Datalake
+
+
 class TrainingConfig(BaseModel):
     job: JobTraining
     auth: Auth
@@ -77,8 +99,8 @@ class DatasetVersionCreationConfig(BaseModel):
     job: JobDSVCreate
     auth: Auth
     run: Run = Run()
-    input: dict[str, DatasetVersion]
-    output: dict[str, DatasetVersion]
+    input: InputDatasetVersionCreation
+    output: OutputDatasetVersionCreation
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -86,7 +108,7 @@ class PreAnnotationConfig(BaseModel):
     job: JobPreAnn
     auth: Auth
     run: Run = Run()
-    input: dict[str, DatasetVersion | ModelVersion]
+    input: InputPreAnnotation
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -94,7 +116,7 @@ class DataAutoTaggingConfig(BaseModel):
     job: JobAutoTag
     auth: Auth
     run: Run = Run()
-    input: dict[str, Datalake | ModelVersion]
-    output: dict[str, Datalake]
+    input: InputDataAutoTagging
+    output: OutputDataAutoTagging
     run_parameters: AutoTagRunParams
     parameters: dict[str, Any] = Field(default_factory=dict)
