@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Literal, Union
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -14,12 +14,32 @@ class Run(BaseModel):
     mode: Literal["local", "picsellia"] | None = None
 
 
-class ExperimentBlk(BaseModel):
+class Experiment(BaseModel):
     id: str
+    name: str | None = None
+    project_name: str | None = None
+    url: str | None = None
 
 
-class ModelBlk(BaseModel):
-    model_version_id: str
+class ModelVersion(BaseModel):
+    id: str
+    name: str | None = None
+    origin_name: str | None = None
+    url: str | None = None
+
+
+class DatasetVersion(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    origin_name: str | None = None
+    version_name: str | None = None
+    url: str | None = None
+
+
+class Datalake(BaseModel):
+    id: str
+    name: str | None = None
+    url: str | None = None
 
 
 class JobTraining(BaseModel):
@@ -38,20 +58,6 @@ class JobAutoTag(BaseModel):
     type: Literal["DATA_AUTO_TAGGING"]
 
 
-class IOInputDataset(BaseModel):
-    input_dataset_version_id: str
-
-
-class IOInputOutputDataset(BaseModel):
-    input_dataset_version_id: str
-    output_dataset_version_name: str
-
-
-class IODatalake(BaseModel):
-    input_datalake_id: str
-    output_datalake_id: str
-
-
 class AutoTagRunParams(BaseModel):
     offset: int = 0
     limit: int = 100
@@ -61,26 +67,26 @@ class TrainingConfig(BaseModel):
     job: JobTraining
     auth: Auth
     run: Run = Run()
-    experiment: ExperimentBlk
+    experiment: Experiment
     hyperparameters: dict[str, Any] = Field(default_factory=dict)
     augmentations_parameters: dict[str, Any] = Field(default_factory=dict)
     export_parameters: dict[str, Any] = Field(default_factory=dict)
-
-
-class PreAnnotationConfig(BaseModel):
-    job: JobPreAnn
-    auth: Auth
-    run: Run = Run()
-    io: IOInputDataset
-    model: ModelBlk
-    parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 class DatasetVersionCreationConfig(BaseModel):
     job: JobDSVCreate
     auth: Auth
     run: Run = Run()
-    io: IOInputOutputDataset
+    input: dict[str, DatasetVersion]
+    output: dict[str, DatasetVersion]
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+class PreAnnotationConfig(BaseModel):
+    job: JobPreAnn
+    auth: Auth
+    run: Run = Run()
+    input: dict[str, DatasetVersion | ModelVersion]
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -88,23 +94,7 @@ class DataAutoTaggingConfig(BaseModel):
     job: JobAutoTag
     auth: Auth
     run: Run = Run()
-    io: IODatalake
-    model: ModelBlk
+    input: dict[str, Datalake | ModelVersion]
+    output: dict[str, Datalake]
     run_parameters: AutoTagRunParams
     parameters: dict[str, Any] = Field(default_factory=dict)
-
-
-ProcessingConfig = Annotated[
-    Union[PreAnnotationConfig, DatasetVersionCreationConfig, DataAutoTaggingConfig],
-    Field(discriminator="job.type"),
-]
-
-UnifiedConfig = Annotated[
-    Union[
-        PreAnnotationConfig,
-        DatasetVersionCreationConfig,
-        DataAutoTaggingConfig,
-        TrainingConfig,
-    ],
-    Field(discriminator="job.type"),
-]
