@@ -104,7 +104,7 @@ def create_processing_context_from_config(
                 host=config.auth.host,
                 job_type=processing_type,
                 input_dataset_version_id=config.input.dataset_version.id,
-                output_dataset_version_name=config.input.dataset_version.name,
+                output_dataset_version_name=config.output.dataset_version.name,
                 model_version_id=None,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
