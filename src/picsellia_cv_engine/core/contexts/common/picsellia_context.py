@@ -44,6 +44,9 @@ class PicselliaContext(ABC):
 
         self.client = self._initialize_client()
 
+        if not self.organization_id:
+            self.organization_id = self.client.connexion.organization_id
+
         self._working_dir_override = working_dir
 
     @property
