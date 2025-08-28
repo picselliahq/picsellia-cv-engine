@@ -144,8 +144,10 @@ class CLIPModelPredictor(ModelPredictor):
         """
         all_predictions = []
 
-        for image_texts, results in zip(image_text_batches, batch_results):
-            for (image_path, _), result in zip(image_texts, results):
+        for image_texts, results in zip(
+            image_text_batches, batch_results, strict=False
+        ):
+            for (image_path, _), result in zip(image_texts, results, strict=False):
                 asset_id = os.path.splitext(os.path.basename(image_path))[0]
                 asset = dataset.dataset_version.list_assets(ids=[asset_id])[0]
 
@@ -176,8 +178,8 @@ class CLIPModelPredictor(ModelPredictor):
             List of PicselliaCLIPEmbeddingPrediction with empty text embeddings.
         """
         all_predictions = []
-        for batch, results in zip(image_batches, batch_results):
-            for image_path, result in zip(batch, results):
+        for batch, results in zip(image_batches, batch_results, strict=False):
+            for image_path, result in zip(batch, results, strict=False):
                 asset_id = os.path.splitext(os.path.basename(image_path))[0]
                 asset = dataset.dataset_version.list_assets(ids=[asset_id])[0]
 
