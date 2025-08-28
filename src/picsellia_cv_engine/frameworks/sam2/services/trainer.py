@@ -143,7 +143,9 @@ class Sam2Trainer:
             text=True,
         )
 
-        parse_and_log_sam2_output(process, self.context, log_file)
+        parse_and_log_sam2_output(
+            process=process, context=self.context, log_file_path=log_file
+        )
 
         process.wait()
         if process.returncode != 0:
@@ -277,7 +279,11 @@ def normalize_filenames(root_dirs: list[str]):
                 os.rename(os.path.join(subdir, name), os.path.join(subdir, new_name))
 
 
-def parse_and_log_sam2_output(process, context, log_file_path: str):
+def parse_and_log_sam2_output(
+    process: subprocess.Popen[str],
+    context: PicselliaTrainingContext | LocalTrainingContext,
+    log_file_path: str,
+) -> None:
     """
     Parses SAM2 training output and logs metrics into the Picsellia experiment.
 
@@ -302,6 +308,9 @@ def parse_and_log_sam2_output(process, context, log_file_path: str):
     SKIPPED_METRICS = {"Trainer/where"}
 
     with open(log_file_path, "w") as log_file:
+        if process.stdout is None:
+            raise RuntimeError("process.stdout is None. Cannot read training output.")
+
         for line in process.stdout:
             print(line, end="")
             log_file.write(line)
@@ -313,7 +322,7 @@ def parse_and_log_sam2_output(process, context, log_file_path: str):
                     metrics = json.loads(metrics_str.replace("'", '"'))
                     for name, value in metrics.items():
                         if name in SKIPPED_METRICS or not isinstance(
-                            value, (float, int)
+                            value, float | int
                         ):
                             continue
 
