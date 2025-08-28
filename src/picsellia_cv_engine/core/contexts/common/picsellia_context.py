@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 import picsellia
 
@@ -10,11 +10,11 @@ from picsellia_cv_engine.core.logging.colors import Colors
 class PicselliaContext(ABC):
     def __init__(
         self,
-        api_token: Optional[str] = None,
-        host: Optional[str] = None,
-        organization_id: Optional[str] = None,
-        organization_name: Optional[str] = None,
-        working_dir: Optional[str] = None,
+        api_token: str | None = None,
+        host: str | None = None,
+        organization_id: str | None = None,
+        organization_name: str | None = None,
+        working_dir: str | None = None,
     ):
         """
         Base class for defining a context within the Picsellia platform.
