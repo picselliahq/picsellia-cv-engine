@@ -108,7 +108,7 @@ def update_mkdocs_nav(generated_files):
         if not isinstance(item, dict) or "API Reference" not in item
     ]
 
-    api_section: dict[str, list] = {"API Reference": []}
+    api_section: dict[str, list] = {"API Reference": [{"Overview": "api/index.md"}]}
     structure: dict[str, Any] = {}
 
     for path, file in generated_files:
@@ -130,7 +130,7 @@ def update_mkdocs_nav(generated_files):
                 nav.append({key: value})
         return nav
 
-    api_section["API Reference"] = build_nav(structure)
+    api_section["API Reference"].extend(build_nav(structure))
     config["nav"].append(api_section)
 
     with open(MKDOCS_CONFIG_FILE, "w") as f:
