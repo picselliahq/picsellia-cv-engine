@@ -21,11 +21,11 @@ You can chain together these steps inside a @pipeline, and run it locally or on 
 
 Install from PyPI:
 
-- With poetry:
+- With uv:
 
 ```bash
-poetry add picsellia-cv-engine
-poetry add picsellia-pipelines-cli
+uv add picsellia-cv-engine
+uv add picsellia-pipelines-cli
 ```
 
  - With pip:
@@ -88,12 +88,12 @@ cd picsellia-cv-engine
 ### 2. Install dependencies
 
 ```bash
-poetry sync
+uv sync
 ```
 
 ### 3. Run the documentation
 
 ```bash
-poetry run mkdocs serve -a 127.0.0.1:8080
+uv run mkdocs serve -a 127.0.0.1:8080
 ```
 Then open http://127.0.0.1:8080 in your browser.

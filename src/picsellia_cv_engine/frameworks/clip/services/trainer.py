@@ -4,12 +4,16 @@ import os
 import re
 import subprocess
 import sys
-from typing import Union
 
 import torch
 from picsellia.types.enums import LogType
 from PIL import Image
-from transformers import InstructBlipForConditionalGeneration, InstructBlipProcessor
+from transformers import (
+    InstructBlipForConditionalGeneration,
+    InstructBlipProcessor,
+    PreTrainedModel,
+    PreTrainedTokenizer,
+)
 
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, Model
 from picsellia_cv_engine.core.contexts import (
@@ -62,7 +66,7 @@ class ClipModelTrainer:
         }
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        blip_model, processor = prepare_caption_model(device)
+        blip_model, processor = prepare_caption_model()
 
         for split, json_path in json_files.items():
             export_dataset_to_clip_json(
@@ -96,8 +100,8 @@ class ClipModelTrainer:
     def save_best_checkpoint(
         self,
         output_dir: str,
-        context: Union[PicselliaTrainingContext, LocalTrainingContext],
-    ):
+        context: PicselliaTrainingContext | LocalTrainingContext,
+    ) -> None:
         """
         Save the best checkpoint by selecting the latest one.
 
@@ -120,12 +124,9 @@ class ClipModelTrainer:
         self.model.trained_weights_path = best_ckpt
 
 
-def prepare_caption_model(device: str):
+def prepare_caption_model() -> tuple[PreTrainedModel, PreTrainedTokenizer]:
     """
     Load the BLIP processor and model for caption generation.
-
-    Args:
-        device: Target device.
 
     Returns:
         A tuple containing the model and processor.
@@ -140,7 +141,11 @@ def prepare_caption_model(device: str):
 
 
 def generate_caption(
-    model, processor, image_path: str, prompt: str, device: str
+    model: PreTrainedModel,
+    processor: PreTrainedTokenizer,
+    image_path: str,
+    prompt: str,
+    device: str,
 ) -> str:
     """
     Generate a caption from an image using BLIP.
@@ -175,13 +180,13 @@ def generate_caption(
 
 
 def export_dataset_to_clip_json(
-    model,
-    processor,
+    model: PreTrainedModel,
+    processor: PreTrainedTokenizer,
     dataset: CocoDataset,
     output_path: str,
     device: str,
     prompt: str,
-):
+) -> None:
     """
     Convert a COCO-format dataset to a JSONL file for CLIP training.
 
@@ -278,7 +283,11 @@ def build_clip_command(
     ]
 
 
-def parse_and_log_training_output(process, context, log_file_path):
+def parse_and_log_training_output(
+    process: subprocess.Popen[str],
+    context: PicselliaTrainingContext | LocalTrainingContext,
+    log_file_path: str,
+) -> None:
     """
     Parse stdout of subprocess and log relevant training metrics.
 
@@ -294,6 +303,9 @@ def parse_and_log_training_output(process, context, log_file_path):
     metrics_pattern = re.compile(r"'(\w+)'[\s]*:[\s]*([\d.eE+-]+)")
 
     with open(log_file_path, "w") as log_file:
+        if process.stdout is None:
+            raise RuntimeError("process.stdout is None. Cannot read training output.")
+
         for line in process.stdout:
             print(line, end="")
             log_file.write(line)
@@ -320,8 +332,8 @@ def run_clip_training(
     test_json: str,
     batch_size: int,
     epochs: int,
-    context: Union[PicselliaTrainingContext, LocalTrainingContext],
-):
+    context: PicselliaTrainingContext | LocalTrainingContext,
+) -> None:
     """
     Run CLIP training with provided hyperparameters and log the output.
 

@@ -1,5 +1,7 @@
 import os
 import random
+from collections.abc import Sequence
+from typing import Any
 
 import cv2
 import matplotlib.pyplot as plt
@@ -49,8 +51,8 @@ def save_clustering_visualizations(
     image_paths: list[str],
     results_dir: str,
     log_images: bool = True,
-    experiment: Experiment = None,
-):
+    experiment: Experiment | None = None,
+) -> None:
     """
     Save clustering plots, cluster image grids, and outlier grids. Optionally logs them to an experiment.
 
@@ -78,7 +80,10 @@ def save_clustering_visualizations(
                 )
 
 
-def generate_embeddings_from_results(image_batches, batch_results):
+def generate_embeddings_from_results(
+    image_batches: Sequence[list[str]],
+    batch_results: Sequence[list[dict[str, Any]]],
+) -> tuple[np.ndarray, list[str]]:
     """
     Combine image paths and embeddings from batched inference results.
 
@@ -91,14 +96,14 @@ def generate_embeddings_from_results(image_batches, batch_results):
     """
     all_embeddings = []
     all_paths = []
-    for images, results in zip(image_batches, batch_results):
-        for img_path, result in zip(images, results):
+    for images, results in zip(image_batches, batch_results, strict=False):
+        for img_path, result in zip(images, results, strict=False):
             all_embeddings.append(result["image_embedding"])
             all_paths.append(img_path)
     return np.array(all_embeddings), all_paths
 
 
-def load_stored_embeddings(file_path):
+def load_stored_embeddings(file_path: str) -> tuple[np.ndarray, list[str]]:
     """
     Load stored embeddings and image paths from a .npz file.
 
@@ -202,12 +207,12 @@ def save_clustering_plots(
 
 
 def save_cluster_images_plot(
-    image_paths,
-    cluster_labels,
-    results_dir,
-    max_images_per_cluster=25,
-    grid_size=(5, 5),
-):
+    image_paths: list[str],
+    cluster_labels: np.ndarray,
+    results_dir: str,
+    max_images_per_cluster: int = 25,
+    grid_size: tuple[int, int] = (5, 5),
+) -> None:
     """
     Save a grid of images for each cluster.
 
@@ -251,8 +256,12 @@ def save_cluster_images_plot(
 
 
 def save_outliers_images(
-    image_paths, cluster_labels, results_dir, max_images=25, grid_size=(5, 5)
-):
+    image_paths: list[str],
+    cluster_labels: np.ndarray,
+    results_dir: str,
+    max_images: int = 25,
+    grid_size: tuple[int, int] = (5, 5),
+) -> None:
     """
     Save a grid of images classified as outliers.
 
@@ -294,7 +303,7 @@ def save_outliers_images(
     plt.close()
 
 
-def find_best_eps(reduced, eps_list):
+def find_best_eps(reduced: np.ndarray, eps_list: list[float]) -> float | None:
     """
     Find the best epsilon value for DBSCAN using silhouette score.
 

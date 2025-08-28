@@ -59,185 +59,171 @@ nav:
     - Pre Annotation Template: usage/processing/pre_annotation.md
 - API Reference:
   - Overview: api/index.md
-  - Core:
-    - Overview: api/index.md
-    - Contexts:
-      - Overview: api/index.md
-      - Common:
-        - Overview: api/index.md
-        - Picsellia Context: api/core/contexts/common/picsellia_context.md
-      - Processing:
-        - Overview: api/index.md
-        - Datalake:
-          - Overview: api/index.md
-          - Local Datalake Processing Context: api/core/contexts/processing/datalake/local_datalake_processing_context.md
-          - Picsellia Datalake Processing Context: api/core/contexts/processing/datalake/picsellia_datalake_processing_context.md
-        - Dataset:
-          - Overview: api/index.md
-          - Local Processing Context: api/core/contexts/processing/dataset/local_processing_context.md
-          - Picsellia Dataset Processing Context: api/core/contexts/processing/dataset/picsellia_dataset_processing_context.md
-          - Picsellia Processing Context: api/core/contexts/processing/dataset/picsellia_processing_context.md
-        - Model:
-          - Overview: api/index.md
-          - Picsellia Model Processing Context: api/core/contexts/processing/model/picsellia_model_processing_context.md
-      - Training:
-        - Overview: api/index.md
-        - Local Training Context: api/core/contexts/training/local_training_context.md
-        - Picsellia Training Context: api/core/contexts/training/picsellia_training_context.md
-    - Data:
-      - Overview: api/index.md
-      - Datalake:
-        - Overview: api/index.md
-        - Datalake: api/core/data/datalake/datalake.md
-        - Datalake Collection: api/core/data/datalake/datalake_collection.md
-      - Dataset:
-        - Overview: api/index.md
-        - Base Dataset: api/core/data/dataset/base_dataset.md
-        - Coco Dataset: api/core/data/dataset/coco_dataset.md
-        - Dataset Collection: api/core/data/dataset/dataset_collection.md
-        - Utils: api/core/data/dataset/utils.md
-        - Yolo Dataset: api/core/data/dataset/yolo_dataset.md
-    - Models:
-      - Overview: api/index.md
-      - Model: api/core/models/model.md
-      - Model Collection: api/core/models/model_collection.md
-      - Model Downloader: api/core/models/model_downloader.md
-      - Picsellia Prediction: api/core/models/picsellia_prediction.md
-    - Parameters:
-      - Overview: api/index.md
-      - Augmentation Parameters: api/core/parameters/augmentation_parameters.md
-      - Base Parameters: api/core/parameters/base_parameters.md
-      - Export Parameters: api/core/parameters/export_parameters.md
-      - Hyper Parameters: api/core/parameters/hyper_parameters.md
-    - Services:
-      - Overview: api/index.md
-      - Data:
-        - Overview: api/index.md
-        - Dataset:
-          - Overview: api/index.md
-          - Loader:
-            - Overview: api/index.md
-            - Training Dataset Collection Extractor: api/core/services/data/dataset/loader/training_dataset_collection_extractor.md
-          - Preprocessing:
-            - Overview: api/index.md
-            - Classification Dataset Preparator: api/core/services/data/dataset/preprocessing/classification_dataset_preparator.md
-          - Uploader:
-            - Overview: api/index.md
-            - Utils: api/core/services/data/dataset/uploader/utils.md
-          - Utils: api/core/services/data/dataset/utils.md
-          - Validator:
-            - Overview: api/index.md
-            - Classification:
-              - Overview: api/index.md
-              - Coco Classification Dataset Context Validator: api/core/services/data/dataset/validator/classification/coco_classification_dataset_context_validator.md
-            - Common:
-              - Overview: api/index.md
-              - Dataset Collection Validator: api/core/services/data/dataset/validator/common/dataset_collection_validator.md
-              - Dataset Validator: api/core/services/data/dataset/validator/common/dataset_validator.md
-              - Not Configured Dataset Validator: api/core/services/data/dataset/validator/common/not_configured_dataset_validator.md
-            - Object_Detection:
-              - Overview: api/index.md
-              - Coco Object Detection Dataset Validator: api/core/services/data/dataset/validator/object_detection/coco_object_detection_dataset_validator.md
-              - Yolo Object Detection Dataset Validator: api/core/services/data/dataset/validator/object_detection/yolo_object_detection_dataset_validator.md
-            - Segmentation:
-              - Overview: api/index.md
-              - Coco Segmentation Dataset Validator: api/core/services/data/dataset/validator/segmentation/coco_segmentation_dataset_validator.md
-              - Yolo Segmentation Dataset Validator: api/core/services/data/dataset/validator/segmentation/yolo_segmentation_dataset_validator.md
-            - Utils: api/core/services/data/dataset/validator/utils.md
-      - Model:
-        - Overview: api/index.md
-        - Evaluator:
-          - Overview: api/index.md
-          - Model Evaluator: api/core/services/model/evaluator/model_evaluator.md
-          - Utils:
-            - Overview: api/index.md
-            - Coco Converter: api/core/services/model/evaluator/utils/coco_converter.md
-            - Coco Utils: api/core/services/model/evaluator/utils/coco_utils.md
-            - Compute Confusion Matrix: api/core/services/model/evaluator/utils/compute_confusion_matrix.md
-        - Export:
-          - Overview: api/index.md
-          - Model Exporter: api/core/services/model/export/model_exporter.md
-        - Predictor:
-          - Overview: api/index.md
-          - Model Collection Predictor: api/core/services/model/predictor/model_collection_predictor.md
-          - Model Predictor: api/core/services/model/predictor/model_predictor.md
-        - Utils: api/core/services/model/utils.md
-      - Processing:
-        - Overview: api/index.md
-        - Dataset Version Creation Processing: api/core/services/processing/dataset_version_creation_processing.md
-      - Utils:
-        - Overview: api/index.md
-        - Dataset Logging: api/core/services/utils/dataset_logging.md
-        - Image File: api/core/services/utils/image_file.md
-        - Local Context: api/core/services/utils/local_context.md
-        - Picsellia Context: api/core/services/utils/picsellia_context.md
-    - Step Metadata: api/core/step_metadata.md
-  - Decorators:
-    - Overview: api/index.md
-    - Pipeline Decorator: api/decorators/pipeline_decorator.md
-    - Step Decorator: api/decorators/step_decorator.md
-    - Step Metadata: api/decorators/step_metadata.md
-  - Frameworks:
-    - Overview: api/index.md
-    - Ultralytics:
-      - Overview: api/index.md
-      - Model:
-        - Overview: api/index.md
-        - Model: api/frameworks/ultralytics/model/model.md
-      - Parameters:
-        - Overview: api/index.md
-        - Augmentation Parameters: api/frameworks/ultralytics/parameters/augmentation_parameters.md
-        - Hyper Parameters: api/frameworks/ultralytics/parameters/hyper_parameters.md
-      - Services:
-        - Overview: api/index.md
-        - Data:
-          - Overview: api/index.md
-          - Utils: api/frameworks/ultralytics/services/data/utils.md
-        - Model:
-          - Overview: api/index.md
-          - Callbacks: api/frameworks/ultralytics/services/model/callbacks.md
-          - Exporter: api/frameworks/ultralytics/services/model/exporter.md
-          - Logger:
-            - Overview: api/index.md
-            - Base: api/frameworks/ultralytics/services/model/logger/base.md
-            - Classification: api/frameworks/ultralytics/services/model/logger/classification.md
-            - Object Detection: api/frameworks/ultralytics/services/model/logger/object_detection.md
-            - Segmentation: api/frameworks/ultralytics/services/model/logger/segmentation.md
-          - Predictor:
-            - Overview: api/index.md
-            - Classification: api/frameworks/ultralytics/services/model/predictor/classification.md
-            - Object Detection: api/frameworks/ultralytics/services/model/predictor/object_detection.md
-            - Segmentation: api/frameworks/ultralytics/services/model/predictor/segmentation.md
-          - Trainer: api/frameworks/ultralytics/services/model/trainer.md
-          - Utils: api/frameworks/ultralytics/services/model/utils.md
-  - Steps:
-    - Overview: api/index.md
-    - Base:
-      - Overview: api/index.md
-      - Datalake:
-        - Overview: api/index.md
-        - Loader: api/steps/base/datalake/loader.md
-      - Dataset:
-        - Overview: api/index.md
-        - Loader: api/steps/base/dataset/loader.md
-        - Preprocessor: api/steps/base/dataset/preprocessor.md
-        - Uploader: api/steps/base/dataset/uploader.md
-        - Validator: api/steps/base/dataset/validator.md
-      - Model:
-        - Overview: api/index.md
-        - Builder: api/steps/base/model/builder.md
-        - Evaluator: api/steps/base/model/evaluator.md
-    - Ultralytics:
-      - Overview: api/index.md
-      - Dataset:
-        - Overview: api/index.md
-        - Preparator: api/steps/ultralytics/dataset/preparator.md
-      - Model:
-        - Overview: api/index.md
-        - Evaluator: api/steps/ultralytics/model/evaluator.md
-        - Exporter: api/steps/ultralytics/model/exporter.md
-        - Loader: api/steps/ultralytics/model/loader.md
-        - Trainer: api/steps/ultralytics/model/trainer.md
+  - core:
+    - contexts:
+      - common:
+        - picsellia context: api/core/contexts/common/picsellia_context.md
+      - processing:
+        - datalake:
+          - local context: api/core/contexts/processing/datalake/local_context.md
+          - picsellia context: api/core/contexts/processing/datalake/picsellia_context.md
+        - dataset:
+          - local context: api/core/contexts/processing/dataset/local_context.md
+          - picsellia context: api/core/contexts/processing/dataset/picsellia_context.md
+        - model:
+          - picsellia model processing context: api/core/contexts/processing/model/picsellia_model_processing_context.md
+      - training:
+        - local context: api/core/contexts/training/local_context.md
+        - picsellia context: api/core/contexts/training/picsellia_context.md
+    - data:
+      - datalake:
+        - datalake: api/core/data/datalake/datalake.md
+        - datalake collection: api/core/data/datalake/datalake_collection.md
+      - dataset:
+        - base dataset: api/core/data/dataset/base_dataset.md
+        - coco dataset: api/core/data/dataset/coco_dataset.md
+        - dataset collection: api/core/data/dataset/dataset_collection.md
+        - utils: api/core/data/dataset/utils.md
+        - yolo dataset: api/core/data/dataset/yolo_dataset.md
+    - models:
+      - model: api/core/models/model.md
+      - model collection: api/core/models/model_collection.md
+      - model downloader: api/core/models/model_downloader.md
+      - picsellia prediction: api/core/models/picsellia_prediction.md
+    - parameters:
+      - augmentation parameters: api/core/parameters/augmentation_parameters.md
+      - base parameters: api/core/parameters/base_parameters.md
+      - export parameters: api/core/parameters/export_parameters.md
+      - hyper parameters: api/core/parameters/hyper_parameters.md
+    - services:
+      - data:
+        - dataset:
+          - loader:
+            - training dataset collection extractor: api/core/services/data/dataset/loader/training_dataset_collection_extractor.md
+          - preprocessing:
+            - classification dataset preparator: api/core/services/data/dataset/preprocessing/classification_dataset_preparator.md
+          - uploader:
+            - utils: api/core/services/data/dataset/uploader/utils.md
+          - utils: api/core/services/data/dataset/utils.md
+          - validator:
+            - classification:
+              - coco classification dataset context validator: api/core/services/data/dataset/validator/classification/coco_classification_dataset_context_validator.md
+            - common:
+              - dataset collection validator: api/core/services/data/dataset/validator/common/dataset_collection_validator.md
+              - dataset validator: api/core/services/data/dataset/validator/common/dataset_validator.md
+              - not configured dataset validator: api/core/services/data/dataset/validator/common/not_configured_dataset_validator.md
+            - object_detection:
+              - coco object detection dataset validator: api/core/services/data/dataset/validator/object_detection/coco_object_detection_dataset_validator.md
+              - yolo object detection dataset validator: api/core/services/data/dataset/validator/object_detection/yolo_object_detection_dataset_validator.md
+            - segmentation:
+              - coco segmentation dataset validator: api/core/services/data/dataset/validator/segmentation/coco_segmentation_dataset_validator.md
+              - yolo segmentation dataset validator: api/core/services/data/dataset/validator/segmentation/yolo_segmentation_dataset_validator.md
+            - utils: api/core/services/data/dataset/validator/utils.md
+      - model:
+        - evaluator:
+          - model evaluator: api/core/services/model/evaluator/model_evaluator.md
+          - utils:
+            - coco converter: api/core/services/model/evaluator/utils/coco_converter.md
+            - coco utils: api/core/services/model/evaluator/utils/coco_utils.md
+            - compute confusion matrix: api/core/services/model/evaluator/utils/compute_confusion_matrix.md
+        - export:
+          - model exporter: api/core/services/model/export/model_exporter.md
+        - predictor:
+          - model collection predictor: api/core/services/model/predictor/model_collection_predictor.md
+          - model predictor: api/core/services/model/predictor/model_predictor.md
+        - utils: api/core/services/model/utils.md
+      - processing:
+        - dataset version creation processing: api/core/services/processing/dataset_version_creation_processing.md
+      - utils:
+        - annotations: api/core/services/utils/annotations.md
+        - dataset logging: api/core/services/utils/dataset_logging.md
+        - image file: api/core/services/utils/image_file.md
+        - local context: api/core/services/utils/local_context.md
+        - picsellia context: api/core/services/utils/picsellia_context.md
+    - step metadata: api/core/step_metadata.md
+  - decorators:
+    - pipeline decorator: api/decorators/pipeline_decorator.md
+    - step decorator: api/decorators/step_decorator.md
+    - step metadata: api/decorators/step_metadata.md
+  - frameworks:
+    - clip:
+      - model:
+        - model: api/frameworks/clip/model/model.md
+      - services:
+        - clip utils: api/frameworks/clip/services/clip_utils.md
+        - evaluator: api/frameworks/clip/services/evaluator.md
+        - predictor: api/frameworks/clip/services/predictor.md
+        - trainer: api/frameworks/clip/services/trainer.md
+    - grounding_dino:
+      - model:
+        - model: api/frameworks/grounding_dino/model/model.md
+      - services:
+        - predictor: api/frameworks/grounding_dino/services/predictor.md
+    - sam2:
+      - model:
+        - model: api/frameworks/sam2/model/model.md
+      - services:
+        - predictor: api/frameworks/sam2/services/predictor.md
+        - trainer: api/frameworks/sam2/services/trainer.md
+    - ultralytics:
+      - model:
+        - model: api/frameworks/ultralytics/model/model.md
+      - parameters:
+        - augmentation parameters: api/frameworks/ultralytics/parameters/augmentation_parameters.md
+        - hyper parameters: api/frameworks/ultralytics/parameters/hyper_parameters.md
+      - services:
+        - data:
+          - utils: api/frameworks/ultralytics/services/data/utils.md
+        - model:
+          - callbacks: api/frameworks/ultralytics/services/model/callbacks.md
+          - exporter: api/frameworks/ultralytics/services/model/exporter.md
+          - logger:
+            - base: api/frameworks/ultralytics/services/model/logger/base.md
+            - classification: api/frameworks/ultralytics/services/model/logger/classification.md
+            - object detection: api/frameworks/ultralytics/services/model/logger/object_detection.md
+            - segmentation: api/frameworks/ultralytics/services/model/logger/segmentation.md
+          - predictor:
+            - classification: api/frameworks/ultralytics/services/model/predictor/classification.md
+            - object detection: api/frameworks/ultralytics/services/model/predictor/object_detection.md
+            - segmentation: api/frameworks/ultralytics/services/model/predictor/segmentation.md
+          - trainer: api/frameworks/ultralytics/services/model/trainer.md
+          - utils: api/frameworks/ultralytics/services/model/utils.md
+  - steps:
+    - base:
+      - datalake:
+        - loader: api/steps/base/datalake/loader.md
+      - dataset:
+        - loader: api/steps/base/dataset/loader.md
+        - preprocessor: api/steps/base/dataset/preprocessor.md
+        - uploader: api/steps/base/dataset/uploader.md
+        - validator: api/steps/base/dataset/validator.md
+      - model:
+        - builder: api/steps/base/model/builder.md
+        - evaluator: api/steps/base/model/evaluator.md
+        - prediction converter: api/steps/base/model/prediction_converter.md
+    - clip:
+      - model:
+        - evaluator: api/steps/clip/model/evaluator.md
+        - loader: api/steps/clip/model/loader.md
+        - predictor: api/steps/clip/model/predictor.md
+        - trainer: api/steps/clip/model/trainer.md
+    - grounding_dino:
+      - model:
+        - loader: api/steps/grounding_dino/model/loader.md
+        - predictor: api/steps/grounding_dino/model/predictor.md
+    - sam2:
+      - model:
+        - evaluator: api/steps/sam2/model/evaluator.md
+        - predictor: api/steps/sam2/model/predictor.md
+        - trainer: api/steps/sam2/model/trainer.md
+    - ultralytics:
+      - dataset:
+        - preparator: api/steps/ultralytics/dataset/preparator.md
+      - model:
+        - evaluator: api/steps/ultralytics/model/evaluator.md
+        - exporter: api/steps/ultralytics/model/exporter.md
+        - loader: api/steps/ultralytics/model/loader.md
+        - trainer: api/steps/ultralytics/model/trainer.md
 plugins:
 - search
 - mkdocstrings:
