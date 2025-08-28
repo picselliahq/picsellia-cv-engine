@@ -15,11 +15,12 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from picsellia_cv_engine.core import CocoDataset, DatasetCollection, Model
+from picsellia_cv_engine.core import CocoDataset, DatasetCollection
 from picsellia_cv_engine.core.contexts import (
     LocalTrainingContext,
     PicselliaTrainingContext,
 )
+from picsellia_cv_engine.frameworks.clip.model.model import CLIPModel
 
 
 class ClipModelTrainer:
@@ -29,7 +30,7 @@ class ClipModelTrainer:
 
     def __init__(
         self,
-        model: Model,
+        model: CLIPModel,
         context: PicselliaTrainingContext | LocalTrainingContext,
     ):
         """
@@ -47,7 +48,7 @@ class ClipModelTrainer:
             os.path.dirname(os.path.abspath(__file__)), "clip_utils.py"
         )
 
-    def train_model(self, dataset_collection: DatasetCollection) -> Model:
+    def train_model(self, dataset_collection: DatasetCollection) -> CLIPModel:
         """
         Run the full CLIP fine-tuning process using BLIP captions.
 
