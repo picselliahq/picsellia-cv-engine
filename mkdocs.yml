@@ -213,8 +213,6 @@ nav:
         - predictor: api/steps/grounding_dino/model/predictor.md
     - sam2:
       - model:
-        - evaluator: api/steps/sam2/model/evaluator.md
-        - predictor: api/steps/sam2/model/predictor.md
         - trainer: api/steps/sam2/model/trainer.md
     - ultralytics:
       - dataset:
