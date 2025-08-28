@@ -5,7 +5,9 @@ from picsellia_cv_engine.frameworks.clip.services.trainer import ClipModelTraine
 
 
 @step()
-def train(model: CLIPModel, dataset_collection: DatasetCollection[CocoDataset]):
+def train(
+    model: CLIPModel, dataset_collection: DatasetCollection[CocoDataset]
+) -> CLIPModel:
     """
     Training step for CLIP using the Picsellia training engine.
 
