@@ -7,12 +7,6 @@
 
 Use this option if you want to use the CV Engine and Pipeline CLI without modifying the code.
 
-✅ With `poetry`
-
-```bash
-poetry add picsellia-cv-engine
-poetry add picsellia-pipelines-cli
-```
 
 ✅ With uv
 
@@ -48,13 +42,13 @@ cd picsellia-cv-engine
 2. Install dependencies
 
 ```bash
-poetry install
+uv sync
 ```
 
 3. Serve the documentation locally (optional)
 
 ```bash
-poetry run mkdocs serve -a 127.0.0.1:8080
+uv run mkdocs serve -a 127.0.0.1:8080
 ```
 
 Then open http://127.0.0.1:8080 in your browser.
