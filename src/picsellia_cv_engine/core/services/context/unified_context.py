@@ -154,7 +154,7 @@ def create_training_context_from_config(
             export_parameters_cls=export_parameters_cls,
             organization_name=config.auth.organization_name,
             host=config.auth.host,
-            experiment_id=config.experiment.id,
+            experiment_id=config.output.experiment.id,
             hyperparameters=dict(config.hyperparameters),
             augmentation_parameters=dict(config.augmentations_parameters),
             export_parameters=dict(config.export_parameters),
