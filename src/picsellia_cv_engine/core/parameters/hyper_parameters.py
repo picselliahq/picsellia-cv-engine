@@ -13,7 +13,7 @@ class HyperParameters(Parameters):
         super().__init__(log_data=log_data)
 
         self.epochs = self.extract_parameter(
-            keys=["epoch", "epochs"], expected_type=int
+            keys=["epoch", "epochs"], expected_type=int, default=10
         )
         self.batch_size = self.extract_parameter(
             keys=["batch_size", "batch"],
@@ -21,7 +21,7 @@ class HyperParameters(Parameters):
             default=8,
         )
         self.image_size = self.extract_parameter(
-            keys=["image_size", "imgsz", "img_size"], expected_type=int
+            keys=["image_size", "imgsz", "img_size"], expected_type=int, default=640
         )
         self.seed = self.extract_parameter(keys=["seed"], expected_type=int, default=0)
 
