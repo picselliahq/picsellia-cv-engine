@@ -26,6 +26,7 @@ class ModelVersion(BaseModel):
     name: str | None = None
     origin_name: str | None = None
     url: str | None = None
+    visibility: Literal["private", "public"]
 
 
 class DatasetVersion(BaseModel):
