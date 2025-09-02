@@ -15,7 +15,7 @@ class Run(BaseModel):
 
 
 class Experiment(BaseModel):
-    id: str
+    id: str | None = None
     name: str | None = None
     project_name: str | None = None
     url: str | None = None
@@ -42,6 +42,9 @@ class Datalake(BaseModel):
     url: str | None = None
 
 
+# ── Jobs ──────────────────────────────────────────────────────────────────────
+
+
 class JobTraining(BaseModel):
     type: Literal["TRAINING"]
 
@@ -58,9 +61,23 @@ class JobAutoTag(BaseModel):
     type: Literal["DATA_AUTO_TAGGING"]
 
 
-class AutoTagRunParams(BaseModel):
-    offset: int = 0
-    limit: int = 100
+# ── Shared toggle ─────────────────────────────────────────────────────────────
+
+
+class OverrideOutputsMixin(BaseModel):
+    """Shared toggle to overwrite/replace existing outputs without prompting."""
+
+    override_outputs: bool = Field(
+        default=False,
+        description=(
+            "If true, existing target outputs (e.g., experiment bindings, dataset "
+            "versions, target datalakes) will be overwritten or recreated without "
+            "confirmation prompts where applicable."
+        ),
+    )
+
+
+# ── DATASET_VERSION_CREATION ─────────────────────────────────────────────────
 
 
 class InputDatasetVersionCreation(BaseModel):
@@ -71,9 +88,37 @@ class OutputDatasetVersionCreation(BaseModel):
     dataset_version: DatasetVersion
 
 
+class DatasetVersionCreationConfig(OverrideOutputsMixin, BaseModel):
+    job: JobDSVCreate
+    auth: Auth
+    run: Run = Run()
+    input: InputDatasetVersionCreation
+    output: OutputDatasetVersionCreation
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+# ── PRE_ANNOTATION ───────────────────────────────────────────────────────────
+
+
 class InputPreAnnotation(BaseModel):
     dataset_version: DatasetVersion | None = None
     model_version: ModelVersion | None = None
+
+
+class PreAnnotationConfig(OverrideOutputsMixin, BaseModel):
+    job: JobPreAnn
+    auth: Auth
+    run: Run = Run()
+    input: InputPreAnnotation
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+# ── DATA_AUTO_TAGGING ────────────────────────────────────────────────────────
+
+
+class AutoTagRunParams(BaseModel):
+    offset: int = 0
+    limit: int = 100
 
 
 class InputDataAutoTagging(BaseModel):
@@ -85,34 +130,7 @@ class OutputDataAutoTagging(BaseModel):
     datalake: Datalake
 
 
-class TrainingConfig(BaseModel):
-    job: JobTraining
-    auth: Auth
-    run: Run = Run()
-    experiment: Experiment
-    hyperparameters: dict[str, Any] = Field(default_factory=dict)
-    augmentations_parameters: dict[str, Any] = Field(default_factory=dict)
-    export_parameters: dict[str, Any] = Field(default_factory=dict)
-
-
-class DatasetVersionCreationConfig(BaseModel):
-    job: JobDSVCreate
-    auth: Auth
-    run: Run = Run()
-    input: InputDatasetVersionCreation
-    output: OutputDatasetVersionCreation
-    parameters: dict[str, Any] = Field(default_factory=dict)
-
-
-class PreAnnotationConfig(BaseModel):
-    job: JobPreAnn
-    auth: Auth
-    run: Run = Run()
-    input: InputPreAnnotation
-    parameters: dict[str, Any] = Field(default_factory=dict)
-
-
-class DataAutoTaggingConfig(BaseModel):
+class DataAutoTaggingConfig(OverrideOutputsMixin, BaseModel):
     job: JobAutoTag
     auth: Auth
     run: Run = Run()
@@ -120,3 +138,28 @@ class DataAutoTaggingConfig(BaseModel):
     output: OutputDataAutoTagging
     run_parameters: AutoTagRunParams
     parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+# ── TRAINING (NEW input/output shape) ────────────────────────────────────────
+
+
+class InputTraining(BaseModel):
+    train_dataset_version: DatasetVersion | None = None
+    test_dataset_version: DatasetVersion | None = None
+    validation_dataset_version: DatasetVersion | None = None
+    model_version: ModelVersion | None = None
+
+
+class OutputTraining(BaseModel):
+    experiment: Experiment
+
+
+class TrainingConfig(OverrideOutputsMixin, BaseModel):
+    job: JobTraining
+    auth: Auth
+    run: Run = Run()
+    input: InputTraining = Field(default_factory=InputTraining)
+    output: OutputTraining
+    hyperparameters: dict[str, Any] = Field(default_factory=dict)
+    augmentations_parameters: dict[str, Any] = Field(default_factory=dict)
+    export_parameters: dict[str, Any] = Field(default_factory=dict)
