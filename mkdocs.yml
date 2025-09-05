@@ -96,6 +96,11 @@ nav:
       - export parameters: api/core/parameters/export_parameters.md
       - hyper parameters: api/core/parameters/hyper_parameters.md
     - services:
+      - context:
+        - config: api/core/services/context/config.md
+        - local context: api/core/services/context/local_context.md
+        - picsellia context: api/core/services/context/picsellia_context.md
+        - unified context: api/core/services/context/unified_context.md
       - data:
         - dataset:
           - loader:
@@ -138,8 +143,6 @@ nav:
         - annotations: api/core/services/utils/annotations.md
         - dataset logging: api/core/services/utils/dataset_logging.md
         - image file: api/core/services/utils/image_file.md
-        - local context: api/core/services/utils/local_context.md
-        - picsellia context: api/core/services/utils/picsellia_context.md
     - step metadata: api/core/step_metadata.md
   - decorators:
     - pipeline decorator: api/decorators/pipeline_decorator.md
