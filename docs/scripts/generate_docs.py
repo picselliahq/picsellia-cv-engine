@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import Any
 
 import yaml
@@ -139,6 +140,18 @@ def update_mkdocs_nav(generated_files):
     print(f"✅ Updated {MKDOCS_CONFIG_FILE} with new API navigation.")
 
 
+def clean_docs_dir():
+    """Remove all files and folders in DOCS_DIR except index.md."""
+    if not os.path.exists(DOCS_DIR):
+        return
+
+    for item in os.listdir(DOCS_DIR):
+        item_path = os.path.join(DOCS_DIR, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+
+
 if __name__ == "__main__":
+    clean_docs_dir()
     generated_files = generate_markdown()
     update_mkdocs_nav(generated_files)
