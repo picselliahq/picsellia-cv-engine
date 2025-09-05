@@ -1,6 +1,6 @@
 [project]
 name = "picsellia-cv-engine"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = [
     { name = "SoniaGrh", email = "sonia.garrouch@hotmail.fr" }
