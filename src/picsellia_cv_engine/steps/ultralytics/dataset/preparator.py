@@ -15,7 +15,7 @@ from picsellia_cv_engine.frameworks.ultralytics.services.data.utils import (
 
 
 @step
-def prepare_ultralytics_dataset() -> DatasetCollection:
+def prepare_ultralytics_dataset(use_id: bool = True) -> DatasetCollection:
     """
     Prepare and validate a dataset for training with the Ultralytics framework.
 
@@ -39,14 +39,14 @@ def prepare_ultralytics_dataset() -> DatasetCollection:
 
     if task_type == InferenceType.CLASSIFICATION:
         dataset_collection = load_coco_datasets_impl(
-            context=context, skip_asset_listing=False
+            context=context, use_id=use_id, skip_asset_listing=False
         )
         dataset_collection = prepare_classification_data(
             dataset_collection=dataset_collection
         )
     elif task_type in (InferenceType.OBJECT_DETECTION, InferenceType.SEGMENTATION):
         dataset_collection = load_yolo_datasets_impl(
-            context=context, skip_asset_listing=False
+            context=context, use_id=use_id, skip_asset_listing=False
         )
         dataset_collection = generate_data_yaml(dataset_collection=dataset_collection)
     else:
