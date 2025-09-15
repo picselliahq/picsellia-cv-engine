@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class Auth(BaseModel):
     organization_name: str
+    env: str | None = None
     host: str | None = None
 
 
