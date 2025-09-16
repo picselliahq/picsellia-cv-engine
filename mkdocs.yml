@@ -52,6 +52,10 @@ nav:
 - Usage Guide:
   - Overview: usage/index.md
   - How the CLI Works: usage/cli_overview.md
+  - Commands:
+      - Init: usage/commands/init.md
+      - Test: usage/commands/test.md
+      - Deloy: usage/commands/deploy.md
   - Training:
     - Ultralytics Template: usage/training/ultralytics.md
   - Processing:

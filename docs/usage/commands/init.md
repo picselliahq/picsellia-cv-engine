@@ -2,7 +2,7 @@
 
 The `init` command bootstraps a new **pipeline project** (either processing or training) with the standard folder structure, dependencies, and metadata required to run pipelines in Picsellia.
 
-📌 Usage
+## Usage
 
 ```bash
 pxl-pipeline init PIPELINE_NAME \
@@ -11,7 +11,7 @@ pxl-pipeline init PIPELINE_NAME \
   [OPTIONS]
 ```
 
-## 📌 Arguments
+### Arguments
 
 | Argument        | Description                                    | Required |
 |-----------------|------------------------------------------------|----------|
@@ -19,16 +19,16 @@ pxl-pipeline init PIPELINE_NAME \
 
 ---
 
-## ⚙️ Options
+### Options
 
-| Option           | Description                                                           | Default       |
-|------------------|-----------------------------------------------------------------------|---------------|
-| `--type`         | Pipeline type: `processing` or `training`.                            | ✅ Required   |
-| `--template`     | Template name (see [Templates](#-templates)).                         | ✅ Required   |
-| `--output-dir`   | Target directory where the pipeline will be created.                  | `.` (current) |
-| `--use-pyproject`| Generate a `pyproject.toml` for dependency management (via `uv`).     | `True`        |
+| Option           | Description                                                         | Default       |
+|------------------|---------------------------------------------------------------------|---------------|
+| `--type`         | Pipeline type: `processing` or `training`.                          | ✅ Required   |
+| `--template`     | Template name.                         | ✅ Required   |
+| `--output-dir`   | Target directory where the pipeline will be created.                | `.` (current) |
+| `--use-pyproject`| Generate a `pyproject.toml` for dependency management (via `uv`).   | `True`        |
 
-## 📂 Templates
+## Templates
 
 ### Processing
 - `dataset_version_creation`: create a new dataset version from existing images/annotations.
@@ -40,7 +40,7 @@ pxl-pipeline init PIPELINE_NAME \
 ### Training
 - `yolov8`: Train YOLOv8 models on datasets hosted in Picsellia.
 
-## 🔄 Behavior
+## Behavior
 
 ### Processing pipelines
 
@@ -76,7 +76,7 @@ framework = "ONNX"
 inference_type = "OBJECT_DETECTION"
 ```
 
-## ✅ Examples
+## Examples
 
 ### Create a dataset processing pipeline
 
@@ -99,7 +99,7 @@ pxl-pipeline init my_yolo_pipeline \
 - Picsellia environment (prod/staging/local)
 - Model version reuse/creation
 
-## 📁 Example Project Structure
+### Project Structure
 
 ```
 my_pipeline/

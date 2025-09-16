@@ -5,7 +5,7 @@ It uses the unified entrypoint `pipeline.py` with `--mode local`.
 
 ---
 
-## 📌 Usage
+## Usage
 
 ```bash
 pxl-pipeline test PIPELINE_NAME [OPTIONS]
@@ -22,7 +22,7 @@ This runs:
 python pipeline.py --mode local --config-file runs/run_config.toml
 ```
 
-## ⚙️ Options
+### Options
 
 | Option              | Description                                                                                                                                                                           | Default  |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
@@ -32,7 +32,7 @@ python pipeline.py --mode local --config-file runs/run_config.toml
 | `--env`             | Picsellia environment: `PROD`, `STAGING`, `LOCAL`.                                                                                                                                    | `PROD`   |
 
 
-## 📂 Run directories and configs
+## Run directories and configs
 
 ### At initialization
 

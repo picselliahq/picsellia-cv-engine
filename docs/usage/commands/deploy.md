@@ -17,7 +17,7 @@ pxl-pipeline deploy PIPELINE_NAME --organization ORG_NAME [--env ENV]
 pxl-pipeline deploy dataset_version_creation --organization my-org --env STAGING
 ```
 
-### ⚙️ Options
+### Options
 
 | Option            | Description                                   | Default       |
 |-------------------|-----------------------------------------------|---------------|
