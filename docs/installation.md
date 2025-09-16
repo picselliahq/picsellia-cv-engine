@@ -11,8 +11,8 @@ Use this option if you want to use the CV Engine and Pipeline CLI without modify
 ✅ With uv
 
 ```bash
-uv pip install picsellia-cv-engine
-uv pip install picsellia-pipelines-cli
+uv add picsellia-cv-engine
+uv add picsellia-pipelines-cli
 ```
 
 ✅ With pip
