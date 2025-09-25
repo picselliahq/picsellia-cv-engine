@@ -3,6 +3,9 @@ from picsellia_cv_engine.core.contexts import (
     PicselliaDatasetProcessingContext,
     PicselliaTrainingContext,
 )
+from picsellia_cv_engine.core.contexts.processing.model.picsellia_context import (
+    PicselliaModelProcessingContext,
+)
 from picsellia_cv_engine.core.parameters import (
     AugmentationParameters,
     ExportParameters,
@@ -47,6 +50,14 @@ def create_picsellia_datalake_processing_context(
         PicselliaDatalakeProcessingContext: An initialized context for remote processing pipelines.
     """
     return PicselliaDatalakeProcessingContext(
+        processing_parameters_cls=processing_parameters_cls
+    )
+
+
+def create_picsellia_model_processing_context(
+    processing_parameters_cls: type[TParameters],
+) -> PicselliaModelProcessingContext:
+    return PicselliaModelProcessingContext(
         processing_parameters_cls=processing_parameters_cls
     )
 

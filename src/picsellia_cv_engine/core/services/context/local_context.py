@@ -7,6 +7,9 @@ from picsellia_cv_engine.core.contexts import (
     LocalDatasetProcessingContext,
     LocalTrainingContext,
 )
+from picsellia_cv_engine.core.contexts.processing.model.local_context import (
+    LocalModelProcessingContext,
+)
 from picsellia_cv_engine.core.parameters import (
     AugmentationParameters,
     ExportParameters,
@@ -114,6 +117,29 @@ def create_local_datalake_processing_context(
         use_id=use_id,
         working_dir=working_dir,
     )
+
+
+def create_local_model_processing_context(
+    processing_parameters_cls: type[TParameters],
+    organization_name: str,
+    job_type: ProcessingType,
+    input_model_version_id: str,
+    processing_parameters: dict[str, Any] | None = None,
+    working_dir: str | None = None,
+    api_token: str | None = None,
+    host: str | None = None,
+) -> LocalModelProcessingContext:
+    context = LocalModelProcessingContext(
+        processing_parameters_cls=processing_parameters_cls,
+        processing_parameters=processing_parameters,
+        api_token=api_token,
+        organization_name=organization_name,
+        host=host,
+        job_type=job_type,
+        input_model_version_id=input_model_version_id,
+        working_dir=working_dir,
+    )
+    return context
 
 
 def create_local_training_context(

@@ -142,6 +142,26 @@ class DataAutoTaggingConfig(OverrideOutputsMixin, BaseModel):
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
+# ── MODEL_PROCESS ────────────────────────────────────────────────────────
+
+
+class InputModelProcess:
+    model_version: ModelVersion
+
+
+class ModelProcessParams(BaseModel):
+    model_file_name: str | None = None
+
+
+class ModelProcessConfig(OverrideOutputsMixin, BaseModel):
+    job: JobPreAnn
+    auth: Auth
+    run: Run = Run()
+    input: InputModelProcess
+    run_parameters: ModelProcessParams
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
 # ── TRAINING (NEW input/output shape) ────────────────────────────────────────
 
 
