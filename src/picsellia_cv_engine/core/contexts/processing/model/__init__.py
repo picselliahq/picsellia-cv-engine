@@ -1,3 +1,7 @@
-from .picsellia_model_processing_context import PicselliaModelProcessingContext
+from .local_context import LocalModelProcessingContext
+from .picsellia_context import PicselliaModelProcessingContext
 
-__all__ = ["PicselliaModelProcessingContext"]
+__all__ = [
+    "LocalModelProcessingContext",
+    "PicselliaModelProcessingContext",
+]
