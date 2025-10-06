@@ -145,7 +145,7 @@ class DataAutoTaggingConfig(OverrideOutputsMixin, BaseModel):
 # ── MODEL_PROCESS ────────────────────────────────────────────────────────
 
 
-class InputModelProcess:
+class InputModelProcess(BaseModel):
     model_version: ModelVersion
 
 
