@@ -25,6 +25,7 @@ def upload_full_dataset(
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
     replace_annotations: bool | None = None,
+    attempts: int = 1000,
 ) -> None:
     """
     Upload both images and annotations for a COCO dataset.
@@ -72,9 +73,12 @@ def upload_full_dataset(
             use_id=use_id,
             fail_on_asset_not_found=fail_on_asset_not_found,
             replace_annotations=replace_annotations,
+            attempts=attempts,
         )
     else:
-        upload_images(dataset=dataset, datalake=datalake, data_tag=data_tag)
+        upload_images(
+            dataset=dataset, datalake=datalake, data_tag=data_tag, attempts=attempts
+        )
 
 
 @step
@@ -82,6 +86,7 @@ def upload_dataset_images(
     dataset: CocoDataset,
     datalake: Datalake | None = None,
     data_tag: str | None = None,
+    attempts: int = 1000,
 ) -> None:
     """
     Upload only the image files from a COCO dataset.
@@ -99,7 +104,9 @@ def upload_dataset_images(
         context=context, datalake=datalake, data_tag=data_tag
     )
 
-    upload_images(dataset=dataset, datalake=datalake, data_tag=data_tag)
+    upload_images(
+        dataset=dataset, datalake=datalake, data_tag=data_tag, attempts=attempts
+    )
 
 
 @step
