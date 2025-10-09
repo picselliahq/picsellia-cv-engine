@@ -153,16 +153,11 @@ class InputModelProcess(BaseModel):
     model_version: ModelVersion
 
 
-class ModelProcessParams(BaseModel):
-    model_file_name: str | None = None
-
-
 class ModelProcessConfig(OverrideOutputsMixin, BaseModel):
     job: JobModelProcess
     auth: Auth
     run: Run = Run()
     input: InputModelProcess
-    run_parameters: ModelProcessParams
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
