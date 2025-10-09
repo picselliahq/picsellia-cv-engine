@@ -63,6 +63,10 @@ class JobAutoTag(BaseModel):
     type: Literal["DATA_AUTO_TAGGING"]
 
 
+class JobModelProcess(BaseModel):
+    type: Literal["MODEL_CONVERSION", "MODEL_COMPRESSION"]
+
+
 # ── Shared toggle ─────────────────────────────────────────────────────────────
 
 
@@ -154,7 +158,7 @@ class ModelProcessParams(BaseModel):
 
 
 class ModelProcessConfig(OverrideOutputsMixin, BaseModel):
-    job: JobPreAnn
+    job: JobModelProcess
     auth: Auth
     run: Run = Run()
     input: InputModelProcess
