@@ -1,7 +1,11 @@
 import logging
 import os
+from collections.abc import Sequence
+from uuid import UUID
 
-from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
+from picsellia.exceptions import NoDataError
+
+from picsellia_cv_engine.core import DatasetCollection
 from picsellia_cv_engine.core.contexts import (
     LocalDatasetProcessingContext,
     LocalTrainingContext,
@@ -19,284 +23,241 @@ from picsellia_cv_engine.core.services.utils.dataset_logging import log_labelmap
 
 logger = logging.getLogger(__name__)
 
+# ----------------------------- Internals / helpers -----------------------------
 
-def load_coco_datasets_impl(
+
+def _dataset_images_dir(base: str) -> str:
+    return os.path.join(base, "images")
+
+
+def _dataset_ann_dir(base: str, ann_dir_name: str) -> str:
+    return os.path.join(base, ann_dir_name)
+
+
+def _prefetch_assets_for_context(
+    context: PicselliaDatasetProcessingContext | LocalDatasetProcessingContext,
+    dataset_version,
+):
+    """
+    Return a MultiAsset for the given dataset_version:
+      - If the context exposes `asset_ids`, call `list_assets(ids=asset_ids)`.
+      - Otherwise, call `list_assets()`.
+
+    If no assets are found, log a warning and re-raise NoDataError (so callers can decide).
+    """
+    asset_ids: Sequence[str | UUID] | None = getattr(context, "asset_ids", None)
+
+    try:
+        if asset_ids:
+            # Narrow to the requested assets
+            return dataset_version.list_assets(ids=list(asset_ids))
+        # Full listing
+        return dataset_version.list_assets()
+    except NoDataError as e:
+        if asset_ids:
+            logger.warning(
+                "No assets found for requested asset_ids (n=%d). Falling back raised.",
+                len(asset_ids),
+            )
+        else:
+            logger.warning("No assets found in dataset version.")
+        raise e
+
+
+def _load_training_datasets(
+    *,
+    context: PicselliaTrainingContext | LocalTrainingContext,
+    dataset_cls: type[TBaseDataset],
+    ann_dir_name: str,
+    use_id: bool,
+) -> DatasetCollection[TBaseDataset]:
+    """
+    Loading logic for training contexts (Picsellia/Local).
+    """
+    extractor = TrainingDatasetCollectionExtractor(
+        experiment=context.experiment,
+        train_set_split_ratio=context.hyperparameters.train_set_split_ratio,
+    )
+
+    dataset_collection: DatasetCollection[TBaseDataset] = (
+        extractor.get_dataset_collection(
+            context_class=dataset_cls,
+            random_seed=context.hyperparameters.seed,
+        )
+    )
+
+    # Log labelmap
+    log_labelmap(
+        labelmap=dataset_collection["train"].labelmap,
+        experiment=context.experiment,
+        log_name="labelmap",
+    )
+
+    # Directory layout & downloads
+    dataset_collection.dataset_path = os.path.join(context.working_dir, "dataset")
+    dataset_collection.download_all(
+        images_destination_dir=_dataset_images_dir(dataset_collection.dataset_path),
+        annotations_destination_dir=_dataset_ann_dir(
+            dataset_collection.dataset_path, ann_dir_name
+        ),
+        use_id=use_id,
+        skip_asset_listing=False,  # always list for training
+    )
+    return dataset_collection
+
+
+def _load_processing_datasets(
+    *,
+    context: PicselliaDatasetProcessingContext | LocalDatasetProcessingContext,
+    dataset_cls: type[TBaseDataset],
+    ann_dir_name: str,
+    use_id: bool,
+    skip_asset_listing: bool,
+) -> DatasetCollection[TBaseDataset] | TBaseDataset:
+    """
+    Loading logic for processing contexts (Picsellia/Local).
+
+    Handles:
+      - input != output  -> DatasetCollection(input, output)
+      - input == output or output missing -> single dataset (input)
+    """
+    in_id = context.input_dataset_version_id
+    out_id = context.output_dataset_version_id
+
+    # input & output are distinct -> collection
+    if in_id and out_id and in_id != out_id:
+        # Prefetch filtered assets (MultiAsset) for input if asset_ids were provided
+        try:
+            input_assets = _prefetch_assets_for_context(
+                context, context.input_dataset_version
+            )
+        except NoDataError:
+            # Keep going: create dataset with no preloaded assets; downloads may still succeed
+            logger.warning("Proceeding without preloaded assets for input dataset.")
+            input_assets = None
+
+        input_dataset = dataset_cls(
+            name="input",
+            dataset_version=context.input_dataset_version,
+            assets=input_assets,  # MultiAsset or None
+            labelmap=None,
+        )
+        output_dataset = dataset_cls(
+            name="output",
+            dataset_version=context.output_dataset_version,
+            assets=None,  # we don't need to prefetch assets for the output DV
+            labelmap=None,
+        )
+
+        dataset_collection = DatasetCollection([input_dataset, output_dataset])
+        dataset_collection.download_all(
+            images_destination_dir=_dataset_images_dir(context.working_dir),
+            annotations_destination_dir=_dataset_ann_dir(
+                context.working_dir, ann_dir_name
+            ),
+            use_id=use_id,
+            skip_asset_listing=skip_asset_listing,
+        )
+        return dataset_collection
+
+    # otherwise: single input dataset
+    if in_id and (in_id == out_id or not out_id):
+        try:
+            assets = _prefetch_assets_for_context(
+                context, context.input_dataset_version
+            )
+        except NoDataError:
+            logger.warning(
+                "Proceeding without preloaded assets for single input dataset."
+            )
+            assets = None
+
+        dataset: TBaseDataset = dataset_cls(
+            name="input",
+            dataset_version=context.input_dataset_version,
+            assets=assets,  # MultiAsset or None
+            labelmap=None,
+        )
+        dataset.download_assets(
+            destination_dir=os.path.join(context.working_dir, "images", dataset.name),
+            use_id=use_id,
+            skip_asset_listing=skip_asset_listing,
+        )
+        dataset.download_annotations(
+            destination_dir=os.path.join(
+                context.working_dir, ann_dir_name, dataset.name
+            ),
+            use_id=use_id,
+        )
+        return dataset
+
+    raise ValueError("No datasets found in the processing context.")
+
+
+def load_datasets_impl_generic(
+    *,
     context: PicselliaTrainingContext
     | LocalTrainingContext
     | PicselliaDatasetProcessingContext
     | LocalDatasetProcessingContext,
+    dataset_cls: type[TBaseDataset],
+    ann_dir_name: str,
     use_id: bool,
     skip_asset_listing: bool,
-) -> DatasetCollection[CocoDataset] | CocoDataset:
+) -> DatasetCollection[TBaseDataset] | TBaseDataset:
     """
-    Implementation logic to load COCO datasets depending on the pipeline context type.
-
-    Handles both training and processing contexts and downloads assets and annotations accordingly.
-
-    Args:
-        context: Either a training or processing context instance.
-        use_id (bool): Whether to preserve the original asset UUIDs when naming files (instead of filenames).
-        skip_asset_listing (bool): Whether to skip asset listing before download.
-
-    Returns:
-        DatasetCollection[CocoDataset] or CocoDataset: The loaded dataset(s).
-
-    Raises:
-        ValueError: If no datasets are found or an unsupported context is provided.
+    Generic implementation shared by COCO/YOLO.
+    Clear orchestration by context type, minimal duplication.
     """
-    # Training Context Handling
+    # Training contexts
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
-        dataset_collection_extractor = TrainingDatasetCollectionExtractor(
-            experiment=context.experiment,
-            train_set_split_ratio=context.hyperparameters.train_set_split_ratio,
-        )
-
-        dataset_collection = dataset_collection_extractor.get_dataset_collection(
-            context_class=CocoDataset,
-            random_seed=context.hyperparameters.seed,
-        )
-
-        log_labelmap(
-            labelmap=dataset_collection["train"].labelmap,
-            experiment=context.experiment,
-            log_name="labelmap",
-        )
-
-        dataset_collection.dataset_path = os.path.join(context.working_dir, "dataset")
-
-        dataset_collection.download_all(
-            images_destination_dir=os.path.join(
-                dataset_collection.dataset_path, "images"
-            ),
-            annotations_destination_dir=os.path.join(
-                dataset_collection.dataset_path, "annotations"
-            ),
+        return _load_training_datasets(
+            context=context,
+            dataset_cls=dataset_cls,
+            ann_dir_name=ann_dir_name,
             use_id=use_id,
-            skip_asset_listing=False,
         )
 
-        return dataset_collection
-
-    # Processing Context Handling
-    elif isinstance(
+    # Processing contexts
+    if isinstance(
         context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
     ):
-        # If both input and output datasets are available
-        if (
-            context.input_dataset_version_id
-            and context.output_dataset_version_id
-            and not context.input_dataset_version_id
-            == context.output_dataset_version_id
-        ):
-            input_dataset = CocoDataset(
-                name="input",
-                dataset_version=context.input_dataset_version,
-                assets=context.input_dataset_version.list_assets(),
-                labelmap=None,
-            )
-            output_dataset = CocoDataset(
-                name="output",
-                dataset_version=context.output_dataset_version,
-                assets=None,
-                labelmap=None,
-            )
-            dataset_collection = DatasetCollection([input_dataset, output_dataset])
-            dataset_collection.download_all(
-                images_destination_dir=os.path.join(context.working_dir, "images"),
-                annotations_destination_dir=os.path.join(
-                    context.working_dir, "annotations"
-                ),
-                use_id=use_id,
-                skip_asset_listing=skip_asset_listing,
-            )
-            return dataset_collection
-
-        # If only input dataset is available
-        elif (
-            context.input_dataset_version_id
-            and context.input_dataset_version_id == context.output_dataset_version_id
-        ) or (
-            context.input_dataset_version_id and not context.output_dataset_version_id
-        ):
-            dataset = CocoDataset(
-                name="input",
-                dataset_version=context.input_dataset_version,
-                assets=context.input_dataset_version.list_assets(),
-                labelmap=None,
-            )
-
-            dataset.download_assets(
-                destination_dir=os.path.join(
-                    context.working_dir, "images", dataset.name
-                ),
-                use_id=use_id,
-                skip_asset_listing=skip_asset_listing,
-            )
-            dataset.download_annotations(
-                destination_dir=os.path.join(
-                    context.working_dir, "annotations", dataset.name
-                ),
-                use_id=use_id,
-            )
-
-            return dataset
-
-        else:
-            raise ValueError("No datasets found in the processing context.")
-
-    else:
-        raise ValueError(f"Unsupported context type: {type(context)}")
-
-
-def load_yolo_datasets_impl(
-    context: PicselliaTrainingContext
-    | LocalTrainingContext
-    | PicselliaDatasetProcessingContext
-    | LocalDatasetProcessingContext,
-    use_id: bool,
-    skip_asset_listing: bool,
-) -> DatasetCollection[YoloDataset] | YoloDataset:
-    """
-    Implementation logic to load YOLO datasets depending on the pipeline context type.
-
-    Handles both training and processing contexts and downloads assets and annotations accordingly.
-
-    Args:
-        context: Either a training or processing context instance.
-        use_id (bool): Whether to preserve the original asset UUIDs when naming files (instead of filenames).
-        skip_asset_listing (bool): Whether to skip asset listing before download.
-
-    Returns:
-        DatasetCollection[YoloDataset] or YoloDataset: The loaded dataset(s).
-
-    Raises:
-        ValueError: If no datasets are found or an unsupported context is provided.
-    """
-    # Training Context Handling
-    if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
-        dataset_collection_extractor = TrainingDatasetCollectionExtractor(
-            experiment=context.experiment,
-            train_set_split_ratio=context.hyperparameters.train_set_split_ratio,
-        )
-
-        dataset_collection = dataset_collection_extractor.get_dataset_collection(
-            context_class=YoloDataset,
-            random_seed=context.hyperparameters.seed,
-        )
-
-        log_labelmap(
-            labelmap=dataset_collection["train"].labelmap,
-            experiment=context.experiment,
-            log_name="labelmap",
-        )
-
-        dataset_collection.dataset_path = os.path.join(context.working_dir, "dataset")
-
-        dataset_collection.download_all(
-            images_destination_dir=os.path.join(
-                dataset_collection.dataset_path, "images"
-            ),
-            annotations_destination_dir=os.path.join(
-                dataset_collection.dataset_path, "labels"
-            ),
+        return _load_processing_datasets(
+            context=context,
+            dataset_cls=dataset_cls,
+            ann_dir_name=ann_dir_name,
             use_id=use_id,
-            skip_asset_listing=False,
+            skip_asset_listing=skip_asset_listing,
         )
 
-        return dataset_collection
+    raise ValueError(f"Unsupported context type: {type(context)}")
 
-    # Processing Context Handling
-    elif isinstance(
-        context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
-    ):
-        # If both input and output datasets are available
-        if (
-            context.input_dataset_version_id
-            and context.output_dataset_version_id
-            and not context.input_dataset_version_id
-            == context.output_dataset_version_id
-        ):
-            input_dataset = YoloDataset(
-                name="input",
-                dataset_version=context.input_dataset_version,
-                assets=context.input_dataset_version.list_assets(),
-                labelmap=None,
-            )
-            output_dataset = YoloDataset(
-                name="output",
-                dataset_version=context.output_dataset_version,
-                assets=None,
-                labelmap=None,
-            )
-            dataset_collection = DatasetCollection([input_dataset, output_dataset])
-            dataset_collection.download_all(
-                images_destination_dir=os.path.join(context.working_dir, "images"),
-                annotations_destination_dir=os.path.join(context.working_dir, "labels"),
-                use_id=use_id,
-                skip_asset_listing=skip_asset_listing,
-            )
-            return dataset_collection
 
-        # If only input dataset is available
-        elif (
-            context.input_dataset_version_id
-            and context.input_dataset_version_id == context.output_dataset_version_id
-        ) or (
-            context.input_dataset_version_id and not context.output_dataset_version_id
-        ):
-            dataset = YoloDataset(
-                name="input",
-                dataset_version=context.input_dataset_version,
-                assets=context.input_dataset_version.list_assets(),
-                labelmap=None,
-            )
-
-            dataset.download_assets(
-                destination_dir=os.path.join(
-                    context.working_dir, "images", dataset.name
-                ),
-                use_id=use_id,
-                skip_asset_listing=skip_asset_listing,
-            )
-            dataset.download_annotations(
-                destination_dir=os.path.join(
-                    context.working_dir, "labels", dataset.name
-                ),
-                use_id=use_id,
-            )
-
-            return dataset
-
-        else:
-            raise ValueError("No datasets found in the processing context.")
-
-    else:
-        raise ValueError(f"Unsupported context type: {type(context)}")
+# --------------------------------- Validation ---------------------------------
 
 
 def validate_dataset_impl(
     dataset: TBaseDataset | DatasetCollection, fix_annotation: bool = False
 ):
-    validators = {}
-
+    """
+    Validate a single dataset or each split of a DatasetCollection.
+    Logs failures per split for easier troubleshooting.
+    """
     if not isinstance(dataset, DatasetCollection):
         validator = get_dataset_validator(
             dataset=dataset, fix_annotation=fix_annotation
         )
         if validator:
             validator.validate()
-    else:
-        dataset_collection = dataset
+        return
 
-        for name, dataset in dataset_collection.datasets.items():
-            try:
-                validator = get_dataset_validator(
-                    dataset=dataset, fix_annotation=fix_annotation
-                )
-                if validator:
-                    validator.validate()
-                    validators[name] = validator
-                else:
-                    logger.info(f"Skipping validation for dataset '{name}'.")
-            except Exception as e:
-                logger.error(f"Validation failed for dataset '{name}': {str(e)}")
+    # DatasetCollection
+    for name, ds in dataset.datasets.items():
+        try:
+            validator = get_dataset_validator(dataset=ds, fix_annotation=fix_annotation)
+            if validator:
+                validator.validate()
+            else:
+                logger.info(f"Skipping validation for dataset '{name}'.")
+        except Exception as e:
+            logger.error(f"Validation failed for dataset '{name}': {str(e)}")
