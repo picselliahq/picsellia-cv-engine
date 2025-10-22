@@ -72,6 +72,8 @@ class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
         if self._model_version_id:
             self.model_version = self.get_model_version()
 
+        self.asset_ids = self.job_context.get("asset_ids")
+
         self.use_id = use_id
         self.download_annotations = download_annotations
 
