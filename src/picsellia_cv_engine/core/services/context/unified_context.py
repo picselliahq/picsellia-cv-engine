@@ -13,17 +13,20 @@ from picsellia_cv_engine.core.parameters.hyper_parameters import THyperParameter
 from picsellia_cv_engine.core.services.context.config import (
     DataAutoTaggingConfig,
     DatasetVersionCreationConfig,
+    ModelProcessConfig,
     PreAnnotationConfig,
     TrainingConfig,
 )
 from picsellia_cv_engine.core.services.context.local_context import (
     create_local_datalake_processing_context,
     create_local_dataset_processing_context,
+    create_local_model_processing_context,
     create_local_training_context,
 )
 from picsellia_cv_engine.core.services.context.picsellia_context import (
     create_picsellia_datalake_processing_context,
     create_picsellia_dataset_processing_context,
+    create_picsellia_model_processing_context,
     create_picsellia_training_context,
 )
 
@@ -32,7 +35,12 @@ Mode = Literal["local", "picsellia"]
 
 def _load_and_validate_processing_config(
     config_file: str | Path, processing_type: ProcessingType
-) -> PreAnnotationConfig | DatasetVersionCreationConfig | DataAutoTaggingConfig:
+) -> (
+    PreAnnotationConfig
+    | DatasetVersionCreationConfig
+    | DataAutoTaggingConfig
+    | ModelProcessConfig
+):
     path = Path(config_file)
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
@@ -45,6 +53,11 @@ def _load_and_validate_processing_config(
         return DatasetVersionCreationConfig(**raw)
     elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
         return DataAutoTaggingConfig(**raw)
+    elif (
+        processing_type == ProcessingType.MODEL_CONVERSION
+        or processing_type == ProcessingType.MODEL_COMPRESSION
+    ):
+        return ModelProcessConfig(**raw)
     else:
         raise RuntimeError(f"Unsupported processing type: {processing_type}")
 
@@ -77,8 +90,17 @@ def create_processing_context_from_config(
             return create_picsellia_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
             )
+        elif (
+            processing_type == ProcessingType.MODEL_CONVERSION
+            or processing_type == ProcessingType.MODEL_COMPRESSION
+        ):
+            return create_picsellia_model_processing_context(
+                processing_parameters_cls=processing_parameters_cls,
+            )
+        else:
+            raise RuntimeError(f"Unsupported processing type: {processing_type}")
 
-    elif mode == "local":
+    else:
         if config_file_path is None:
             raise ValueError("Config file path must be provided for local mode")
         config = _load_and_validate_processing_config(
@@ -124,11 +146,21 @@ def create_processing_context_from_config(
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
             )
+        elif (
+            processing_type == ProcessingType.MODEL_CONVERSION
+            or processing_type == ProcessingType.MODEL_COMPRESSION
+        ):
+            return create_local_model_processing_context(
+                processing_parameters_cls=processing_parameters_cls,
+                organization_name=config.auth.organization_name,
+                host=config.auth.host,
+                job_type=processing_type,
+                input_model_version_id=config.input.model_version.id,
+                processing_parameters=dict(config.parameters),
+                working_dir=config.run.working_dir,
+            )
         else:
             raise RuntimeError("Unsupported processing type for local context")
-
-    else:
-        raise RuntimeError("Unsupported mode for processing context creation")
 
 
 def create_training_context_from_config(
@@ -144,7 +176,7 @@ def create_training_context_from_config(
             augmentation_parameters_cls=augmentation_parameters_cls,
             export_parameters_cls=export_parameters_cls,
         )
-    elif mode == "local":
+    else:
         if config_file_path is None:
             raise ValueError("Config file path must be provided for local mode")
         config = _load_and_validate_training_config(config_file=config_file_path)
@@ -160,5 +192,3 @@ def create_training_context_from_config(
             export_parameters=dict(config.export_parameters),
             working_dir=config.run.working_dir,
         )
-    else:
-        raise (RuntimeError("Unsupported mode for training context creation"))

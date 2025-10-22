@@ -70,17 +70,25 @@ def upload_images_and_annotations(
     use_id: bool = True,
     fail_on_asset_not_found: bool = True,
     replace_annotations: bool = False,
+    attempts: int = 1000,
 ):
     """
     Upload dataset based on inference type.
 
     Supports Classification, Object Detection, and Segmentation inference types.
     """
-    upload_images(dataset, datalake, data_tag)
-    upload_annotations(dataset, use_id, fail_on_asset_not_found, replace_annotations)
+    upload_images(dataset=dataset, datalake=datalake, data_tag=data_tag)
+    upload_annotations(
+        dataset=dataset,
+        use_id=use_id,
+        fail_on_asset_not_found=fail_on_asset_not_found,
+        replace_annotations=replace_annotations,
+    )
 
 
-def upload_images(dataset: CocoDataset, datalake: Datalake, data_tag: str):
+def upload_images(
+    dataset: CocoDataset, datalake: Datalake, data_tag: str, attempts: int = 1000
+):
     """Upload images to the dataset."""
     data_tags: list[str] = [data_tag]
     data = datalake.upload_data(
@@ -90,7 +98,8 @@ def upload_images(dataset: CocoDataset, datalake: Datalake, data_tag: str):
         ],
         tags=data_tags,
     )
-    dataset.dataset_version.add_data(data=data)
+    job = dataset.dataset_version.add_data(data=data, wait=False)
+    job.wait_for_done(attempts=attempts)
 
 
 def upload_annotations(

@@ -3,12 +3,13 @@ from .dataset import (
     LocalDatasetProcessingContext,
     PicselliaDatasetProcessingContext,
 )
-from .model import PicselliaModelProcessingContext
+from .model import LocalModelProcessingContext, PicselliaModelProcessingContext
 
 __all__ = [
     "LocalDatalakeProcessingContext",
     "PicselliaDatalakeProcessingContext",
     "LocalDatasetProcessingContext",
     "PicselliaDatasetProcessingContext",
+    "LocalModelProcessingContext",
     "PicselliaModelProcessingContext",
 ]

@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class Auth(BaseModel):
     organization_name: str
+    env: str | None = None
     host: str | None = None
 
 
@@ -60,6 +61,10 @@ class JobDSVCreate(BaseModel):
 
 class JobAutoTag(BaseModel):
     type: Literal["DATA_AUTO_TAGGING"]
+
+
+class JobModelProcess(BaseModel):
+    type: Literal["MODEL_CONVERSION", "MODEL_COMPRESSION"]
 
 
 # ── Shared toggle ─────────────────────────────────────────────────────────────
@@ -138,6 +143,21 @@ class DataAutoTaggingConfig(OverrideOutputsMixin, BaseModel):
     input: InputDataAutoTagging
     output: OutputDataAutoTagging
     run_parameters: AutoTagRunParams
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+# ── MODEL_PROCESS ────────────────────────────────────────────────────────
+
+
+class InputModelProcess(BaseModel):
+    model_version: ModelVersion
+
+
+class ModelProcessConfig(OverrideOutputsMixin, BaseModel):
+    job: JobModelProcess
+    auth: Auth
+    run: Run = Run()
+    input: InputModelProcess
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 

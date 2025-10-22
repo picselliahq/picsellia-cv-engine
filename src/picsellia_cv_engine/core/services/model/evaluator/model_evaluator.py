@@ -315,7 +315,11 @@ class ModelEvaluator:
         pred_anns = coco_pred.loadAnns(coco_pred.getAnnIds())
 
         y_true, y_pred = self._extract_classification_labels(
-            gt_anns, pred_anns, training_labelmap
+            gt_anns=gt_anns,
+            pred_anns=pred_anns,
+            training_labelmap=training_labelmap,
+            coco_gt=coco_gt,
+            coco_pred=coco_pred,
         )
 
         if not y_true.size:
@@ -377,28 +381,37 @@ class ModelEvaluator:
             )
 
     def _extract_classification_labels(
-        self, gt_anns, pred_anns, training_labelmap: dict[str, str]
+        self,
+        gt_anns,
+        pred_anns,
+        training_labelmap: dict[str, str],
+        coco_gt=None,
+        coco_pred=None,
     ):
+        """
+        Map ground truth and predicted annotations into y_true / y_pred arrays
+        by matching category_id -> category_name -> training_labelmap index.
+        """
+
+        id_to_name = {cat_id: cat["name"] for cat_id, cat in coco_gt.cats.items()}
+
         label_name_to_index = {v: int(k) for k, v in training_labelmap.items()}
-        id_to_index = {}
 
-        for cat in gt_anns:  # Use COCO category names
-            if cat["name"] in label_name_to_index:
-                id_to_index[cat["id"]] = label_name_to_index[cat["name"]]
-
-        y_true = []
-        y_pred = []
+        y_true, y_pred = [], []
 
         image_to_gt = {}
         for ann in gt_anns:
-            if ann["category_id"] in id_to_index:
-                image_to_gt[ann["image_id"]] = id_to_index[ann["category_id"]]
+            cat_name = id_to_name[ann["category_id"]]
+            if cat_name in label_name_to_index:
+                image_to_gt[ann["image_id"]] = label_name_to_index[cat_name]
 
         for ann in pred_anns:
             img_id = ann["image_id"]
-            if img_id in image_to_gt and ann["category_id"] in id_to_index:
-                y_true.append(image_to_gt[img_id])
-                y_pred.append(id_to_index[ann["category_id"]])
+            if img_id in image_to_gt:
+                cat_name = id_to_name[ann["category_id"]]
+                if cat_name in label_name_to_index:
+                    y_true.append(image_to_gt[img_id])
+                    y_pred.append(label_name_to_index[cat_name])
 
         return np.array(y_true), np.array(y_pred)
 
