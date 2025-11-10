@@ -1,10 +1,9 @@
 from picsellia.types.enums import InferenceType
 
 from picsellia_cv_engine import Pipeline, step
-from picsellia_cv_engine.core import DatasetCollection
+from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
 from picsellia_cv_engine.core.services.data.dataset.utils import (
-    load_coco_datasets_impl,
-    load_yolo_datasets_impl,
+    _load_training_datasets,
     validate_dataset_impl,
 )
 from picsellia_cv_engine.frameworks.ultralytics.services.data.utils import (
@@ -38,15 +37,21 @@ def prepare_ultralytics_dataset(use_id: bool = True) -> DatasetCollection:
     task_type: InferenceType = detect_inference_type_from_experiment(context.experiment)
 
     if task_type == InferenceType.CLASSIFICATION:
-        dataset_collection = load_coco_datasets_impl(
-            context=context, use_id=use_id, skip_asset_listing=False
+        dataset_collection = _load_training_datasets(
+            context=context,
+            dataset_cls=CocoDataset,
+            ann_dir_name="annotations",
+            use_id=use_id,
         )
         dataset_collection = prepare_classification_data(
             dataset_collection=dataset_collection
         )
     elif task_type in (InferenceType.OBJECT_DETECTION, InferenceType.SEGMENTATION):
-        dataset_collection = load_yolo_datasets_impl(
-            context=context, use_id=use_id, skip_asset_listing=False
+        dataset_collection = _load_training_datasets(
+            context=context,
+            dataset_cls=YoloDataset,
+            ann_dir_name="labels",
+            use_id=use_id,
         )
         dataset_collection = generate_data_yaml(dataset_collection=dataset_collection)
     else:

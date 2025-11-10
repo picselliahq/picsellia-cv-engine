@@ -1,8 +1,7 @@
 from picsellia_cv_engine import Pipeline, step
 from picsellia_cv_engine.core import CocoDataset, DatasetCollection, YoloDataset
 from picsellia_cv_engine.core.services.data.dataset.utils import (
-    load_coco_datasets_impl,
-    load_yolo_datasets_impl,
+    load_datasets_impl_generic,
 )
 
 
@@ -43,8 +42,12 @@ def load_coco_datasets(
         - In a **Processing Context**, it loads the input and output datasets (if available) or just the input dataset.
     """
     context = Pipeline.get_active_context()
-    return load_coco_datasets_impl(
-        context=context, use_id=use_id, skip_asset_listing=skip_asset_listing
+    return load_datasets_impl_generic(
+        context=context,
+        dataset_cls=CocoDataset,
+        ann_dir_name="annotations",
+        use_id=use_id,
+        skip_asset_listing=skip_asset_listing,
     )
 
 
@@ -73,6 +76,10 @@ def load_yolo_datasets(
         ValueError: If no datasets are found or if the context type is unsupported.
     """
     context = Pipeline.get_active_context()
-    return load_yolo_datasets_impl(
-        context=context, use_id=use_id, skip_asset_listing=skip_asset_listing
+    return load_datasets_impl_generic(
+        context=context,
+        dataset_cls=YoloDataset,
+        ann_dir_name="labels",
+        use_id=use_id,
+        skip_asset_listing=skip_asset_listing,
     )

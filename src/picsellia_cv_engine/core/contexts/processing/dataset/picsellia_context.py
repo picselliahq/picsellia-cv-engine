@@ -1,7 +1,9 @@
 import os
 from typing import Any, Generic, TypeVar
+from uuid import UUID
 
 import picsellia  # type: ignore
+import requests
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.types.enums import ProcessingType
 
@@ -60,6 +62,8 @@ class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
             "output_dataset_version_id"
         )
 
+        self._payload_presigned_url = self.job_context.get("payload_presigned_url")
+
         self.input_dataset_version = self.get_dataset_version(
             self.input_dataset_version_id
         )
@@ -71,6 +75,8 @@ class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
 
         if self._model_version_id:
             self.model_version = self.get_model_version()
+
+        self.asset_ids = self.get_asset_ids()
 
         self.use_id = use_id
         self.download_annotations = download_annotations
@@ -146,3 +152,10 @@ class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
     def get_model_version(self) -> ModelVersion:
         """Fetch a model version by its ID."""
         return self.client.get_model_version_by_id(self.model_version_id)
+
+    def get_asset_ids(self) -> list[UUID] | None:
+        if self._payload_presigned_url:
+            payload = requests.get(self._payload_presigned_url).json()
+            return [UUID(asset_id) for asset_id in payload["asset_ids"]]
+        else:
+            return None
