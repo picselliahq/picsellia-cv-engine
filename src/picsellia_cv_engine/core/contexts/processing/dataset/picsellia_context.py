@@ -52,7 +52,7 @@ class PicselliaDatasetProcessingContext(
             self.input_dataset_version_id
         )
 
-        if self.target_version_name:
+        if self._target_version_name:
             self.output_dataset_version = self.create_target_dataset_version(
                 input_dataset_version=self.input_dataset_version,
                 target_version_name=self._target_version_name,
