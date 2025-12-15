@@ -46,16 +46,19 @@ class PicselliaDatasetProcessingContext(
 
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_dataset_version_id = self.inputs.get("input_dataset_version_id")
-        self._output_dataset_version_id = self.inputs.get("output_dataset_version_id")
+        self._target_version_name = self.inputs.get("target_version_name")
 
         self.input_dataset_version = self.get_dataset_version(
             self.input_dataset_version_id
         )
 
-        if self.output_dataset_version_id:
-            self.output_dataset_version = self.get_dataset_version(
-                self.output_dataset_version_id
+        if self.target_version_name:
+            self.output_dataset_version = self.create_target_dataset_version(
+                input_dataset_version=self.input_dataset_version,
+                target_version_name=self.target_version_name,
             )
+        else:
+            self.output_dataset_version = self.input_dataset_version
 
         if self._model_version_id:
             self.model_version = self.get_model_version()
@@ -77,23 +80,13 @@ class PicselliaDatasetProcessingContext(
             raise ValueError("Model version ID is required for pre-annotation jobs.")
         return self._model_version_id
 
-    @property
-    def output_dataset_version_id(self) -> str | None:
-        if not self._output_dataset_version_id:
-            if self.processing_type == ProcessingType.DATASET_VERSION_CREATION:
-                raise ValueError(
-                    "Output dataset version ID is required for dataset creation jobs."
-                )
-            self._output_dataset_version_id = self._input_dataset_version_id
-        return self._output_dataset_version_id
-
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
         base.update(
             {
                 "model_version_id": self.model_version_id,
                 "input_dataset_version_id": self.input_dataset_version_id,
-                "output_dataset_version_id": self.output_dataset_version_id,
+                "output_dataset_version_id": str(self.output_dataset_version.id),
             }
         )
         return base
@@ -109,3 +102,13 @@ class PicselliaDatasetProcessingContext(
             payload = requests.get(self.payload_presigned_url).json()
             return [UUID(asset_id) for asset_id in payload["asset_ids"]]
         return None
+
+    def create_target_dataset_version(
+        self,
+        input_dataset_version: DatasetVersion,
+        target_version_name: str,
+    ) -> DatasetVersion:
+        dataset_name = input_dataset_version.name
+        dataset = self.client.get_dataset(name=dataset_name)
+        output_dataset_version = dataset.create_version(version=target_version_name)
+        return output_dataset_version
