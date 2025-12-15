@@ -54,7 +54,7 @@ class PicselliaDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
         self.job_type = self.job.sync()["type"]
         self.job_context = self._initialize_job_context()
 
-        print(f"PIPIIII job_context: {self.job_context}")
+        print(f"PIPIIII job sync: {self.job.sync()}")
 
         self._model_version_id = self.job_context.get("model_version_id")
         self._input_dataset_version_id = self.job_context.get(
