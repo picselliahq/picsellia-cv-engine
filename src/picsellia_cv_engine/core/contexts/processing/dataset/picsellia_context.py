@@ -3,6 +3,7 @@ from uuid import UUID
 
 import requests
 from picsellia import DatasetVersion, ModelVersion
+from picsellia.exceptions import ResourceConflictError
 from picsellia.types.enums import ProcessingType
 
 from picsellia_cv_engine.core.contexts.processing.common.picsellia_context import (
@@ -42,7 +43,10 @@ class PicselliaDatasetProcessingContext(
 
     def _load_inputs(self, **kwargs: Any) -> None:
         processing_name = self.job_context["processing_name"]
-        self.processing_type = self.client.get_processing(name=processing_name).type
+        self.processing = self.client.get_processing(name=processing_name)
+        self.processing_type = self.processing.type
+
+        # TODO: check inputs
 
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_dataset_version_id = self.inputs.get("input_dataset_version_id")
@@ -53,7 +57,7 @@ class PicselliaDatasetProcessingContext(
         )
 
         if self._target_version_name:
-            self.output_dataset_version = self.create_target_dataset_version(
+            self.output_dataset_version = self.get_or_create_target_dataset_version(
                 input_dataset_version=self.input_dataset_version,
                 target_version_name=self._target_version_name,
             )
@@ -103,12 +107,15 @@ class PicselliaDatasetProcessingContext(
             return [UUID(asset_id) for asset_id in payload["asset_ids"]]
         return None
 
-    def create_target_dataset_version(
+    def get_or_create_target_dataset_version(
         self,
         input_dataset_version: DatasetVersion,
         target_version_name: str,
     ) -> DatasetVersion:
         dataset_name = input_dataset_version.name
         dataset = self.client.get_dataset(name=dataset_name)
-        output_dataset_version = dataset.create_version(version=target_version_name)
+        try:
+            output_dataset_version = dataset.create_version(version=target_version_name)
+        except ResourceConflictError:
+            output_dataset_version = dataset.get_version(version=target_version_name)
         return output_dataset_version
