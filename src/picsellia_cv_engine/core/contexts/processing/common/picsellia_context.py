@@ -45,6 +45,8 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
 
         self.job_context: dict[str, Any] = self._initialize_job_context()
 
+        print(f"job_context: {self.job_context}")
+
         self.parameters: dict[str, Any] = self.job_context.get("parameters", {}) or {}
         self.inputs: dict[str, Any] = self.job_context.get("inputs", {}) or {}
         self.payload_presigned_url: str | None = self.job_context.get(
