@@ -57,8 +57,6 @@ class LocalDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
         self.output_dataset_version_id = output_dataset_version_id
         self.model_version_id = model_version_id
 
-        print(f"PIPIIII job_context: {self.job_type}")
-
         if self.input_dataset_version_id:
             self.input_dataset_version = self.get_dataset_version(
                 self.input_dataset_version_id
