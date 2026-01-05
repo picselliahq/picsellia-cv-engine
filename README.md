@@ -97,18 +97,6 @@ pxl-pipeline deploy my_pipeline
 🔎 Want real examples?
 Explore the [pipeline usage templates](https://picselliahq.github.io/picsellia-cv-engine/usage/) for training and processing workflows.
 
-## 📘 Documentation
-
-The full documentation is available at:
-👉 https://picselliahq.github.io/picsellia-cv-engine/
-
-It includes:
-
-- Getting Started
-- CLI Usage Guide
-- API Reference
-- Pipeline templates & examples
-
 ## Local Development
 
 To contribute or explore the code:
