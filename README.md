@@ -1,23 +1,46 @@
 # Picsellia CV Engine
 
-**Picsellia CV Engine** is a modular engine for building, testing, and deploying computer vision pipelines — fully integrated with the Picsellia platform.
+**Picsellia CV Engine** is a modular Python engine used to build **training** and **processing** computer vision pipelines, fully integrated with the Picsellia platform.
 
-Whether you're transforming datasets, training models, or tracking experiments, this engine helps you organize everything into **clean, reusable components**.
+👉 **Full documentation (recommended starting point):**  
+**https://picselliahq.github.io/picsellia-cv-engine/**
 
-## 🧠 What’s a pipeline?
+It provides the building blocks to write clean, reusable pipelines:
+- a **pipeline** abstraction (`@pipeline`)
+- composable **steps** (`@step`)
+- shared **contexts**, **parameters**, and runtime helpers
+- logging and execution utilities aligned with Picsellia jobs
 
-A pipeline is a structured sequence of actions — like:
+> If you want to *generate / test / dockerize / deploy* a pipeline, you’ll typically use the **Picsellia Pipelines CLI** on top of this engine.
 
-- 🧼 Preprocessing images
-- 🧪 Training a model
-- 📊 Evaluating predictions
-- ☁️ Uploading results to Picsellia
+---
 
-Each action is implemented as a step — a small, focused function decorated with @step.
+## Table of contents
 
-You can chain together these steps inside a @pipeline, and run it locally or on Picsellia.
+### 🚀 Main workflows
+- [What’s a pipeline?](#whats-a-pipeline)
+- [Getting started](#getting-started)
+- [Create, test, and deploy a pipeline](#create-test-and-deploy-a-pipeline)
 
-## 🚀 Getting Started
+### 🧑‍💻 Contributing
+- [Local development](#local-development)
+
+---
+
+## What’s a pipeline?
+
+A pipeline is simply:
+- a Python entrypoint (`pipeline.py`)
+- calling one or more **steps** (`steps.py`)
+- configured via `run_config.toml`
+- runnable locally or on Picsellia infrastructure
+
+A **step** is a small, focused function decorated with `@step` (e.g. data preparation, training, evaluation, export).
+A **pipeline** is a function decorated with `@pipeline` that orchestrates step calls.
+
+---
+
+## Getting Started
 
 Install from PyPI:
 
@@ -35,25 +58,37 @@ pip install picsellia-cv-engine
 pip install picsellia-pipelines-cli
 ```
 
-## 🛠 Create and run your first pipeline
+## Create, test, and deploy a pipeline
 
-Use the Picsellia Pipelines CLI to scaffold and manage your pipelines.
+The recommended workflow is to use the Picsellia Pipelines CLI (it scaffolds templates and manages the lifecycle).
 
-### 1. Initialize a pipeline
+### 1. **Init — generate a pipeline projectInit — generate a pipeline project**
 
 ```bash
-pxl-pipeline init my_pipeline --type training --template ultralytics
+pxl-pipeline init my_pipeline --type training --template yolov8
 ```
-This generates everything you need: config, Dockerfile, code templates, and a virtual environment.
 
-➡️ See [pipeline lifecycle and commands](https://picselliahq.github.io/picsellia-cv-engine/usage/cli_overview/)
+This generates a ready-to-use pipeline folder (code templates, config, Dockerfile, etc.).
 
-### 2. Run it locally
+### 2. **Customize — implement steps & parameters**
+
+You’ll typically edit:
+
+- steps.py to implement your processing/training logic
+
+- pipeline.py to orchestrate steps
+
+- utils/parameters.py to define runtime parameters
+
+In most cases, if you chose the right template, you only need to adapt the existing default step.
+
+### 3. **Test — run locally**
+
 ```bash
 pxl-pipeline test my_pipeline
 ```
 
-### 3. Deploy to Picsellia
+### 4. **Deploy — publish to Picsellia**
 
 ```bash
 pxl-pipeline deploy my_pipeline
@@ -74,11 +109,11 @@ It includes:
 - API Reference
 - Pipeline templates & examples
 
-## 🧑‍💻 Local Development
+## Local Development
 
 To contribute or explore the code:
 
-### 1. Clone the repo
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/picselliahq/picsellia-cv-engine.git
@@ -91,7 +126,7 @@ cd picsellia-cv-engine
 uv sync
 ```
 
-### 3. Run the documentation
+### 3. Run the documentation locally
 
 ```bash
 uv run mkdocs serve -a 127.0.0.1:8080
