@@ -1,87 +1,185 @@
 # Dataset Version Creation Pipeline
 
 
-This guide explains how to create, customize, test, and deploy a dataset processing pipeline using `pxl-pipeline` cli with the `dataset_version_creation` template.
+his guide explains how to create, customize, test, and deploy a dataset processing pipeline using the `dataset_version_creation` template with the Picsellia Pipelines CLI.
 
-These pipelines are typically used to modify images and annotations — for example, applying augmentations or filtering classes.
+This template is designed for pipelines that produce a new dataset version by modifying images and/or COCO annotations, for example:
+
+- applying augmentations
+- filtering or remapping classes
+- resizing images
+- cleaning or restructuring annotations
 
 ---
 
-## **1. Initialize your pipeline**
+## Table of Contents
+## Table of Contents
+
+### Getting started
+- [Overview](#overview)
+- [Initialize the pipeline](#1-initialize-the-pipeline)
+- [Understand the project structure](#2-understand-the-project-structure)
+
+### Configure before running
+- [Configure execution with `run_config.toml`](#3-configure-execution-with-run_configtoml)
+  - [Run config example](#example)
+  - [Required fields](#required-fields)
+
+### Implement your logic
+- [Customize the processing logic](#4-customize-the-processing-logic)
+  - [Processing step (`steps.py`)](#stepspy)
+  - [Image & annotation logic (`utils/processing.py`)](#utilsprocessingpy)
+- [Define pipeline parameters](#5-define-pipeline-parameters)
+- [Manage dependencies](#6-manage-dependencies)
+
+### Run and validate
+- [Run locally (test)](#7-run-locally-test)
+- [Validate in Docker (smoke test)](#8-validate-in-docker-smoke-test)
+
+### Publish and execute
+- [Deploy to Picsellia](#9-deploy-to-picsellia)
+- [Launch a real job (optional)](#10-launch-a-real-job-optional)
+
+
+## Overview
+
+The `dataset_version_creation` template generates a processing pipeline that:
+
+- takes an existing dataset version as input
+
+- processes images and annotations
+
+- uploads a new dataset version to Picsellia
+
+Execution is config-first: all runs rely on a run_config.toml file, reused across local, Docker, and Picsellia executions.
+
+## **1. Initialize the pipeline**
+
+Create a new processing pipeline:
 
 ```sh
 pxl-pipeline init my_custom_pipeline --type processing --template dataset_version_creation
 ```
 
-This generates a pipeline folder with standard files. See [project structure](../cli_overview.md#project-structure) for details.
+⚠️ Naming recommendation
 
-## **2. Customize your pipeline logic**
+Use underscores (_) in pipeline names instead of dashes (-) to avoid issues with directories, imports, and Docker paths.
 
-### steps.py
+## 2. Understand the project structure
 
-The `process_images()` function defines the core logic. It takes input images and COCO annotations, applies transformations, and writes the output to new directories.
+The command above generates the following structure:
 
-```python
-from picsellia_cv_engine import step
+- `pipeline.py` — single entrypoint
 
-@step()
-def process_images(input_images_dir: str, input_coco: dict, output_images_dir: str, output_coco: dict, parameters: dict):
-    # Modify images and annotations here
-    ...
-    return output_coco
+- `steps.py` — default processing step
+
+- `utils/processing.py` — image & annotation logic
+
+- `utils/parameters.py` — pipeline parameters
+
+- `runs/run_config.toml` — run configuration template
+
+- `config.toml`, `Dockerfile`, `.dockerignore`, dependencies
+
+Example structure:
+
+```
+my_custom_pipeline/
+├── pipeline.py
+├── steps.py
+├── utils/
+│   ├── processing.py
+│   └── parameters.py
+├── config.toml
+├── Dockerfile
+├── .dockerignore
+├── runs/
+│   └── run_config.toml
+└── pyproject.toml
 ```
 
-You can split your logic into multiple steps if needed.
+## 3. Configure execution with `run_config.toml`
 
-###  Input/output contract
-Each dataset processing step uses these I/O conventions:
+The run config file defines everything required to execute the pipeline.
 
-- `input_images_dir` – Folder with input images
+📍 Location:
 
-- `input_coco` – COCO annotation dict for input dataset
-
-- `parameters` – Dict of pipeline parameters (see Working with parameters)
-
-- `output_images_dir` – Empty folder where processed images must be saved
-
-- `output_coco` – Empty dict where modified annotations must be written
-
-💡 You must fill both `output_images_dir` and `output_coco`. They are automatically uploaded by the CLI after the step completes.
-
-
-### Image processing example
-
-Save processed images like this:
-
-```python
-processed_img.save(os.path.join(output_images_dir, image_filename))
+```bash
+my_custom_pipeline/runs/run_config.toml
 ```
 
-Update output_coco with metadata:
+### Example
 
-```python
-output_coco["images"].append({
-    "id": new_id,
-    "file_name": image_filename,
-    "width": processed_img.width,
-    "height": processed_img.height,
-})
+```toml
+override_outputs = true
+
+[job]
+type = "DATASET_VERSION_CREATION"
+
+[input.dataset_version]
+id = ""
+
+[output.dataset_version]
+name = "test_my_custom_pipeline"
+
+[parameters]
+datalake = "default"
+data_tag = "processed"
 ```
 
-Be sure to also update the "annotations" field.
+### Required fields
 
-### ✔️ Checklist:
+Before running, you must set:
 
-- Process and save all images to output_images_dir
+```toml
+[input.dataset_version]
+id = "DATASET_VERSION_ID"
+```
 
-- Append image metadata to output_coco["images"]
+💡 The same run config file is used for:
 
-- Copy and adapt annotations to output_coco["annotations"]
+- local testing
+
+- Docker smoke tests
+
+- real execution on Picsellia
+
+## 4. Customize the processing logic
+
+### `steps.py`
+
+The default process step:
+
+- loads parameters from the execution context
+
+- initializes a new output dataset
+
+- calls `process_images()` from `utils/processing.py`
+
+- returns the processed dataset
+
+In most cases, you do not need to change this step.
 
 
-## 3. Define pipeline parameters
+### `utils/processing.py`
 
-Parameters can be passed through the pipeline’s context. If you need custom ones, define them in `utils/parameters.py` using a class that inherits from Parameters:
+This is where you implement:
+
+- image transformations
+
+- annotation updates
+
+- dataset filtering or remapping logic
+
+Your function must:
+
+- save processed images to `output_images_dir`
+
+- fully populate `output_coco["images"]` and `output_coco["annotations"]`
+
+## 5. Define pipeline parameters
+
+Define custom parameters in `utils/parameters.py`:
 
 ```python
 class ProcessingParameters(Parameters):
@@ -90,54 +188,81 @@ class ProcessingParameters(Parameters):
         self.blur = self.extract_parameter(["blur"], expected_type=bool, default=False)
 ```
 
-See [Working with pipeline parameters](../cli_overview.md#working-with-pipeline-parameters) for more.
+These parameters:
 
-## 4. Manage dependencies with uv
+- are read from `run_config.toml`
 
-To add Python packages, use:
+- are injected automatically at runtime
+
+- are logged and tracked by Picsellia
+
+## 6. Manage dependencies
+
+Dependencies are declared in `pyproject.toml`.
+
+Add packages with:
 
 ```bash
 uv add opencv-python --project my_custom_pipeline
 uv add git+https://github.com/picselliahq/picsellia-cv-engine.git --project my_custom_pipeline
 ```
 
-Dependencies are declared in pyproject.toml.
-You don’t need to activate or install manually — see [dependency management with uv](../cli_overview.md#dependency-management-with-uv).
+## 7. Run locally (test)
 
-## 5. Test your pipeline locally
-
-Run your test with:
+Run the pipeline locally using the run config file:
 
 ```sh
-pxl-pipeline test my_custom_pipeline
+pxl-pipeline test my_custom_pipeline \
+  --run-config-file my_custom_pipeline/runs/run_config.toml
 ```
 
-This will:
+This:
 
-- Prompt for the input dataset and output name
-- Run the pipeline via local_pipeline.py
-- Save everything under runs/runX/ (see How runs work)
+- executes the pipeline in the local virtual environment
+- uses real Picsellia objects
+- uploads the output dataset version
 
-To reuse the same folder and avoid re-downloading assets, use:
+To reuse the same folder and avoid re-downloading assets or model files, use:
 
 ```bash
-pxl-pipeline test my_custom_pipeline --reuse-dir
+pxl-pipeline test my_custom_pipeline --reuse-dir \
+  --run-config-file my_custom_pipeline/runs/run_config.toml
 ```
 
-See [how runs/ work](../cli_overview.md#how-runs-work) for more details.
+## 8. Validate in Docker (smoke test)
 
-## **6. Deploy to pipeline**
+Before deploying, validate the pipeline inside Docker:
 
-```sh
+```bash
+pxl-pipeline smoke-test my_custom_pipeline \
+  --run-config-file my_custom_pipeline/runs/run_config.toml
+```
+
+This ensures:
+
+- the Dockerfile is correct
+
+- dependencies are installed properly
+
+- runtime paths and imports work as expected
+
+## 9. Deploy to Picsellia
+
+Publish the pipeline:
+
+```bash
 pxl-pipeline deploy my_custom_pipeline
 ```
 
-This will:
+This builds and pushes the Docker image and registers the pipeline in Picsellia.
 
-- Build and push the Docker image
+## 10. Launch a real job (optional)
 
-- Register the pipeline in Picsellia under **Processings → Dataset → Private**
+Trigger a real execution on Picsellia:
 
-See [deployment lifecycle](../cli_overview.md#pipeline-lifecycle).
+```bash
+pxl-pipeline launch my_custom_pipeline \
+  --run-config-file my_custom_pipeline/runs/run_config.toml
+```
 
-Make sure you’re logged in to Docker before deploying.
+This behaves exactly like launching a job from the UI.
