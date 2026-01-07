@@ -11,4 +11,4 @@ This section includes real-world examples for both **processing** and **training
 
 ## 🏋️ Training Pipelines
 
-- [Ultralytics Training Template](training/ultralytics.md)
+- [YOLOV8 Training Template](training/yolov8.md)
