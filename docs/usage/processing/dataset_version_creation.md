@@ -16,6 +16,7 @@ This template is designed for pipelines that produce a new dataset version by mo
 
 ### Getting started
 - [Overview](#overview)
+- [Login to Picsellia](#login-to-picsellia)
 - [Initialize the pipeline](#1-initialize-the-pipeline)
 - [Understand the project structure](#2-understand-the-project-structure)
 
@@ -51,6 +52,16 @@ The `dataset_version_creation` template generates a processing pipeline that:
 - uploads a new dataset version to Picsellia
 
 Execution is config-first: all runs rely on a run_config.toml file, reused across local, Docker, and Picsellia executions.
+
+## Login to Picsellia
+
+Before running any command, make sure you are logged in:
+
+```bash
+pxl-pipeline login
+```
+
+If you are already logged in, you can skip this step.
 
 ## **1. Initialize the pipeline**
 
@@ -194,6 +205,17 @@ These parameters:
 - are injected automatically at runtime
 
 - are logged and tracked by Picsellia
+
+### Accessing parameters in your code
+
+At runtime, parameters are accessible via the active context:
+
+```python
+context = Pipeline.get_active_context()
+threshold = context.parameters.threshold
+```
+
+Parameters values come from `run_config.toml`.
 
 ## 6. Manage dependencies
 
