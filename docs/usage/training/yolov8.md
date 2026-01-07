@@ -21,6 +21,7 @@ This template is designed to train YOLOv8 models while integrating tightly with 
 ### Configure before running
 - [Configure execution with `run_config.toml`](#3-configure-execution-with-run_configtoml)
   - [Run config example](#run-config-example)
+  - [Dataset inputs (train / val / test)](#dataset-inputs-train--val--test)
   - [Required fields](#required-fields)
 
 ### Implement your logic
@@ -105,26 +106,66 @@ All executions rely on a run configuration file, generated as a template at:
 my_yolov8_training/runs/run_config.toml
 ```
 
+This file defines:
+
+- which datasets are attached to the experiment
+
+- which model version is trained
+
+- which hyperparameters are used
+
+- how the experiment is created on Picsellia
+
 ### Run config example
 
 ```toml
+override_outputs = true
+
 [job]
 type = "TRAINING"
-
-[input.experiment]
-id = ""
-
-[input.model_version]
-id = ""
-
-[input.datasets]
-train = ""
-val = ""
 
 [hyperparameters]
 epochs = 50
 batch_size = 8
 image_size = 640
+device = "cuda:0"
+
+[input.train_dataset_version]
+id = "TRAIN_DATASET_VERSION_ID"
+
+# Optional
+[input.val_dataset_version]
+id = "VAL_DATASET_VERSION_ID"
+
+# Optional
+[input.test_dataset_version]
+id = "TEST_DATASET_VERSION_ID"
+
+[input.model_version]
+id = "MODEL_VERSION_ID"
+
+[output.experiment]
+name = "yolov8_exp1"
+project_name = "my_project"
+```
+
+### Dataset inputs (train / val / test)
+
+Training datasets are attached to the output experiment using aliases:
+
+- train_dataset_version → required
+
+- val_dataset_version → optional but recommended
+
+- test_dataset_version → optional
+
+Each dataset is attached to the experiment with its corresponding role (train, val, test).
+
+At minimum, you must provide:
+
+```toml
+[input.train_dataset_version]
+id = "TRAIN_DATASET_VERSION_ID"
 ```
 
 ### Required fields
@@ -132,16 +173,18 @@ image_size = 640
 Before running, you must set:
 
 ```toml
-[input.experiment]
-id = "EXPERIMENT_ID"
+[input.train_dataset_version]
+id = "TRAIN_DATASET_VERSION_ID"
 
 [input.model_version]
 id = "MODEL_VERSION_ID"
 
-[input.datasets]
-train = "TRAIN_DATASET_VERSION_ID"
-val = "VAL_DATASET_VERSION_ID"
+[output.experiment]
+name = "experiment_name"
+project_name = "project_name"
 ```
+
+Hyperparameters are optional and default to the values defined in utils/parameters.py.
 
 💡 The same run config file is reused for:
 
