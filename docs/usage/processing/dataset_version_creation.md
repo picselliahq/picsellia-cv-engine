@@ -13,7 +13,6 @@ This template is designed for pipelines that produce a new dataset version by mo
 ---
 
 ## Table of Contents
-## Table of Contents
 
 ### Getting started
 - [Overview](#overview)
