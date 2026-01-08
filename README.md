@@ -27,6 +27,30 @@ It provides the building blocks to write clean, reusable pipelines:
 
 ---
 
+## 🔗 Picsellia CV ecosystem
+
+This repository is part of the Picsellia Computer Vision ecosystem.
+Each component has a clear responsibility:
+
+- **Picsellia CV Engine** (this repo)
+
+    → The core Python engine used to build training and processing pipelines
+    (pipeline abstraction, steps, contexts, logging, execution)
+
+
+- **Picsellia CV Pipelines**
+
+    → A collection of ready-to-use pipeline implementations built on top of the engine
+    
+    👉 https://github.com/picselliahq/picsellia-cv-pipelines
+
+
+- **Picsellia Pipelines CLI**
+
+    → The developer-facing CLI to generate, test, dockerize and deploy pipelines
+    
+    👉 https://github.com/picselliahq/picsellia-pipelines-cli
+
 ## What’s a pipeline?
 
 A pipeline is simply:
