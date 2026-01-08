@@ -120,3 +120,7 @@ uv sync
 uv run mkdocs serve -a 127.0.0.1:8080
 ```
 Then open http://127.0.0.1:8080 in your browser.
+
+--------------------------------
+
+Made with ❤️ by the Picsellia team.
