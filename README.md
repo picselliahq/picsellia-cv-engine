@@ -62,7 +62,7 @@ pip install picsellia-pipelines-cli
 
 The recommended workflow is to use the Picsellia Pipelines CLI (it scaffolds templates and manages the lifecycle).
 
-### 1. **Init — generate a pipeline projectInit — generate a pipeline project**
+### 1. **Init — generate a pipeline project**
 
 ```bash
 pxl-pipeline init my_pipeline --type training --template yolov8
