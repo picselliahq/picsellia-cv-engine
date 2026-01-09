@@ -17,13 +17,21 @@ It provides the building blocks to write clean, reusable pipelines:
 
 ## Table of contents
 
-### 🚀 Main workflows
+### Main workflows
 - [What’s a pipeline?](#whats-a-pipeline)
 - [Getting started](#getting-started)
 - [Create, test, and deploy a pipeline](#create-test-and-deploy-a-pipeline)
 
-### 🧑‍💻 Contributing
+### Ecosystem
+- [Picsellia CV ecosystem](#-picsellia-cv-ecosystem)
+
+### Contributing
 - [Local development](#local-development)
+- [Documentation](#documentation)
+  - [Where to edit documentation](#where-to-edit-documentation)
+  - [Regenerating the documentation](#regenerating-the-documentation)
+  - [Publishing documentation](#publishing-github-pages)
+- [Releasing the package (PyPI)](#releasing-the-package-pypi)
 
 ---
 
@@ -98,11 +106,11 @@ This generates a ready-to-use pipeline folder (code templates, config, Dockerfil
 
 You’ll typically edit:
 
-- steps.py to implement your processing/training logic
+- `steps.py` to implement your processing/training logic
 
-- pipeline.py to orchestrate steps
+- `pipeline.py` to orchestrate steps
 
-- utils/parameters.py to define runtime parameters
+- `utils/parameters.py` to define runtime parameters
 
 In most cases, if you chose the right template, you only need to adapt the existing default step.
 
@@ -144,6 +152,83 @@ uv sync
 uv run mkdocs serve -a 127.0.0.1:8080
 ```
 Then open http://127.0.0.1:8080 in your browser.
+
+## Documentation
+
+The documentation is built with MkDocs and published on GitHub Pages.
+
+### Where to edit documentation
+
+There are two kinds of docs in this repository:
+
+- **API Reference (auto-generated from docstrings)**
+
+  Generated Markdown lives under `docs/api/` (do not edit these files manually).
+ 
+
+- **Editorial / Usage docs (hand-written)**
+
+  You can edit or add pages under:
+
+  - `docs/usage/`
+  - `docs/index.md`
+  - `docs/installation.md`
+  - and more generally any `.md` file under `docs/`
+
+### Regenerating the documentation
+
+Whenever you:
+
+- add or modify files under `docs/` (including `docs/usage/`)
+- add or modify Python code / docstrings that should appear in the API reference
+
+you must regenerate the documentation from the repository root:
+
+```bash
+python docs/scripts/generate_docs.py
+```
+
+Then you can serve the docs locally:
+
+```bash
+uv run mkdocs serve -a 127.0.0.1:8080
+```
+
+Open http://127.0.0.1:8080 -> in your browser.
+
+### Publishing (GitHub Pages)
+
+Documentation is automatically deployed to GitHub Pages on every push to `main`.
+
+CI workflow: **Deploy MkDocs to GitHub Pages**
+
+- runs `docs/scripts/generate_docs.py `
+- deploys with `mkdocs gh-deploy`
+
+So once your changes are merged into `main`, the website updates automatically.
+
+### Releasing the package (PyPI)
+
+Releases are published to PyPI via CI when a version tag is pushed.
+
+CI workflow: **Publish to PyPI**
+
+- triggers on tags matching `v*.*.*` (e.g. `v0.1.0`)
+- builds the package with `uv build` 
+- publishes with `uv publish` using the `PYPI_TOKEN` secret
+
+### Publish a new version
+
+1. Update the version (following the project’s versioning rules).
+
+2. Create and push a tag:
+
+```bash
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+This will trigger the PyPI publishing workflow automatically.
 
 --------------------------------
 
