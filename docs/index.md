@@ -74,12 +74,12 @@ Start here if you want to reuse existing logic or add new capabilities.
 
 ### I want to contribute to the engine
 
-Start here if you want to modify the engine or its documentation.
+Start here if you want to modify the engine or its documentation
 
-- [Local development & contribution guide](../README.md#local-development)  
+- [Local development & contribution guide](https://github.com/picselliahq/picsellia-cv-engine#local-development)  
   Set up the repository and understand the contribution workflow.
 
-- [Documentation workflow](../README.md#documentation)  
+- [Documentation workflow](https://github.com/picselliahq/picsellia-cv-engine#documentation)  
   How API docs and usage docs are generated and published.
 
 ---
@@ -118,13 +118,12 @@ Pipelines are composed by chaining steps together, allowing complex workflows to
 
 ## 👋 New to Picsellia?
 
-- Create a Picsellia account  
-  https://app.picsellia.com/signup
+- Create a Picsellia account: [Sign up here](https://app.picsellia.com/signup)
 
 - Explore the broader ecosystem:
 
   - Picsellia Pipelines CLI – pipeline lifecycle tooling  
-    https://github.com/picselliahq/picsellia-pipelines-cli
+    [Repository link](https://github.com/picselliahq/picsellia-pipelines-cli)
 
   - Picsellia CV Pipelines – ready-to-use reference pipelines  
-    https://github.com/picselliahq/picsellia-cv-pipelines
+    [Repository link](https://github.com/picselliahq/picsellia-cv-pipelines)
