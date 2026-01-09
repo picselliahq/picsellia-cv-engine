@@ -228,7 +228,7 @@ Advanced use cases (enums, optional types, dynamic validation) are documented in
 
 For template-specific usage, see:
 
--  [Training - Ultralytics](training/ultralytics.md)
+-  [Training - Ultralytics](training/yolov8.md)
 
 - [Processing - Pre-annotation](processing/pre_annotation.md)
 
