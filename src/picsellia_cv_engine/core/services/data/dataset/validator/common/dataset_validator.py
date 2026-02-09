@@ -19,7 +19,7 @@ class DatasetValidator(Generic[TBaseDataset]):
         dataset (Dataset): The dataset to validate.
     """
 
-    VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
+    VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".tif", ".tiff" )
 
     def __init__(self, dataset: TBaseDataset, fix_annotation: bool = False):
         """
