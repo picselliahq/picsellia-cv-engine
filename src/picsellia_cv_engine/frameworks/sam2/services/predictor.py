@@ -9,6 +9,8 @@ from picsellia_cv_engine.core.services.utils.annotations import mask_to_polygons
 
 
 class SAM2ModelPredictor:
+    VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".tif", ".tiff")
+
     def __init__(self, predictor: SAM2ImagePredictor):
         self.predictor = predictor
 
@@ -24,7 +26,7 @@ class SAM2ModelPredictor:
         """
         images = []
         for f in os.listdir(dataset.images_dir):
-            if f.lower().endswith((".jpg", ".jpeg", ".png")):
+            if f.lower().endswith(self.VALID_IMAGE_EXTENSIONS):
                 image_path = os.path.join(dataset.images_dir, f)
                 img = Image.open(image_path).convert("RGB")
                 img_np = np.array(img)
