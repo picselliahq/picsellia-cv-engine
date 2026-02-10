@@ -98,8 +98,15 @@ class PicselliaContext(ABC):
             str: The formatted string with color and suffix.
         """
         suffix = " (default)" if key in defaulted_keys else ""
-        color_code = Colors.YELLOW if suffix else Colors.CYAN
-        return f"{color_code}{value}{Colors.ENDC}{suffix}"
+        if isinstance(value, bool):
+            color = Colors.GREEN if value else Colors.RED
+            return f"{color}{value}{Colors.ENDC}{suffix}"
+        elif isinstance(value, (int | float)):
+            return f"{Colors.CYAN}{value}{Colors.ENDC}{suffix}"
+        elif isinstance(value, str):
+            return f"{Colors.YELLOW}{value}{Colors.ENDC}{suffix}"
+        else:
+            return f"{value}{suffix}"
 
     def _process_parameters(self, parameters_dict: dict, defaulted_keys: set) -> dict:
         """

@@ -220,6 +220,7 @@ class Pipeline:
             tabular_data=data,
             headers=headers,
             tablefmt="github",
+            disable_numparse=True,
         )
 
     def _configure_logging(self) -> None:
