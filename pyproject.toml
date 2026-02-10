@@ -1,9 +1,9 @@
 [project]
 name = "picsellia-cv-engine"
-version = "0.5.2"
+version = "0.5.3"
 description = ""
 authors = [
-    { name = "SoniaGrh", email = "sonia.garrouch@hotmail.fr" }
+    { name = "SoniaGrh", email = "sonia.garrouch@picsellia.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
