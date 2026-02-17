@@ -80,6 +80,7 @@ class LocalDatasetProcessingContext(PicselliaContext, Generic[TParameters]):
         )
         self.use_id = use_id
         self.download_annotations = download_annotations
+        self.asset_ids = None
 
     @property
     def working_dir(self) -> str:
