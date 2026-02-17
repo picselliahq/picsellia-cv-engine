@@ -155,6 +155,7 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         self.offset = offset
         self.limit = limit
 
+        self.data_ids = None
         if self.limit is not None and self.offset is not None:
             self.data_ids = self.get_data_ids(
                 datalake=self.input_datalake, offset=self.offset, limit=self.limit
