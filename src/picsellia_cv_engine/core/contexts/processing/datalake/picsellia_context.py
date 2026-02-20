@@ -48,7 +48,7 @@ class PicselliaDatalakeProcessingContext(
         base = super().to_dict()
         base.update(
             {
-                "model_version_id": self.model_version_id,
+                "model_version_id": self._model_version_id,
                 "input_datalake_id": self._input_datalake_id,
                 "output_datalake_id": self._output_datalake_id,
             }
@@ -59,7 +59,7 @@ class PicselliaDatalakeProcessingContext(
         return self.client.get_datalake(id=datalake_id)
 
     def get_model_version(self, model_version_id: str) -> ModelVersion:
-        return self.client.get_model_version_by_id(self.model_version_id)
+        return self.client.get_model_version_by_id(self._model_version_id)
 
     def get_data_ids(self) -> list[UUID]:
         """
