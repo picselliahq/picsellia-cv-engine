@@ -14,3 +14,6 @@ class StreamToLogger:
     def flush(self):
         self.original_stream.flush()
         self.log.flush()
+
+    def isatty(self):
+        return bool(getattr(self.original_stream, "isatty", lambda: False)())
