@@ -132,4 +132,7 @@ class ClassificationBaseDatasetPreparator:
         os.makedirs(category_dir, exist_ok=True)
         src_image_path = os.path.join(self.dataset.images_dir, image["file_name"])
         dest_image_path = os.path.join(category_dir, image["file_name"])
-        shutil.move(src_image_path, dest_image_path)
+        try:
+            shutil.move(src_image_path, dest_image_path)
+        except FileNotFoundError:
+            print(f"Source image file not found: {src_image_path}")
