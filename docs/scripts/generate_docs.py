@@ -20,6 +20,7 @@ EXCLUDE_FILES = [
 ]
 
 DOCS_DIR = "docs/api"
+USAGE_DIR = "docs/usage"
 MKDOCS_CONFIG_FILE = "mkdocs.yml"
 
 # Template for Markdown doc pages
@@ -72,7 +73,7 @@ def generate_markdown():
                     module_path = module_path.replace("src.", "")
                     module_name = module_path.replace("picsellia_cv_engine.", "")
 
-                    title = module_name  # Keep full dotted path as lowercase title
+                    title = module_name
 
                     relative_path = (
                         root.replace(source_dir, "").strip(os.sep).replace(os.sep, "/")
@@ -80,9 +81,7 @@ def generate_markdown():
                     output_dir = os.path.join(DOCS_DIR, relative_path)
                     os.makedirs(output_dir, exist_ok=True)
 
-                    md_filename = os.path.join(
-                        output_dir, f"{file.replace('.py', '.md')}"
-                    )
+                    md_filename = os.path.join(output_dir, f"{file.replace('.py', '.md')}")
                     md_content = MKDOCS_TEMPLATE.format(title=title, module=module_path)
 
                     with open(md_filename, "w") as md_file:
@@ -94,6 +93,67 @@ def generate_markdown():
     return generated_files
 
 
+def _display_name_from_filename(filename: str) -> str:
+    name = filename.replace(".md", "").replace("_", " ").replace("-", " ").strip()
+    if name.lower() == "index":
+        return "Overview"
+    return " ".join(w.capitalize() for w in name.split())
+
+
+def _sorted_md_files(files: list[str]) -> list[str]:
+    """Sort md files with index.md first, then alphabetical."""
+    md = [f for f in files if f.endswith(".md")]
+    md.sort(key=lambda f: (0 if f == "index.md" else 1, f))
+    return md
+
+
+def generate_usage_nav() -> dict[str, list]:
+    """
+    Auto-generate the 'Usage Guide' navigation from docs/usage.
+
+    Rules:
+    - index.md becomes "Overview"
+    - index.md appears first in a folder
+    - other pages sorted alphabetically
+    - directories become nested sections
+    """
+    if not os.path.isdir(USAGE_DIR):
+        return {"Usage Guide": []}
+
+    structure: dict[str, Any] = {}
+
+    for root, dirs, files in os.walk(USAGE_DIR):
+        # ignore hidden dirs
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+
+        rel_dir = os.path.relpath(root, "docs").replace("\\", "/")  # e.g. "usage/commands"
+        rel_from_usage = os.path.relpath(root, USAGE_DIR).replace("\\", "/")  # e.g. "commands" or "."
+        rel_from_usage = "" if rel_from_usage == "." else rel_from_usage
+
+        target = structure
+        if rel_from_usage:
+            for part in rel_from_usage.split("/"):
+                target = target.setdefault(_display_name_from_filename(part), {})
+
+        for f in _sorted_md_files(files):
+            # ignore hidden/partials
+            if f.startswith(".") or f.startswith("_"):
+                continue
+            display = _display_name_from_filename(f)
+            target[display] = f"{rel_dir}/{f}"  # path relative to docs/
+
+    def build_nav(struct: dict) -> list:
+        nav = []
+        for key, value in sorted(struct.items(), key=lambda kv: kv[0].lower()):
+            if isinstance(value, dict):
+                nav.append({key: build_nav(value)})
+            else:
+                nav.append({key: value})
+        return nav
+
+    return {"Usage Guide": build_nav(structure)}
+
+
 def update_mkdocs_nav(generated_files):
     if not os.path.exists(MKDOCS_CONFIG_FILE):
         print(f"❌ Error: {MKDOCS_CONFIG_FILE} not found!")
@@ -102,13 +162,27 @@ def update_mkdocs_nav(generated_files):
     with open(MKDOCS_CONFIG_FILE) as f:
         config = yaml.safe_load(f)
 
+    nav = config.get("nav", [])
+
     # Remove previous API entries
-    config["nav"] = [
+    nav = [
         item
-        for item in config["nav"]
+        for item in nav
         if not isinstance(item, dict) or "API Reference" not in item
     ]
 
+    # Remove previous Usage Guide entries (so it's fully regenerated)
+    nav = [
+        item
+        for item in nav
+        if not isinstance(item, dict) or "Usage Guide" not in item
+    ]
+
+    # Re-inject Usage Guide (auto)
+    usage_section = generate_usage_nav()
+    nav.append(usage_section)
+
+    # Re-inject API Reference (auto)
     api_section: dict[str, list] = {"API Reference": [{"Overview": "api/index.md"}]}
     structure: dict[str, Any] = {}
 
@@ -117,27 +191,29 @@ def update_mkdocs_nav(generated_files):
         target = structure
 
         for section in sections:
-            target = target.setdefault(section, {})  # Keep lowercase
+            target = target.setdefault(section, {})
 
         display_name = file.replace(".md", "").replace("_", " ")
         target[display_name] = f"api/{path}/{file}" if path else f"api/{file}"
 
     def build_nav(struct: dict) -> list:
-        nav = []
+        out = []
         for key, value in sorted(struct.items()):
             if isinstance(value, dict):
-                nav.append({key: build_nav(value)})
+                out.append({key: build_nav(value)})
             else:
-                nav.append({key: value})
-        return nav
+                out.append({key: value})
+        return out
 
     api_section["API Reference"].extend(build_nav(structure))
-    config["nav"].append(api_section)
+    nav.append(api_section)
+
+    config["nav"] = nav
 
     with open(MKDOCS_CONFIG_FILE, "w") as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
 
-    print(f"✅ Updated {MKDOCS_CONFIG_FILE} with new API navigation.")
+    print("✅ Updated mkdocs.yml with new Usage Guide + API Reference navigation.")
 
 
 def clean_docs_dir():

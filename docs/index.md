@@ -1,37 +1,129 @@
-# 📌 Welcome to the Picsellia CV Engine Docs
+# Picsellia CV Engine Documentation
 
-**Picsellia CV Engine** is a modular toolkit for building, testing, and deploying computer vision pipelines — all fully integrated with [Picsellia](https://picsellia.com). Whether you're processing datasets, training models, or deploying experiments, this engine helps you structure everything in a clean, reusable way.
+Welcome to the Picsellia CV Engine documentation.
+
+This engine is the core execution layer used to build training and processing computer vision pipelines on top of the Picsellia platform.
+
+It provides:
+
+- a pipeline abstraction (`@pipeline`)
+
+- composable steps (`@step`)
+
+- shared execution contexts
+
+- reusable dataset, model, and framework components
+
+This documentation helps you understand how pipelines are built, reuse existing components, and extend the engine when needed.
+
+## Where should I start?
+
+Choose the path that best matches what you want to do.
+
+---
+
+### I want to run or build a pipeline
+
+Start here if your goal is to create, customize, or run pipelines.
 
 
-## 🧠 What’s a pipeline?
+- [Installation](installation.md)  
+  Install the engine and the `pxl-pipeline` CLI.
 
-A **pipeline** is a sequence of steps that defines how data flows — from raw inputs to final results.
+- [Pipeline usage examples](usage/index.md)  
+  Real-world training and processing pipelines you can reuse or adapt.
 
-In **Picsellia CV Engine**, pipelines are used for both:
+- [CLI-based workflow](usage/cli_overview.md)  
+  Understand how pipelines are generated, tested, and deployed.
 
-- **Training pipelines**:
+Understand how pipelines are generated, tested, and deployed.
 
-    Load training datasets, configure a model, run training, log results and export weights.
+---
 
-- **Processing pipelines**:
+### I want to understand how pipelines work internally
 
-    Clean or filter datasets, apply data augmentation, run inference for pre-annotation, or convert formats.
+Start here if you want to understand the engine concepts or debug pipeline behavior.
 
-Each unit of work is a step — a standalone function decorated with @step. You can reuse, extend, or combine steps freely depending on your needs.
-## ✨ Key features
-- **Composable Steps** – Use or customize ready-made steps for common operations (loading data, training, etc.)
-- **Training Pipelines** – Structure model training (e.g. Ultralytics YOLO) with built-in logic
-- **Processing Pipelines** – Clean, transform, or validate datasets before use
-- **Framework Extensions** – Support custom training libraries via a pluggable architecture
-- **CLI Automation** – Use `pxl-pipeline` cli to scaffold, test, and deploy pipelines locally or on Picsellia
+- [What’s a pipeline?](usage/index.md)  
+  High-level explanation of pipelines, steps, and execution flow.
 
-## 🚀 Get started
-- 📦 [Installation Guide](installation.md) – Set up the engine and CLI
-- 🛠 [Usage Guide](usage/index.md) – Build your first processing or training pipeline
-- 📖 [API Reference](api/index.md) – Explore contexts, decorators, steps, and framework integrations
+- [Execution contexts](api/core/contexts/common/picsellia_context.md)  
+  How configuration, datasets, and metadata are injected into pipelines.
+
+- [Base dataset loading steps](api/steps/base/dataset/loader.md)  
+  How datasets are loaded and prepared inside pipelines.
+
+How datasets are loaded and prepared inside pipelines.
+
+---
+
+### I want to reuse or extend engine components
+
+Start here if you want to reuse existing logic or add new capabilities.
+
+- [API Reference](api/index.md)  
+  Full reference for contexts, decorators, steps, services, and frameworks.
+
+- [Base steps](api/index.md#base-steps)  
+  Reusable dataset, model, and datalake steps.
+
+- [Framework-specific extensions](api/index.md#framework-specific-extensions)  
+  Ultralytics and other framework integrations.
+
+---
+
+### I want to contribute to the engine
+
+Start here if you want to modify the engine or its documentation
+
+- [Local development & contribution guide](https://github.com/picselliahq/picsellia-cv-engine#local-development)  
+  Set up the repository and understand the contribution workflow.
+
+- [Documentation workflow](https://github.com/picselliahq/picsellia-cv-engine#documentation)  
+  How API docs and usage docs are generated and published.
+
+---
+
+## Core concepts at a glance
+
+- **Pipeline**
+
+  A Python function decorated with @pipeline that defines an execution flow.
+
+- **Step**
+
+  A focused unit of work decorated with @step (dataset loading, training, evaluation, etc.).
+
+- **Context**
+
+  A shared object injected into the pipeline, carrying configuration, datasets, models, and metadata.
+
+Pipelines are composed by chaining steps together, allowing complex workflows to remain modular, readable, and reusable.
+
+---
+
+## 🔗 Related documentation
+
+- [Pipeline usage examples](usage/index.md)  
+  End-to-end training and processing workflows.
+
+- [API reference](api/index.md)  
+  Detailed documentation for all engine components.
+
+- [Picsellia platform documentation](https://documentation.picsellia.com/docs/welcome)  
+  Learn more about experiments, datasets, and models in Picsellia.
+
+---
+
 
 ## 👋 New to Picsellia?
 
-- Learn more about the [Picsellia platform](https://app.picsellia.com/signup)
-- Docs for the core [Picsellia SDK](https://documentation.picsellia.com/docs/welcome)
-- Reach out for support or contribution ideas!
+- Create a Picsellia account: [Sign up here](https://app.picsellia.com/signup)
+
+- Explore the broader ecosystem:
+
+  - Picsellia Pipelines CLI – pipeline lifecycle tooling  
+    [Repository link](https://github.com/picselliahq/picsellia-pipelines-cli)
+
+  - Picsellia CV Pipelines – ready-to-use reference pipelines  
+    [Repository link](https://github.com/picselliahq/picsellia-cv-pipelines)

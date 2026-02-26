@@ -50,17 +50,17 @@ nav:
 - Home: index.md
 - Installation: installation.md
 - Usage Guide:
-  - Overview: usage/index.md
-  - How the CLI Works: usage/cli_overview.md
+  - Cli Overview: usage/cli_overview.md
   - Commands:
-      - Init: usage/commands/init.md
-      - Test: usage/commands/test.md
-      - Deloy: usage/commands/deploy.md
-  - Training:
-    - Ultralytics Template: usage/training/ultralytics.md
+    - Deploy: usage/commands/deploy.md
+    - Init: usage/commands/init.md
+    - Test: usage/commands/test.md
+  - Overview: usage/index.md
   - Processing:
-    - Dataset Version Creation Template: usage/processing/dataset_version_creation.md
-    - Pre Annotation Template: usage/processing/pre_annotation.md
+    - Dataset Version Creation: usage/processing/dataset_version_creation.md
+    - Pre Annotation: usage/processing/pre_annotation.md
+  - Training:
+    - Yolov8: usage/training/yolov8.md
 - API Reference:
   - Overview: api/index.md
   - core:
@@ -75,7 +75,8 @@ nav:
           - local context: api/core/contexts/processing/dataset/local_context.md
           - picsellia context: api/core/contexts/processing/dataset/picsellia_context.md
         - model:
-          - picsellia model processing context: api/core/contexts/processing/model/picsellia_model_processing_context.md
+          - local context: api/core/contexts/processing/model/local_context.md
+          - picsellia context: api/core/contexts/processing/model/picsellia_context.md
       - training:
         - local context: api/core/contexts/training/local_context.md
         - picsellia context: api/core/contexts/training/picsellia_context.md
