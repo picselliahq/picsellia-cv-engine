@@ -165,7 +165,6 @@ class Sam2Trainer:
         """
         if os.path.exists(checkpoint_path):
             self.model.save_artifact_to_experiment(
-                experiment=self.context.experiment,
                 artifact_name="model-latest",
                 artifact_path=checkpoint_path,
             )

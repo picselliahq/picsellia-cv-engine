@@ -56,6 +56,7 @@ def build_model_impl(
         model = model_cls(
             name=context.experiment.name,
             experiment=context.experiment,
+            model_version=context.experiment.get_base_model_version(),
             pretrained_weights_name=pretrained_weights_name,
             trained_weights_name=trained_weights_name,
             config_name=config_name,
