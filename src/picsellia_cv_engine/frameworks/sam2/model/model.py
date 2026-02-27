@@ -1,7 +1,7 @@
 from typing import Any
 
 import numpy as np
-from picsellia import Label, ModelVersion
+from picsellia import Experiment, Label, ModelVersion
 from PIL.Image import Image
 from sam2.build_sam import build_sam2
 from sam2.modeling.sam2_base import SAM2Base
@@ -24,6 +24,7 @@ class SAM2Model(Model):
         self,
         name: str,
         model_version: ModelVersion | None = None,
+        experiment: Experiment | None = None,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
         config_name: str | None = None,
@@ -45,6 +46,7 @@ class SAM2Model(Model):
         super().__init__(
             name=name,
             model_version=model_version,
+            experiment=experiment,
             pretrained_weights_name=pretrained_weights_name,
             trained_weights_name=trained_weights_name,
             config_name=config_name,

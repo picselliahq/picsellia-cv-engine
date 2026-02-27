@@ -65,7 +65,6 @@ def train_ultralytics_model(
             f"Trained weights not found at {model.trained_weights_path}"
         )
     model.save_artifact_to_experiment(
-        experiment=context.experiment,
         artifact_name="best-model",
         artifact_path=model.trained_weights_path,
     )

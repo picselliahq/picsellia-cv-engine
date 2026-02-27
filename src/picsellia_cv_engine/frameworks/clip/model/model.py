@@ -1,7 +1,7 @@
 from typing import Any
 
 import torch
-from picsellia import Label, ModelVersion
+from picsellia import Experiment, Label, ModelVersion
 from transformers import CLIPModel as TransformerCLIPModel
 from transformers import CLIPProcessor as TransformerCLIPProcessor
 
@@ -16,7 +16,8 @@ class CLIPModel(Model):
     def __init__(
         self,
         name: str,
-        model_version: ModelVersion,
+        model_version: ModelVersion | None = None,
+        experiment: Experiment | None = None,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
         config_name: str | None = None,
@@ -38,6 +39,7 @@ class CLIPModel(Model):
         super().__init__(
             name=name,
             model_version=model_version,
+            experiment=experiment,
             pretrained_weights_name=pretrained_weights_name,
             trained_weights_name=trained_weights_name,
             config_name=config_name,

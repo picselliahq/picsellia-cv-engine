@@ -2,7 +2,7 @@ import logging
 import os
 
 import torch
-from picsellia import Label, ModelVersion
+from picsellia import Experiment, Label, ModelVersion
 from ultralytics import YOLO
 
 from picsellia_cv_engine.core.models import Model
@@ -51,7 +51,8 @@ class UltralyticsModel(Model):
     def __init__(
         self,
         name: str,
-        model_version: ModelVersion,
+        model_version: ModelVersion | None = None,
+        experiment: Experiment | None = None,
         pretrained_weights_name: str | None = None,
         trained_weights_name: str | None = None,
         config_name: str | None = None,
@@ -73,6 +74,7 @@ class UltralyticsModel(Model):
         super().__init__(
             name=name,
             model_version=model_version,
+            experiment=experiment,
             pretrained_weights_name=pretrained_weights_name,
             trained_weights_name=trained_weights_name,
             config_name=config_name,

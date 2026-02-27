@@ -53,7 +53,17 @@ def build_model_impl(
         ValueError: If the context is invalid or no model version ID is provided in a processing context.
     """
     if isinstance(context, PicselliaTrainingContext | LocalTrainingContext):
-        model_version = context.experiment.get_base_model_version()
+        model = model_cls(
+            name=context.experiment.name,
+            experiment=context.experiment,
+            pretrained_weights_name=pretrained_weights_name,
+            trained_weights_name=trained_weights_name,
+            config_name=config_name,
+            exported_weights_name=exported_weights_name,
+        )
+        model.download_experiment_weights(
+            destination_dir=os.path.join(context.working_dir, "models")
+        )
     elif isinstance(
         context, PicselliaDatasetProcessingContext | LocalDatasetProcessingContext
     ):
@@ -61,20 +71,20 @@ def build_model_impl(
             model_version = context.model_version
         else:
             raise ValueError("No model_version_id provided in the processing context.")
+        model = model_cls(
+            name=model_version.name,
+            model_version=model_version,
+            pretrained_weights_name=pretrained_weights_name,
+            trained_weights_name=trained_weights_name,
+            config_name=config_name,
+            exported_weights_name=exported_weights_name,
+        )
+        model.download_model_weights(
+            destination_dir=os.path.join(context.working_dir, "models")
+        )
     else:
         raise ValueError("The current context is not a training or processing context.")
 
-    model = model_cls(
-        name=model_version.name,
-        model_version=model_version,
-        pretrained_weights_name=pretrained_weights_name,
-        trained_weights_name=trained_weights_name,
-        config_name=config_name,
-        exported_weights_name=exported_weights_name,
-    )
-    model.download_weights(
-        destination_dir=os.path.join((context.working_dir), "models")
-    )
     return model
 
 
