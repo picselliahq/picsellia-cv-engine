@@ -74,7 +74,7 @@ class ModelCollection(Generic[TModel]):
             destination_dir (str): Base directory where weights will be saved.
         """
         for model in self:
-            model.download_weights(
+            model.download_model_weights(
                 destination_dir=os.path.join(destination_dir, model.name)
             )
 

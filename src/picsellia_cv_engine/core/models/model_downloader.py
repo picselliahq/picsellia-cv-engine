@@ -2,7 +2,7 @@ import os
 import tarfile
 import zipfile
 
-from picsellia import ModelFile
+from picsellia import Artifact, ModelFile
 
 
 class ModelDownloader:
@@ -10,7 +10,9 @@ class ModelDownloader:
     Handles downloading and optional extraction of model files.
     """
 
-    def download_and_process(self, model_file: ModelFile, destination_path: str) -> str:
+    def download_and_process(
+        self, model_file: ModelFile | Artifact, destination_path: str
+    ) -> str:
         """
         Download a model file and extract it if compressed.
 

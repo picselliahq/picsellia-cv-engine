@@ -1,7 +1,8 @@
 import logging
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from picsellia import Experiment
 from ultralytics.engine.trainer import BaseTrainer
@@ -237,7 +238,6 @@ class UltralyticsCallbacks:
 
         if best_weights_path and os.path.exists(best_weights_path):
             self.model.save_artifact_to_experiment(
-                experiment=self.experiment,
                 artifact_name="best-model",
                 artifact_path=best_weights_path,
             )
