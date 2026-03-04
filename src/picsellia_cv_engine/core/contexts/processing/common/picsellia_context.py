@@ -49,6 +49,7 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
 
         print(f"job_context: {self.job_context}")
 
+        self.target_id = self.job_context.get("target_id")
         self.parameters: dict[str, Any] = self.job_context.get("parameters", {}) or {}
         self.inputs: dict[str, Any] = self.job_context.get("inputs", {}) or {}
         self.payload_presigned_url: str | None = self.job_context.get(
@@ -60,8 +61,11 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
         self.processing_parameters: TParameters = processing_parameters_cls(
             log_data=self.parameters
         )
+        processing_name = self.job_context["processing_name"]
+        self.processing_type = self.client.get_processing(name=processing_name).type
 
-        self._load_inputs(**kwargs)
+        # TODO: remove this after full deprecation of legacy processing jobs
+        self._load_legacy_inputs(**kwargs)
 
     @property
     def working_dir(self) -> str:
@@ -80,6 +84,7 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
                 parameters_dict=self.processing_parameters.to_dict(),
                 defaulted_keys=self.processing_parameters.defaulted_keys,
             ),
+            "inputs": self.inputs,
         }
 
     def _initialize_job(self) -> picsellia.Job:
@@ -94,8 +99,8 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
                 f"Available keys: {list(self.job_info.keys())}"
             ) from e
 
-    def _load_inputs(self, **kwargs: Any) -> None:
+    def _load_legacy_inputs(self, **kwargs: Any) -> None:
         """
-        Hook for subclasses to load inputs. Must not return anything.
+        Hook for subclasses to load legacy inputs. Must not return anything.
         """
         return

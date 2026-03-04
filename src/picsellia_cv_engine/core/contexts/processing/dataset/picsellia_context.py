@@ -2,6 +2,7 @@ from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 import requests
+from deprecation import deprecated
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.exceptions import ResourceConflictError
 from picsellia.types.enums import ProcessingType
@@ -40,14 +41,27 @@ class PicselliaDatasetProcessingContext(
             use_id=use_id,
             working_dir=working_dir,
         )
+        self.asset_ids = self.get_asset_ids()
+        self.target = self.client.get_dataset_version(id=self.target_id.id)
 
-    def _load_inputs(self, **kwargs: Any) -> None:
-        processing_name = self.job_context["processing_name"]
-        self.processing = self.client.get_processing(name=processing_name)
-        self.processing_type = self.processing.type
+    def get_asset_ids(self) -> list[UUID] | None:
+        if self.payload_presigned_url:
+            payload = requests.get(self.payload_presigned_url).json()
+            return [UUID(asset_id) for asset_id in payload["asset_ids"]]
+        return None
 
-        # TODO: check inputs
+    def to_dict(self) -> dict[str, Any]:
+        base = super().to_dict()
+        base.update(
+            {
+                "model_version_id": self.model_version_id,
+                "input_dataset_version_id": self.input_dataset_version_id,
+                "output_dataset_version_id": str(self.output_dataset_version.id),
+            }
+        )
+        return base
 
+    def _load_legacy_inputs(self, **kwargs: Any) -> None:
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_dataset_version_id = self.inputs.get("input_dataset_version_id")
         self._target_version_name = self.inputs.get("target_version_name")
@@ -67,15 +81,19 @@ class PicselliaDatasetProcessingContext(
         if self._model_version_id:
             self.model_version = self.get_model_version()
 
-        self.asset_ids = self.get_asset_ids()
-
     @property
+    @deprecated(
+        details="input_dataset_version_id will be removed in a future version. Use the new input system instead."
+    )
     def input_dataset_version_id(self) -> str:
         if not self._input_dataset_version_id:
             raise ValueError("Input dataset version ID is missing.")
         return self._input_dataset_version_id
 
     @property
+    @deprecated(
+        details="model_version_id will be removed in a future version. Use the new input system instead."
+    )
     def model_version_id(self) -> str | None:
         if (
             not self._model_version_id
@@ -84,29 +102,21 @@ class PicselliaDatasetProcessingContext(
             raise ValueError("Model version ID is required for pre-annotation jobs.")
         return self._model_version_id
 
-    def to_dict(self) -> dict[str, Any]:
-        base = super().to_dict()
-        base.update(
-            {
-                "model_version_id": self.model_version_id,
-                "input_dataset_version_id": self.input_dataset_version_id,
-                "output_dataset_version_id": str(self.output_dataset_version.id),
-            }
-        )
-        return base
-
+    @deprecated(
+        details="get_dataset_version will be removed in a future version. Use the new input system instead."
+    )
     def get_dataset_version(self, dataset_version_id: str) -> DatasetVersion:
         return self.client.get_dataset_version_by_id(dataset_version_id)
 
+    @deprecated(
+        details="get_model_version will be removed in a future version. Use the new input system instead."
+    )
     def get_model_version(self) -> ModelVersion:
         return self.client.get_model_version_by_id(self.model_version_id)
 
-    def get_asset_ids(self) -> list[UUID] | None:
-        if self.payload_presigned_url:
-            payload = requests.get(self.payload_presigned_url).json()
-            return [UUID(asset_id) for asset_id in payload["asset_ids"]]
-        return None
-
+    @deprecated(
+        details="get_or_create_target_dataset_version will be removed in a future version. Use the new input system instead."
+    )
     def get_or_create_target_dataset_version(
         self,
         input_dataset_version: DatasetVersion,
