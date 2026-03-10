@@ -98,7 +98,7 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
                 f"Available keys: {list(self.job_info.keys())}"
             ) from e
 
-    def _load_legacy_inputs(self, **kwargs: Any) -> None:
+    def _load_legacy_inputs(self) -> None:
         """
         Hook for subclasses to load legacy inputs. Must not return anything.
         """

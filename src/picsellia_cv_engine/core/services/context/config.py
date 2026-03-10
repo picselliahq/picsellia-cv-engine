@@ -83,6 +83,14 @@ class OverrideOutputsMixin(BaseModel):
     )
 
 
+class BaseConfig(OverrideOutputsMixin, BaseModel):
+    auth: Auth
+    run: Run = Run()
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    target_id: str | None = None
+
+
 # ── DATASET_VERSION_CREATION ─────────────────────────────────────────────────
 
 
@@ -94,13 +102,10 @@ class OutputDatasetVersionCreation(BaseModel):
     dataset_version: DatasetVersion
 
 
-class DatasetVersionCreationConfig(OverrideOutputsMixin, BaseModel):
+class DatasetVersionCreationConfig(BaseConfig):
     job: JobDSVCreate
-    auth: Auth
-    run: Run = Run()
     input: InputDatasetVersionCreation
     output: OutputDatasetVersionCreation
-    parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── PRE_ANNOTATION ───────────────────────────────────────────────────────────
@@ -111,12 +116,9 @@ class InputPreAnnotation(BaseModel):
     model_version: ModelVersion | None = None
 
 
-class PreAnnotationConfig(OverrideOutputsMixin, BaseModel):
+class PreAnnotationConfig(BaseConfig):
     job: JobPreAnn
-    auth: Auth
-    run: Run = Run()
     input: InputPreAnnotation
-    parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── DATA_AUTO_TAGGING ────────────────────────────────────────────────────────
@@ -136,14 +138,11 @@ class OutputDataAutoTagging(BaseModel):
     datalake: Datalake
 
 
-class DataAutoTaggingConfig(OverrideOutputsMixin, BaseModel):
+class DataAutoTaggingConfig(BaseConfig):
     job: JobAutoTag
-    auth: Auth
-    run: Run = Run()
     input: InputDataAutoTagging
     output: OutputDataAutoTagging
     run_parameters: AutoTagRunParams
-    parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── MODEL_PROCESS ────────────────────────────────────────────────────────
@@ -153,12 +152,9 @@ class InputModelProcess(BaseModel):
     model_version: ModelVersion
 
 
-class ModelProcessConfig(OverrideOutputsMixin, BaseModel):
+class ModelProcessConfig(BaseConfig):
     job: JobModelProcess
-    auth: Auth
-    run: Run = Run()
     input: InputModelProcess
-    parameters: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── TRAINING (NEW input/output shape) ────────────────────────────────────────

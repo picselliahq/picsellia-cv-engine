@@ -113,7 +113,9 @@ def create_processing_context_from_config(
                 host=config.auth.host,
                 job_type=processing_type,
                 input_dataset_version_id=config.input.dataset_version.id,
-                output_dataset_version_name=None,
+                target_version_name=None,
+                target_id=config.input.dataset_version.id,
+                inputs=config.inputs,
                 model_version_id=config.input.model_version.id,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
@@ -126,10 +128,13 @@ def create_processing_context_from_config(
                 host=config.auth.host,
                 job_type=processing_type,
                 input_dataset_version_id=config.input.dataset_version.id,
-                output_dataset_version_name=config.output.dataset_version.name,
+                output_dataset_version_id=config.output.dataset_version.id,
+                target_version_name=config.output.dataset_version.name,
                 model_version_id=None,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
+                inputs=config.inputs,
+                target_id=config.input.dataset_version.id,
             )
 
         elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
