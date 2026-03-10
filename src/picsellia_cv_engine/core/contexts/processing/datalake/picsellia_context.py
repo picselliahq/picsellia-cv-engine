@@ -30,10 +30,9 @@ class PicselliaDatalakeProcessingContext(
         job_id: str | None = None,
         use_id: bool | None = True,
         working_dir: str | None = None,
-        **kwargs: Any,
     ):
         super().__init__(
-            processing_parameters_cls == processing_parameters_cls,
+            processing_parameters_cls=processing_parameters_cls,
             api_token=api_token,
             host=host,
             organization_id=organization_id,
@@ -41,7 +40,6 @@ class PicselliaDatalakeProcessingContext(
             job_id=job_id,
             use_id=use_id,
             working_dir=working_dir,
-            **kwargs,
         )
 
         self.data_ids = self.get_data_ids()
@@ -70,7 +68,7 @@ class PicselliaDatalakeProcessingContext(
         )
         return base
 
-    def _load_legacy_inputs(self, **kwargs: Any) -> None:
+    def _load_legacy_inputs(self) -> None:
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_datalake_id = self.inputs.get("input_datalake_id")
         self._output_datalake_id = self.inputs.get("output_datalake_id")

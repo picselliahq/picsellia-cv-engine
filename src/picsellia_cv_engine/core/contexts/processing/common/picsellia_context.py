@@ -24,7 +24,6 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
         job_id: str | None = None,
         use_id: bool | None = True,
         working_dir: str | None = None,
-        **kwargs: Any,
     ):
         super().__init__(
             api_token=api_token,
@@ -40,7 +39,7 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
                 "Job ID not provided. Please provide it as an argument or set the 'job_id' environment variable."
             )
 
-        self.job: picsellia.Job = self._initialize_job()
+        self.job = self._initialize_job()
         self.job_info: dict[str, Any] = self.job.sync()
 
         self.job_context: dict[str, Any] = self._initialize_job_context()
@@ -65,7 +64,7 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
         self.processing_type = self.client.get_processing(name=processing_name).type
 
         # TODO: remove this after full deprecation of legacy processing jobs
-        self._load_legacy_inputs(**kwargs)
+        self._load_legacy_inputs()
 
     @property
     def working_dir(self) -> str:

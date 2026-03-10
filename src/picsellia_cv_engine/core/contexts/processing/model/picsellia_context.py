@@ -22,10 +22,9 @@ class PicselliaModelProcessingContext(PicselliaProcessingContext, Generic[TParam
         job_id: str | None = None,
         use_id: bool | None = True,
         working_dir: str | None = None,
-        **kwargs: Any,
     ):
         super().__init__(
-            processing_parameters_cls == processing_parameters_cls,
+            processing_parameters_cls=processing_parameters_cls,
             api_token=api_token,
             host=host,
             organization_id=organization_id,
@@ -33,12 +32,11 @@ class PicselliaModelProcessingContext(PicselliaProcessingContext, Generic[TParam
             job_id=job_id,
             use_id=use_id,
             working_dir=working_dir,
-            **kwargs,
         )
 
         self.target = self.client.get_model_version_by_id(id=self.target_id)
 
-    def _load_inputs(self, **kwargs: Any) -> None:
+    def _load_legacy_inputs(self) -> None:
         self._model_version_id = self.inputs.get("input_model_version_id")
 
         if self._model_version_id:
