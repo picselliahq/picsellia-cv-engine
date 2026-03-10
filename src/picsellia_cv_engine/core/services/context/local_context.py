@@ -89,6 +89,8 @@ def create_local_datalake_processing_context(
     input_datalake_id: str,
     output_datalake_id: str | None = None,
     model_version_id: str | None = None,
+    target_id: str | None = None,
+    inputs: dict[str, Any] | None = None,
     offset: int = 0,
     limit: int = 100,
     use_id: bool = True,
@@ -108,6 +110,8 @@ def create_local_datalake_processing_context(
         input_datalake_id: ID of the input datalake.
         output_datalake_id: Optional ID of the output datalake.
         model_version_id: Optional ID of the model version.
+        target_id: Optional ID of the processing target.
+        inputs: Optional dictionary of additional inputs to include in the context.
         offset: Data offset for datalake slicing.
         limit: Max number of samples to fetch.
         use_id: Whether to use asset ID or path in output annotations.
@@ -128,6 +132,8 @@ def create_local_datalake_processing_context(
         input_datalake_id=input_datalake_id,
         output_datalake_id=output_datalake_id,
         model_version_id=model_version_id,
+        target_id=target_id,
+        inputs=inputs,
         offset=offset,
         limit=limit,
         use_id=use_id,
@@ -140,6 +146,8 @@ def create_local_model_processing_context(
     organization_name: str,
     job_type: ProcessingType,
     input_model_version_id: str,
+    target_id: str | None = None,
+    inputs: dict[str, Any] | None = None,
     processing_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
     api_token: str | None = None,
@@ -153,6 +161,8 @@ def create_local_model_processing_context(
         host=host,
         job_type=job_type,
         input_model_version_id=input_model_version_id,
+        target_id=target_id,
+        inputs=inputs,
         working_dir=working_dir,
     )
     return context

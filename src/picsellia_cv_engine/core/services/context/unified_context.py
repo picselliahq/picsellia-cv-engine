@@ -144,12 +144,14 @@ def create_processing_context_from_config(
                 host=config.auth.host,
                 job_type=processing_type,
                 input_datalake_id=config.input.datalake.id,
+                target_id=config.input.datalake.id,
                 output_datalake_id=config.output.datalake.id,
                 model_version_id=config.input.model_version.id,
                 offset=config.run_parameters.offset,
                 limit=config.run_parameters.limit,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
+                inputs=config.inputs,
             )
         elif (
             processing_type == ProcessingType.MODEL_CONVERSION
@@ -161,8 +163,10 @@ def create_processing_context_from_config(
                 host=config.auth.host,
                 job_type=processing_type,
                 input_model_version_id=config.input.model_version.id,
+                target_id=config.input.model_version.id,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
+                inputs=config.inputs,
             )
         else:
             raise RuntimeError("Unsupported processing type for local context")

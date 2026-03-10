@@ -1,12 +1,14 @@
-import os
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 import orjson
+from deprecation import deprecated
 from picsellia import Client, Datalake, Job, ModelVersion
 from picsellia.types.enums import ProcessingType
 
-from picsellia_cv_engine.core.contexts import PicselliaContext
+from picsellia_cv_engine.core.contexts.processing.common.local_picsellia_context import (
+    PicselliaLocalProcessingContext,
+)
 from picsellia_cv_engine.core.parameters import Parameters
 
 TParameters = TypeVar("TParameters", bound=Parameters)
@@ -94,7 +96,9 @@ def launch_processing(
     return Job(client.connexion, r, version=2)
 
 
-class LocalDatalakeProcessingContext(PicselliaContext):
+class LocalDatalakeProcessingContext(
+    PicselliaLocalProcessingContext, Generic[TParameters]
+):
     """
     Context for local testing of processing jobs without real job execution on Picsellia.
     """
@@ -107,11 +111,12 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         host: str | None = None,
         organization_id: str | None = None,
         organization_name: str | None = None,
-        job_id: str | None = None,
         job_type: ProcessingType | None = None,
         input_datalake_id: str | None = None,
         output_datalake_id: str | None = None,
         model_version_id: str | None = None,
+        target_id: str | None = None,
+        inputs: dict[str, Any] | None = None,
         offset: int = 0,
         limit: int = 100,
         use_id: bool | None = True,
@@ -123,85 +128,81 @@ class LocalDatalakeProcessingContext(PicselliaContext):
         Raises:
             ValueError: If the input datalake ID is missing or invalid.
         """
+        self.job_type = job_type
         super().__init__(
+            processing_parameters_cls=processing_parameters_cls,
+            parameters_dict=processing_parameters,
             api_token=api_token,
             host=host,
             organization_id=organization_id,
             organization_name=organization_name,
+            target_id=target_id,
+            inputs=inputs,
+            use_id=use_id,
             working_dir=working_dir,
+            model_version_id=model_version_id,
+            input_datalake_id=input_datalake_id,
+            output_datalake_id=output_datalake_id,
         )
 
-        self.job_id = job_id
-        self.job_type = job_type
-        self.use_id = use_id
-        self.input_datalake_id = input_datalake_id
-        self.output_datalake_id = output_datalake_id
-        self.model_version_id = model_version_id
+        self.target = self.client.get_datalake(id=self.target_id)
 
-        if not input_datalake_id:
-            raise ValueError("Input datalake ID must be provided")
-        self.input_datalake = self.get_datalake(input_datalake_id)
-        if not self.input_datalake:
-            raise ValueError(f"Datalake with ID {input_datalake_id} not found")
-
-        self.output_datalake = (
-            self.get_datalake(output_datalake_id) if output_datalake_id else None
-        )
-
-        if model_version_id:
-            self.model_version = self.get_model_version(
-                model_version_id=model_version_id
-            )
         self.offset = offset
         self.limit = limit
 
         self.data_ids = None
         if self.limit is not None and self.offset is not None:
-            self.data_ids = self.get_data_ids(
-                datalake=self.input_datalake, offset=self.offset, limit=self.limit
-            )
+            self.data_ids = self.get_data_ids(offset=self.offset, limit=self.limit)
 
-        self.processing_parameters = processing_parameters_cls(
-            log_data=processing_parameters or {}
+    def _load_legacy_inputs(self) -> None:
+        self._model_version_id = self.inputs.get("model_version_id")
+        self._input_datalake_id = self.inputs.get("input_datalake_id")
+        self._output_datalake_id = self.inputs.get("output_datalake_id")
+
+        if not self._input_datalake_id:
+            raise ValueError("Input datalake ID not found.")
+
+        self.input_datalake = self.get_datalake(self._input_datalake_id)
+        self.output_datalake = (
+            self.get_datalake(self._output_datalake_id)
+            if self._output_datalake_id
+            else None
         )
 
-    @property
-    def working_dir(self) -> str:
-        """Return the working directory path for the job."""
-        if self._working_dir_override:
-            return self._working_dir_override
-        return os.path.join(os.getcwd(), f"job_{self.job_id}")
+        self.model_version = (
+            self.get_model_version() if self._model_version_id else None
+        )
 
+    @deprecated(
+        details="get_datalake will be removed in a future version. Use the new input system instead."
+    )
     def get_datalake(self, datalake_id: str) -> Datalake:
-        """Retrieve a datalake by its ID."""
         return self.client.get_datalake(id=datalake_id)
 
-    def get_model_version(self, model_version_id: str) -> ModelVersion:
-        """Retrieve a model version by its ID."""
-        return self.client.get_model_version_by_id(model_version_id)
+    @deprecated(
+        details="get_model_version will be removed in a future version. Use the new input system instead."
+    )
+    def get_model_version(self) -> ModelVersion:
+        return self.client.get_model_version_by_id(self._model_version_id)
 
-    def get_data_ids(self, datalake: Datalake, offset: int, limit: int) -> list[UUID]:
+    def get_data_ids(self, offset: int, limit: int) -> list[UUID]:
         """List data IDs from a datalake with offset and limit."""
-        if not datalake or offset is None or limit is None:
+        if not self.target or offset is None or limit is None:
             raise ValueError("Datalake, offset and limit must be provided")
-        return datalake.list_data(offset=offset, limit=limit).ids
+        return self.target.list_data(offset=offset, limit=limit).ids
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert the context to a dictionary."""
-        return {
-            "context_parameters": {
-                "host": self.host,
-                "organization_id": self.organization_id,
+        """Convert context to a dictionary for logging or serialization."""
+        base = super().to_dict()
+        base.update(
+            {
                 "job_type": self.job_type,
-                "input_datalake_id": self.input_datalake_id,
-                "output_datalake_id": self.output_datalake_id,
-                "model_version_id": self.model_version_id,
+                "input_datalake_id": self._input_datalake_id,
+                "output_datalake_id": self._output_datalake_id,
+                "model_version_id": self._model_version_id,
                 "offset": self.offset,
                 "limit": self.limit,
                 "use_id": self.use_id,
-            },
-            "processing_parameters": self._process_parameters(
-                parameters_dict=self.processing_parameters.to_dict(),
-                defaulted_keys=self.processing_parameters.defaulted_keys,
-            ),
-        }
+            }
+        )
+        return base
