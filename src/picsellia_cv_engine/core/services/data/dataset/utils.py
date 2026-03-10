@@ -121,11 +121,15 @@ def _load_processing_datasets(
       - input != output  -> DatasetCollection(input, output)
       - input == output or output missing -> single dataset (input)
     """
-    in_id = context.input_dataset_version_id
-    out_id = context.output_dataset_version_id
+    input_dataset_version = context.input_dataset_version
+    output_dataset_version = context.output_dataset_version
 
     # input & output are distinct -> collection
-    if in_id and out_id and in_id != out_id:
+    if (
+        input_dataset_version
+        and output_dataset_version
+        and input_dataset_version != output_dataset_version
+    ):
         # Prefetch filtered assets (MultiAsset) for input if asset_ids were provided
         try:
             input_assets = _prefetch_assets_for_context(
@@ -161,7 +165,9 @@ def _load_processing_datasets(
         return dataset_collection
 
     # otherwise: single input dataset
-    if in_id and (in_id == out_id or not out_id):
+    if input_dataset_version and (
+        input_dataset_version == output_dataset_version or not output_dataset_version
+    ):
         try:
             assets = _prefetch_assets_for_context(
                 context, context.input_dataset_version
