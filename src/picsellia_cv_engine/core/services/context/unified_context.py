@@ -72,7 +72,7 @@ def _load_and_validate_training_config(config_file: str | Path) -> TrainingConfi
     return TrainingConfig(**raw)
 
 
-def create_processing_context_from_config(
+def create_processing_context_from_config(  # noqa: C901
     processing_type: ProcessingType,
     processing_parameters_cls: type[TParameters],
     mode: Mode = "picsellia",
@@ -107,6 +107,10 @@ def create_processing_context_from_config(
             config_file=config_file_path, processing_type=processing_type
         )
         if processing_type == ProcessingType.PRE_ANNOTATION:
+            if config.target_id:
+                target_id = config.target_id
+            else:
+                target_id = config.input.dataset_version.id
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
@@ -114,7 +118,7 @@ def create_processing_context_from_config(
                 job_type=processing_type,
                 input_dataset_version_id=config.input.dataset_version.id,
                 target_version_name=None,
-                target_id=config.input.dataset_version.id,
+                target_id=target_id,
                 inputs=config.inputs,
                 model_version_id=config.input.model_version.id,
                 processing_parameters=dict(config.parameters),
@@ -122,6 +126,10 @@ def create_processing_context_from_config(
             )
 
         elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
+            if config.target_id:
+                target_id = config.target_id
+            else:
+                target_id = config.input.dataset_version.id
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
@@ -134,17 +142,21 @@ def create_processing_context_from_config(
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
                 inputs=config.inputs,
-                target_id=config.input.dataset_version.id,
+                target_id=target_id,
             )
 
         elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
+            if config.target_id:
+                target_id = config.target_id
+            else:
+                target_id = config.input.datalake.id
             return create_local_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
                 input_datalake_id=config.input.datalake.id,
-                target_id=config.input.datalake.id,
+                target_id=target_id,
                 output_datalake_id=config.output.datalake.id,
                 model_version_id=config.input.model_version.id,
                 offset=config.run_parameters.offset,
@@ -157,13 +169,17 @@ def create_processing_context_from_config(
             processing_type == ProcessingType.MODEL_CONVERSION
             or processing_type == ProcessingType.MODEL_COMPRESSION
         ):
+            if config.target_id:
+                target_id = config.target_id
+            else:
+                target_id = config.input.model_version.id
             return create_local_model_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
                 input_model_version_id=config.input.model_version.id,
-                target_id=config.input.model_version.id,
+                target_id=target_id,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
                 inputs=config.inputs,
