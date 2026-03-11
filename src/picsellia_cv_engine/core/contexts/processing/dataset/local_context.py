@@ -65,7 +65,7 @@ class LocalDatasetProcessingContext(
             output_dataset_version_id=output_dataset_version_id,
             target_version_name=target_version_name,
         )
-
+        self.asset_ids = None
         self.target = self.client.get_dataset_version_by_id(id=self.target_id)
 
     def to_dict(self) -> dict[str, Any]:
