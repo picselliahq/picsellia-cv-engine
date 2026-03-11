@@ -5,7 +5,6 @@ import requests
 from deprecation import deprecated
 from picsellia import DatasetVersion, ModelVersion
 from picsellia.exceptions import ResourceConflictError
-from picsellia.types.enums import ProcessingType
 
 from picsellia_cv_engine.core.contexts.processing.common.picsellia_context import (
     PicselliaProcessingContext,
@@ -86,8 +85,6 @@ class PicselliaDatasetProcessingContext(
         details="input_dataset_version_id will be removed in a future version. Use the new input system instead."
     )
     def input_dataset_version_id(self) -> str:
-        if not self._input_dataset_version_id:
-            raise ValueError("Input dataset version ID is missing.")
         return self._input_dataset_version_id
 
     @property
@@ -95,11 +92,6 @@ class PicselliaDatasetProcessingContext(
         details="model_version_id will be removed in a future version. Use the new input system instead."
     )
     def model_version_id(self) -> str | None:
-        if (
-            not self._model_version_id
-            and self.processing_type == ProcessingType.PRE_ANNOTATION
-        ):
-            raise ValueError("Model version ID is required for pre-annotation jobs.")
         return self._model_version_id
 
     @deprecated(

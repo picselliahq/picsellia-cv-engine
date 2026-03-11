@@ -85,8 +85,6 @@ class LocalDatasetProcessingContext(
         details="input_dataset_version_id will be removed in a future version. Use the new input system instead."
     )
     def input_dataset_version_id(self) -> str:
-        if not self._input_dataset_version_id:
-            raise ValueError("Input dataset version ID is missing.")
         return self._input_dataset_version_id
 
     @property
@@ -94,8 +92,6 @@ class LocalDatasetProcessingContext(
         details="target_version_name will be removed in a future version. Use the new input system instead."
     )
     def target_version_name(self) -> str:
-        if not self._target_version_name:
-            raise ValueError("Target (output) version name is missing.")
         return self._target_version_name
 
     @property
@@ -103,8 +99,6 @@ class LocalDatasetProcessingContext(
         details="model_version_id will be removed in a future version. Use the new input system instead."
     )
     def model_version_id(self) -> str | None:
-        if not self._model_version_id:
-            raise ValueError("Model version ID is required for pre-annotation jobs.")
         return self._model_version_id
 
     @deprecated(
