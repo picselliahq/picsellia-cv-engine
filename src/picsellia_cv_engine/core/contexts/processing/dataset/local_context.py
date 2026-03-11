@@ -66,7 +66,7 @@ class LocalDatasetProcessingContext(
             target_version_name=target_version_name,
         )
 
-        self.target = self.client.get_dataset_version(id=self.target_id.id)
+        self.target = self.client.get_dataset_version_by_id(id=self.target_id.id)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert context to a dictionary for logging or serialization."""

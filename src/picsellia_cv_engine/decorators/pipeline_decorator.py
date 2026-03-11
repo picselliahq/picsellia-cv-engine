@@ -296,8 +296,6 @@ class Pipeline:
         )
 
         context_dict = self._parse_context_to_dict(self._context)
-        self.logger_manager.logger.info(f"{context_dict}")
-        self.logger_manager.logger.info("coucou")
         if context_dict is None:
             self.log_pipeline_warning(
                 log_content="The provided context does not expose a `to_dict` method, "

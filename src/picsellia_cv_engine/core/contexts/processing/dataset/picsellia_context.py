@@ -42,7 +42,7 @@ class PicselliaDatasetProcessingContext(
             working_dir=working_dir,
         )
         self.asset_ids = self.get_asset_ids()
-        self.target = self.client.get_dataset_version(id=self.target_id)
+        self.target = self.client.get_dataset_version_by_id(id=self.target_id)
 
     def get_asset_ids(self) -> list[UUID] | None:
         if self.payload_presigned_url:
