@@ -154,7 +154,10 @@ class LocalDatalakeProcessingContext(
         if self.limit is not None and self.offset is not None:
             self.data_ids = self.get_data_ids(offset=self.offset, limit=self.limit)
 
-    def _load_legacy_inputs(self) -> None:
+    def _load_legacy_inputs(self, **kwargs) -> None:
+        self.inputs["model_version_id"] = kwargs.get("model_version_id")
+        self.inputs["input_datalake_id"] = kwargs.get("input_datalake_id")
+        self.inputs["output_datalake_id"] = kwargs.get("output_datalake_id")
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_datalake_id = self.inputs.get("input_datalake_id")
         self._output_datalake_id = self.inputs.get("output_datalake_id")
