@@ -112,20 +112,11 @@ def create_processing_context_from_config(  # noqa: C901
                 target_id = config.target_id
             else:
                 target_id = config.input.dataset_version.id
-            if config.input and config.input.dataset_version.id:
-                inputs["input_dataset_version_id"] = config.input.dataset_version.id
-            elif config.inputs and "input_dataset_version_id" in config.inputs.keys():
-                inputs["input_dataset_version_id"] = config.inputs[
-                    "input_dataset_version_id"
-                ]
-            else:
-                raise ValueError("input_dataset_version_id must be provided in inputs")
+            inputs["input_dataset_version_id"] = target_id
             if config.input and config.input.model_version.id:
                 inputs["model_version_id"] = config.input.model_version.id
             elif config.inputs and "model_version_id" in config.inputs.keys():
                 inputs["model_version_id"] = config.inputs["model_version_id"]
-            else:
-                raise ValueError("model_version_id must be provided in inputs")
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
@@ -143,28 +134,17 @@ def create_processing_context_from_config(  # noqa: C901
                 target_id = config.target_id
             else:
                 target_id = config.input.dataset_version.id
-            if config.input and config.input.dataset_version.id:
-                inputs["input_dataset_version_id"] = config.input.dataset_version.id
-            elif config.inputs and "input_dataset_version_id" in config.inputs.keys():
-                inputs["input_dataset_version_id"] = config.inputs[
-                    "input_dataset_version_id"
-                ]
-            else:
-                raise ValueError("input_dataset_version_id must be provided in inputs")
+            inputs["input_dataset_version_id"] = target_id
             if config.output and config.output.dataset_version.id:
                 inputs["output_dataset_version_id"] = config.output.dataset_version.id
             elif config.inputs and "output_dataset_version_id" in config.inputs.keys():
                 inputs["output_dataset_version_id"] = config.inputs[
                     "output_dataset_version_id"
                 ]
-            else:
-                raise ValueError("output_dataset_version_id must be provided in inputs")
             if config.output and config.output.dataset_version.name:
                 inputs["target_version_name"] = config.output.dataset_version.name
             elif config.inputs and "target_version_name" in config.inputs.keys():
                 inputs["target_version_name"] = config.inputs["target_version_name"]
-            else:
-                raise ValueError("output_dataset_version_id must be provided in inputs")
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
@@ -182,24 +162,15 @@ def create_processing_context_from_config(  # noqa: C901
                 target_id = config.target_id
             else:
                 target_id = config.input.datalake.id
-            if config.input and config.input.datalake.id:
-                inputs["input_datalake_id"] = config.input.datalake.id
-            elif config.inputs and "input_datalake_id" in config.inputs.keys():
-                inputs["input_datalake_id"] = config.inputs["input_datalake_id"]
-            else:
-                raise ValueError("input_datalake_id must be provided in inputs")
+            inputs["input_datalake_id"] = target_id
             if config.output and config.output.datalake.id:
                 inputs["output_datalake_id"] = config.output.datalake.id
             elif config.inputs and "output_datalake_id" in config.inputs.keys():
                 inputs["output_datalake_id"] = config.inputs["output_datalake_id"]
-            else:
-                raise ValueError("output_datalake_id must be provided in inputs")
             if config.input and config.input.model_version.id:
                 inputs["model_version_id"] = config.input.model_version.id
             elif config.inputs and "model_version_id" in config.inputs.keys():
                 inputs["model_version_id"] = config.inputs["model_version_id"]
-            else:
-                raise ValueError("model_version_id must be provided in inputs")
             return create_local_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
@@ -221,14 +192,7 @@ def create_processing_context_from_config(  # noqa: C901
                 target_id = config.target_id
             else:
                 target_id = config.input.model_version.id
-            if config.input and config.input.model_version.id:
-                inputs["input_model_version_id"] = config.input.model_version.id
-            elif config.inputs and "input_model_version_id" in config.inputs.keys():
-                inputs["input_model_version_id"] = config.inputs[
-                    "input_model_version_id"
-                ]
-            else:
-                raise ValueError("input_model_version_id must be provided in inputs")
+            inputs["input_model_version_id"] = target_id
             return create_local_model_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
