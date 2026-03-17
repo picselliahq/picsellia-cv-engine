@@ -112,9 +112,6 @@ class LocalDatalakeProcessingContext(
         organization_id: str | None = None,
         organization_name: str | None = None,
         job_type: ProcessingType | None = None,
-        input_datalake_id: str | None = None,
-        output_datalake_id: str | None = None,
-        model_version_id: str | None = None,
         target_id: str | None = None,
         inputs: dict[str, Any] | None = None,
         offset: int = 0,
@@ -140,9 +137,6 @@ class LocalDatalakeProcessingContext(
             inputs=inputs,
             use_id=use_id,
             working_dir=working_dir,
-            model_version_id=model_version_id,
-            input_datalake_id=input_datalake_id,
-            output_datalake_id=output_datalake_id,
         )
 
         self.target = self.client.get_datalake(id=self.target_id)
@@ -155,9 +149,6 @@ class LocalDatalakeProcessingContext(
             self.data_ids = self.get_data_ids(offset=self.offset, limit=self.limit)
 
     def _load_legacy_inputs(self, **kwargs) -> None:
-        self.inputs["model_version_id"] = kwargs.get("model_version_id")
-        self.inputs["input_datalake_id"] = kwargs.get("input_datalake_id")
-        self.inputs["output_datalake_id"] = kwargs.get("output_datalake_id")
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_datalake_id = self.inputs.get("input_datalake_id")
         self._output_datalake_id = self.inputs.get("output_datalake_id")

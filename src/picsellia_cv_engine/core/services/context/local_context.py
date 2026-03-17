@@ -22,11 +22,7 @@ def create_local_dataset_processing_context(
     processing_parameters_cls: type[TParameters],
     organization_name: str,
     job_type: ProcessingType,
-    input_dataset_version_id: str,
-    target_version_name: str | None = None,
-    output_dataset_version_id: str | None = None,
     target_id: str | None = None,
-    model_version_id: str | None = None,
     processing_parameters: dict[str, Any] | None = None,
     working_dir: str | None = None,
     api_token: str | None = None,
@@ -46,11 +42,7 @@ def create_local_dataset_processing_context(
         api_token (str): API token for authentication with Picsellia.
         organization_name (str): Name of the Picsellia organization.
         job_type (ProcessingType): Type of processing job (e.g., `PRE_ANNOTATION`, `DATASET_VERSION_CREATION`).
-        input_dataset_version_id (str): ID of the dataset version used as input.
-        target_version_name (str | None): Optional name for the output dataset version.
-        output_dataset_version_id (str | None): Optional ID of an existing dataset version to use as output.
         target_id (str | None): Optional ID of the processing target.
-        model_version_id (str | None): Optional ID of a model version to include in the context.
         processing_parameters (dict[str, Any] | None): Raw values to override defaults in the processing parameters.
         working_dir (str | None): Optional working directory for local file operations.
         host (str | None): Optional Picsellia API host override.
@@ -69,10 +61,6 @@ def create_local_dataset_processing_context(
         organization_name=organization_name,
         host=host,
         job_type=job_type,
-        input_dataset_version_id=input_dataset_version_id,
-        output_dataset_version_id=output_dataset_version_id,
-        target_version_name=target_version_name,
-        model_version_id=model_version_id,
         target_id=target_id,
         inputs=inputs,
         working_dir=working_dir,
@@ -86,9 +74,6 @@ def create_local_datalake_processing_context(
     processing_parameters_cls: type[TParameters],
     organization_name: str,
     job_type: ProcessingType,
-    input_datalake_id: str,
-    output_datalake_id: str | None = None,
-    model_version_id: str | None = None,
     target_id: str | None = None,
     inputs: dict[str, Any] | None = None,
     offset: int = 0,
@@ -107,9 +92,6 @@ def create_local_datalake_processing_context(
         api_token: Your Picsellia API token.
         organization_name: Name of your organization.
         job_type: Type of processing job.
-        input_datalake_id: ID of the input datalake.
-        output_datalake_id: Optional ID of the output datalake.
-        model_version_id: Optional ID of the model version.
         target_id: Optional ID of the processing target.
         inputs: Optional dictionary of additional inputs to include in the context.
         offset: Data offset for datalake slicing.
@@ -129,9 +111,6 @@ def create_local_datalake_processing_context(
         host=host,
         organization_name=organization_name,
         job_type=job_type,
-        input_datalake_id=input_datalake_id,
-        output_datalake_id=output_datalake_id,
-        model_version_id=model_version_id,
         target_id=target_id,
         inputs=inputs,
         offset=offset,
@@ -145,7 +124,6 @@ def create_local_model_processing_context(
     processing_parameters_cls: type[TParameters],
     organization_name: str,
     job_type: ProcessingType,
-    input_model_version_id: str,
     target_id: str | None = None,
     inputs: dict[str, Any] | None = None,
     processing_parameters: dict[str, Any] | None = None,
@@ -160,7 +138,6 @@ def create_local_model_processing_context(
         organization_name=organization_name,
         host=host,
         job_type=job_type,
-        input_model_version_id=input_model_version_id,
         target_id=target_id,
         inputs=inputs,
         working_dir=working_dir,

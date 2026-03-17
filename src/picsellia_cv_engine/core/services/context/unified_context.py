@@ -107,38 +107,69 @@ def create_processing_context_from_config(  # noqa: C901
             config_file=config_file_path, processing_type=processing_type
         )
         if processing_type == ProcessingType.PRE_ANNOTATION:
+            inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
                 target_id = config.input.dataset_version.id
+            if config.input and config.input.dataset_version.id:
+                inputs["input_dataset_version_id"] = config.input.dataset_version.id
+            elif config.inputs and "input_dataset_version_id" in config.inputs.keys():
+                inputs["input_dataset_version_id"] = config.inputs[
+                    "input_dataset_version_id"
+                ]
+            else:
+                raise ValueError("input_dataset_version_id must be provided in inputs")
+            if config.input and config.input.model_version.id:
+                inputs["model_version_id"] = config.input.model_version.id
+            elif config.inputs and "model_version_id" in config.inputs.keys():
+                inputs["model_version_id"] = config.inputs["model_version_id"]
+            else:
+                raise ValueError("model_version_id must be provided in inputs")
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
-                input_dataset_version_id=config.input.dataset_version.id,
-                target_version_name=None,
                 target_id=target_id,
                 inputs=config.inputs,
-                model_version_id=config.input.model_version.id,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
             )
 
         elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
+            inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
                 target_id = config.input.dataset_version.id
+            if config.input and config.input.dataset_version.id:
+                inputs["input_dataset_version_id"] = config.input.dataset_version.id
+            elif config.inputs and "input_dataset_version_id" in config.inputs.keys():
+                inputs["input_dataset_version_id"] = config.inputs[
+                    "input_dataset_version_id"
+                ]
+            else:
+                raise ValueError("input_dataset_version_id must be provided in inputs")
+            if config.output and config.output.dataset_version.id:
+                inputs["output_dataset_version_id"] = config.output.dataset_version.id
+            elif config.inputs and "output_dataset_version_id" in config.inputs.keys():
+                inputs["output_dataset_version_id"] = config.inputs[
+                    "output_dataset_version_id"
+                ]
+            else:
+                raise ValueError("output_dataset_version_id must be provided in inputs")
+            if config.output and config.output.dataset_version.name:
+                inputs["target_version_name"] = config.output.dataset_version.name
+            elif config.inputs and "target_version_name" in config.inputs.keys():
+                inputs["target_version_name"] = config.inputs["target_version_name"]
+            else:
+                raise ValueError("output_dataset_version_id must be provided in inputs")
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
-                input_dataset_version_id=config.input.dataset_version.id,
-                output_dataset_version_id=config.output.dataset_version.id,
-                target_version_name=config.output.dataset_version.name,
-                model_version_id=None,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
                 inputs=config.inputs,
@@ -146,19 +177,35 @@ def create_processing_context_from_config(  # noqa: C901
             )
 
         elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
+            inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
                 target_id = config.input.datalake.id
+            if config.input and config.input.datalake.id:
+                inputs["input_datalake_id"] = config.input.datalake.id
+            elif config.inputs and "input_datalake_id" in config.inputs.keys():
+                inputs["input_datalake_id"] = config.inputs["input_datalake_id"]
+            else:
+                raise ValueError("input_datalake_id must be provided in inputs")
+            if config.output and config.output.datalake.id:
+                inputs["output_datalake_id"] = config.output.datalake.id
+            elif config.inputs and "output_datalake_id" in config.inputs.keys():
+                inputs["output_datalake_id"] = config.inputs["output_datalake_id"]
+            else:
+                raise ValueError("output_datalake_id must be provided in inputs")
+            if config.input and config.input.model_version.id:
+                inputs["model_version_id"] = config.input.model_version.id
+            elif config.inputs and "model_version_id" in config.inputs.keys():
+                inputs["model_version_id"] = config.inputs["model_version_id"]
+            else:
+                raise ValueError("model_version_id must be provided in inputs")
             return create_local_datalake_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
-                input_datalake_id=config.input.datalake.id,
                 target_id=target_id,
-                output_datalake_id=config.output.datalake.id,
-                model_version_id=config.input.model_version.id,
                 offset=config.run_parameters.offset,
                 limit=config.run_parameters.limit,
                 processing_parameters=dict(config.parameters),
@@ -169,20 +216,28 @@ def create_processing_context_from_config(  # noqa: C901
             processing_type == ProcessingType.MODEL_CONVERSION
             or processing_type == ProcessingType.MODEL_COMPRESSION
         ):
+            inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
                 target_id = config.input.model_version.id
+            if config.input and config.input.model_version.id:
+                inputs["input_model_version_id"] = config.input.model_version.id
+            elif config.inputs and "input_model_version_id" in config.inputs.keys():
+                inputs["input_model_version_id"] = config.inputs[
+                    "input_model_version_id"
+                ]
+            else:
+                raise ValueError("input_model_version_id must be provided in inputs")
             return create_local_model_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
                 host=config.auth.host,
                 job_type=processing_type,
-                input_model_version_id=config.input.model_version.id,
                 target_id=target_id,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
-                inputs=config.inputs,
+                inputs=inputs,
             )
         else:
             raise RuntimeError("Unsupported processing type for local context")
