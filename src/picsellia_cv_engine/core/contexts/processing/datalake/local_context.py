@@ -150,11 +150,8 @@ class LocalDatalakeProcessingContext(
 
     def _load_legacy_inputs(self, **kwargs) -> None:
         self._model_version_id = self.inputs.get("model_version_id")
-        self._input_datalake_id = self.inputs.get("input_datalake_id")
+        self._input_datalake_id = self.target_id
         self._output_datalake_id = self.inputs.get("output_datalake_id")
-
-        if not self._input_datalake_id:
-            raise ValueError("Input datalake ID not found.")
 
         self.input_datalake = self.get_datalake(self._input_datalake_id)
         self.output_datalake = (

@@ -43,7 +43,7 @@ class LocalModelProcessingContext(
         self.target = self.client.get_model_version_by_id(id=self.target_id)
 
     def _load_legacy_inputs(self, **kwargs) -> None:
-        self._model_version_id = self.inputs.get("input_model_version_id")
+        self._model_version_id = self.target_id
         self.model_version = self.get_model_version()
 
     @property
