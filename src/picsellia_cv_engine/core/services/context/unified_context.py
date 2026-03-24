@@ -145,6 +145,7 @@ def create_processing_context_from_config(  # noqa: C901
                 inputs["target_version_name"] = config.output.dataset_version.name
             elif config.inputs and "target_version_name" in config.inputs.keys():
                 inputs["target_version_name"] = config.inputs["target_version_name"]
+            print("##### Inputs for dataset version creation:", inputs)
             return create_local_dataset_processing_context(
                 processing_parameters_cls=processing_parameters_cls,
                 organization_name=config.auth.organization_name,
