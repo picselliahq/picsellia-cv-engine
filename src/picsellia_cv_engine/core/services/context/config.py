@@ -104,8 +104,8 @@ class OutputDatasetVersionCreation(BaseModel):
 
 class DatasetVersionCreationConfig(BaseConfig):
     job: JobDSVCreate
-    input: InputDatasetVersionCreation
-    output: OutputDatasetVersionCreation
+    input: InputDatasetVersionCreation | None = None
+    output: OutputDatasetVersionCreation | None = None
 
 
 # ── PRE_ANNOTATION ───────────────────────────────────────────────────────────
@@ -118,7 +118,7 @@ class InputPreAnnotation(BaseModel):
 
 class PreAnnotationConfig(BaseConfig):
     job: JobPreAnn
-    input: InputPreAnnotation
+    input: InputPreAnnotation | None = None
 
 
 # ── DATA_AUTO_TAGGING ────────────────────────────────────────────────────────
@@ -140,8 +140,8 @@ class OutputDataAutoTagging(BaseModel):
 
 class DataAutoTaggingConfig(BaseConfig):
     job: JobAutoTag
-    input: InputDataAutoTagging
-    output: OutputDataAutoTagging
+    input: InputDataAutoTagging | None = None
+    output: OutputDataAutoTagging | None = None
     run_parameters: AutoTagRunParams
 
 
@@ -154,7 +154,7 @@ class InputModelProcess(BaseModel):
 
 class ModelProcessConfig(BaseConfig):
     job: JobModelProcess
-    input: InputModelProcess
+    input: InputModelProcess | None = None
 
 
 # ── TRAINING (NEW input/output shape) ────────────────────────────────────────

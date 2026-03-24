@@ -29,14 +29,10 @@ class LocalDatasetProcessingContext(
         organization_id: str | None = None,
         organization_name: str | None = None,
         job_type: ProcessingType | None = None,
-        input_dataset_version_id: str | None = None,
-        output_dataset_version_id: str | None = None,
-        target_version_name: str | None = None,
         target_id: str | None = None,
         inputs: dict[str, Any] | None = None,
         use_id: bool | None = True,
         download_annotations: bool | None = True,
-        model_version_id: str | None = None,
         working_dir: str | None = None,
     ):
         """
@@ -60,10 +56,6 @@ class LocalDatasetProcessingContext(
             inputs=inputs,
             use_id=use_id,
             working_dir=working_dir,
-            model_version_id=model_version_id,
-            input_dataset_version_id=input_dataset_version_id,
-            output_dataset_version_id=output_dataset_version_id,
-            target_version_name=target_version_name,
         )
         self.asset_ids = None
         self.target = self.client.get_dataset_version_by_id(id=self.target_id)
@@ -130,14 +122,8 @@ class LocalDatasetProcessingContext(
         return output_dataset_version
 
     def _load_legacy_inputs(self, **kwargs) -> None:
-        self.inputs["model_version_id"] = kwargs.get("model_version_id")
-        self.inputs["input_dataset_version_id"] = kwargs.get("input_dataset_version_id")
-        self.inputs["output_dataset_version_id"] = kwargs.get(
-            "output_dataset_version_id"
-        )
-        self.inputs["target_version_name"] = kwargs.get("target_version_name")
         self._model_version_id = self.inputs.get("model_version_id")
-        self._input_dataset_version_id = self.inputs.get("input_dataset_version_id")
+        self._input_dataset_version_id = self.target_id
         self._target_version_name = self.inputs.get("target_version_name")
 
         self.input_dataset_version = self.get_dataset_version(
