@@ -122,7 +122,6 @@ class LocalDatasetProcessingContext(
         return output_dataset_version
 
     def _load_legacy_inputs(self, **kwargs) -> None:
-        print("### Legacy inputs loading", self.inputs)
         self._model_version_id = self.inputs.get("model_version_id")
         self._input_dataset_version_id = self.target_id
         self._target_version_name = self.inputs.get("target_version_name")
@@ -138,6 +137,5 @@ class LocalDatasetProcessingContext(
             )
         else:
             self.output_dataset_version = self.input_dataset_version
-        print("### Output dataset version", self.output_dataset_version)
         if self._model_version_id:
             self.model_version = self.get_model_version()
