@@ -130,6 +130,7 @@ def create_processing_context_from_config(  # noqa: C901
 
         elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
             inputs = {}
+            print("##### Config for dataset version creation:", config)
             if config.target_id:
                 target_id = config.target_id
             else:
