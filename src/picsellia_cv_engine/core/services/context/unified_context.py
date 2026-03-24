@@ -123,7 +123,7 @@ def create_processing_context_from_config(  # noqa: C901
                 host=config.auth.host,
                 job_type=processing_type,
                 target_id=target_id,
-                inputs=config.inputs,
+                inputs=inputs,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
             )
@@ -152,7 +152,7 @@ def create_processing_context_from_config(  # noqa: C901
                 job_type=processing_type,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
-                inputs=config.inputs,
+                inputs=inputs,
                 target_id=target_id,
             )
 
@@ -181,7 +181,7 @@ def create_processing_context_from_config(  # noqa: C901
                 limit=config.run_parameters.limit,
                 processing_parameters=dict(config.parameters),
                 working_dir=config.run.working_dir,
-                inputs=config.inputs,
+                inputs=inputs,
             )
         elif (
             processing_type == ProcessingType.MODEL_CONVERSION
