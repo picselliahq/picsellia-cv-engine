@@ -37,6 +37,7 @@ class PicselliaLocalProcessingContext(PicselliaContext, Generic[TParameters]):
         self.parameters: dict[str, Any] = (
             parameters_dict if parameters_dict is not None else {}
         )
+        print("#### Inputs passed to local picsellia context", inputs)
         self.inputs = inputs
 
         self.use_id = use_id
