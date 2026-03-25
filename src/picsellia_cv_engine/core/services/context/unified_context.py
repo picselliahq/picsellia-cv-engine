@@ -107,7 +107,10 @@ def create_processing_context_from_config(  # noqa: C901
             config_file=config_file_path, processing_type=processing_type
         )
         if processing_type == ProcessingType.PRE_ANNOTATION:
-            inputs = {}
+            if config.inputs:
+                inputs = config.inputs
+            else:
+                inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
@@ -129,7 +132,10 @@ def create_processing_context_from_config(  # noqa: C901
             )
 
         elif processing_type == ProcessingType.DATASET_VERSION_CREATION:
-            inputs = {}
+            if config.inputs:
+                inputs = config.inputs
+            else:
+                inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
@@ -157,7 +163,10 @@ def create_processing_context_from_config(  # noqa: C901
             )
 
         elif processing_type == ProcessingType.DATA_AUTO_TAGGING:
-            inputs = {}
+            if config.inputs:
+                inputs = config.inputs
+            else:
+                inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
@@ -187,7 +196,10 @@ def create_processing_context_from_config(  # noqa: C901
             processing_type == ProcessingType.MODEL_CONVERSION
             or processing_type == ProcessingType.MODEL_COMPRESSION
         ):
-            inputs = {}
+            if config.inputs:
+                inputs = config.inputs
+            else:
+                inputs = {}
             if config.target_id:
                 target_id = config.target_id
             else:
