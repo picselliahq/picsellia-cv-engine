@@ -1,6 +1,6 @@
 # core.contexts.processing.model.picsellia_model_processing_context
 
-::: picsellia_cv_engine.core.contexts.processing.model.picsellia_model_processing_context
+::: picsellia_cv_engine.core.contexts.processing.model.picsellia_context
     handler: python
     options:
         show_submodules: false

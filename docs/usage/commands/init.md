@@ -31,11 +31,11 @@ pxl-pipeline init PIPELINE_NAME \
 ## Templates
 
 ### Processing
-- `dataset_version_creation`: create a new dataset version from existing images/annotations.
+- `dataset_version`: process a dataset version with custom logic, inputs, and parameters.
 
-- `pre_annotation`: automatically annotate datasets using an existing model.
+- `datalake`: process data in a datalake (tagging, filtering, etc.).
 
-- `data_auto_tagging`: add tags to data stored in a datalake.
+- `model_version`: process a model version (conversion, compression, etc.).
 
 ### Training
 - `yolov8`: Train YOLOv8 models on datasets hosted in Picsellia.
@@ -49,6 +49,7 @@ pxl-pipeline init PIPELINE_NAME \
     - `config.toml`
     - `steps.py`
     - `utils/parameters.py`
+    - `utils/inputs.py` (for processing pipelines that declare inputs)
     - `.venv/` (with dependencies installed via `uv`)
 
 ### Training pipelines
@@ -83,7 +84,7 @@ inference_type = "OBJECT_DETECTION"
 ```bash
 pxl-pipeline init my_dataset_pipeline \
   --type processing \
-  --template dataset_version_creation
+  --template dataset_version
 ```
 
 ### Create a YOLOv8 training pipeline
@@ -111,7 +112,8 @@ my_pipeline/
 ├── pipeline.py
 ├── steps.py
 ├── utils/
-│   └── parameters.py
+│   ├── parameters.py
+│   └── inputs.py
 
 ├── runs/
 │   └── run1/
