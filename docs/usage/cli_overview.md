@@ -336,4 +336,4 @@ For template-specific usage, see:
 
 - [Processing - Model Version](processing/model_version.md)
 
-- [Training - Ultralytics](training/ultralytics.md)
+- [Training - Simple Training](training/simple_training.md)
