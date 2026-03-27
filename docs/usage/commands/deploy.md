@@ -67,3 +67,13 @@ pxl-pipeline deploy dataset_version_creation --organization my-org --env STAGING
 - If the pipeline does not exist, it is created.
 
 - If it already exists, it is updated with the new image + resources.
+
+**8. Sync inputs**
+
+- If an `inputs_class` is defined in `config.toml`, the CLI reads the declared inputs and syncs them with the platform.
+
+- New inputs are added, existing inputs are updated, and inputs that are no longer declared in the class are removed.
+
+- This ensures the platform always reflects the inputs defined in your code.
+
+- See [Working with pipeline inputs](../cli_overview.md#working-with-pipeline-inputs) for details on defining inputs.

@@ -6,8 +6,9 @@ This section includes real-world examples for both **processing** and **training
 
 ## 🔁 Processing Pipelines
 
-- [Dataset Version Creation Template](processing/dataset_version_creation.md)
-- [Pre-annotation Template](processing/pre_annotation.md)
+- [Dataset Version Processing](processing/dataset_version.md)
+- [Datalake Processing](processing/datalake.md)
+- [Model Version Processing](processing/model_version.md)
 
 ## 🏋️ Training Pipelines
 
