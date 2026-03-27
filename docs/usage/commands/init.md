@@ -38,7 +38,7 @@ pxl-pipeline init PIPELINE_NAME \
 - `model_version`: process a model version (conversion, compression, etc.).
 
 ### Training
-- `yolov8`: Train YOLOv8 models on datasets hosted in Picsellia.
+- `simple_training`: A minimal, framework-agnostic training pipeline scaffold that you can extend with any ML framework.
 
 ## Behavior
 
@@ -87,11 +87,11 @@ pxl-pipeline init my_dataset_pipeline \
   --template dataset_version
 ```
 
-### Create a YOLOv8 training pipeline
+### Create a training pipeline
 ```bash
-pxl-pipeline init my_yolo_pipeline \
+pxl-pipeline init my_training_pipeline \
   --type training \
-  --template yolov8
+  --template simple_training
 ```
 
 👉 During setup, the CLI will prompt:

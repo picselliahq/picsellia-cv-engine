@@ -12,4 +12,4 @@ This section includes real-world examples for both **processing** and **training
 
 ## 🏋️ Training Pipelines
 
-- [Ultralytics Training Template](training/ultralytics.md)
+- [Simple Training Template](training/simple_training.md)
