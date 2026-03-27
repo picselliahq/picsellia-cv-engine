@@ -269,8 +269,6 @@ Each input must specify a `ProcessingInputType` from the Picsellia SDK:
 |-------------------|--------------------------------------------------|
 | `DATASET_VERSION` | A reference to a dataset version                 |
 | `MODEL_VERSION`   | A reference to a model version                   |
-| `MODEL`           | A reference to a model                           |
-| `DATASET`         | A reference to a dataset                         |
 | `DATALAKE`        | A reference to a datalake                        |
 | `TEXT`            | A free-form text value                           |
 | `NUMBER`          | A numeric value                                  |
