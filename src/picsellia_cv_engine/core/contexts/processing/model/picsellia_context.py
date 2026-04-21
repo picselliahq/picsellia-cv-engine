@@ -37,8 +37,7 @@ class PicselliaModelProcessingContext(PicselliaProcessingContext, Generic[TParam
         self.target = self.client.get_model_version_by_id(id=self.target_id)
 
     def _load_legacy_inputs(self) -> None:
-        self._model_version_id = self.inputs.get("input_model_version_id")
-
+        self._model_version_id = self.target_id
         if self._model_version_id:
             self.model_version = self.get_model_version()
 

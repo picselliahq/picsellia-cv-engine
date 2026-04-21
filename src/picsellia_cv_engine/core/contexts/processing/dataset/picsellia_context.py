@@ -62,7 +62,7 @@ class PicselliaDatasetProcessingContext(
 
     def _load_legacy_inputs(self) -> None:
         self._model_version_id = self.inputs.get("model_version_id")
-        self._input_dataset_version_id = self.inputs.get("input_dataset_version_id")
+        self._input_dataset_version_id = self.target_id
         self._target_version_name = self.inputs.get("target_version_name")
 
         self.input_dataset_version = self.get_dataset_version(
