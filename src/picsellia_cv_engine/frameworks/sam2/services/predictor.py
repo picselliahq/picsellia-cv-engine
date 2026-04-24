@@ -63,7 +63,7 @@ class SAM2ModelPredictor:
             {
                 "segmentation": masks[i],
                 "score": float(ious[i]),
-                "logits": masks[i],
+                "logits": low_res_masks[i],
             }
             for i in range(len(masks))
         ]
