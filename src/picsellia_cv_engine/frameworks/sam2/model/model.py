@@ -104,7 +104,10 @@ class SAM2Model(Model):
         image: Image,
         input_points: list[tuple[int, int]],
         input_labels: list[int],
+        mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
+        return_logits: bool = False,
+        normalize_coords: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Run prediction on an image with given input points and labels.
@@ -113,12 +116,16 @@ class SAM2Model(Model):
             image (Image): The PIL image to segment.
             input_points (list[tuple[int, int]]): Coordinates of user-provided points.
             input_labels (list[int]): Labels for each point (1: foreground, 0: background).
+            mask_input (np.ndarray | None): Optional mask input for refinement.
             multimask_output (bool): Whether to return multiple mask hypotheses.
+            return_logits (bool): Whether to return raw logits instead of binary masks.
+            normalize_coords (bool): Whether to normalize point coordinates to [0, 1].
 
         Returns:
             list[dict]: Each dict contains:
                 - "polygon": List of (x, y) coordinates
                 - "score": IoU score associated with the mask
+                - "logits": (Optional) Raw logits if return_logits is True
         """
         predictor = SAM2ModelPredictor(predictor=self.loaded_predictor)
 
@@ -131,7 +138,10 @@ class SAM2Model(Model):
         masks_dict = predictor.run_inference(
             point_coords=points_np,
             point_labels=labels_np,
+            mask_input=mask_input,
             multimask_output=multimask_output,
+            return_logits=return_logits,
+            normalize_coords=normalize_coords,
         )
 
         polygons_with_scores = predictor.post_process(results=masks_dict)

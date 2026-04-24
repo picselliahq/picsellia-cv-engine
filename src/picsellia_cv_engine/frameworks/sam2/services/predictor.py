@@ -46,17 +46,25 @@ class SAM2ModelPredictor:
         box: np.ndarray | None = None,
         mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
+        return_logits: bool = False,
+        normalize_coords: bool = True,
     ):
-        masks, ious, _ = self.predictor.predict(
+        masks, ious, low_res_masks = self.predictor.predict(
             point_coords=point_coords,
             point_labels=point_labels,
             box=box,
             mask_input=mask_input,
             multimask_output=multimask_output,
+            return_logits=return_logits,
+            normalize_coords=normalize_coords,
         )
 
         mask_dicts = [
-            {"segmentation": masks[i], "score": float(ious[i])}
+            {
+                "segmentation": masks[i],
+                "score": float(ious[i]),
+                "logits": low_res_masks[i],
+            }
             for i in range(len(masks))
         ]
         return mask_dicts
@@ -76,6 +84,7 @@ class SAM2ModelPredictor:
         for mask_dict in results:
             mask = mask_dict.get("segmentation")
             score = mask_dict.get("score")
+            logits = mask_dict.get("logits")
 
             if mask is None:
                 continue
@@ -86,7 +95,11 @@ class SAM2ModelPredictor:
                 if len(poly) == 0:
                     continue
                 polygons_with_scores.append(
-                    {"polygon": [[int(x), int(y)] for x, y in poly], "score": score}
+                    {
+                        "polygon": [[int(x), int(y)] for x, y in poly],
+                        "score": score,
+                        "logits": logits,
+                    }
                 )
 
         return polygons_with_scores
