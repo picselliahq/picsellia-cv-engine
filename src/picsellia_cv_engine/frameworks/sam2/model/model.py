@@ -102,8 +102,8 @@ class SAM2Model(Model):
     def predict(
         self,
         image: Image,
-        input_points: list[tuple[int, int]],
-        input_labels: list[int],
+        input_points: list[tuple[int, int]] | None = None,
+        input_labels: list[int] | None = None,
         box: np.ndarray | None = None,
         mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
