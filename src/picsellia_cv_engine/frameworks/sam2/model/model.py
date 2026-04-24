@@ -132,14 +132,16 @@ class SAM2Model(Model):
         predictor = SAM2ModelPredictor(predictor=self.loaded_predictor)
 
         image_np = np.array(image)
-        points_np = np.array(input_points)
-        labels_np = np.array(input_labels)
+        if input_points:
+            input_points = np.array(input_points)
+        if input_labels:
+            input_labels = np.array(input_labels)
 
         predictor.preprocess(image=image_np)
 
         masks_dict = predictor.run_inference(
-            point_coords=points_np,
-            point_labels=labels_np,
+            point_coords=input_points,
+            point_labels=input_labels,
             box=box,
             mask_input=mask_input,
             multimask_output=multimask_output,
