@@ -104,6 +104,7 @@ class SAM2Model(Model):
         image: Image,
         input_points: list[tuple[int, int]],
         input_labels: list[int],
+        box: np.ndarray | None = None,
         mask_input: np.ndarray | None = None,
         multimask_output: bool = True,
         return_logits: bool = False,
@@ -116,6 +117,7 @@ class SAM2Model(Model):
             image (Image): The PIL image to segment.
             input_points (list[tuple[int, int]]): Coordinates of user-provided points.
             input_labels (list[int]): Labels for each point (1: foreground, 0: background).
+            box (np.ndarray | None): Optional bounding box input for refinement.
             mask_input (np.ndarray | None): Optional mask input for refinement.
             multimask_output (bool): Whether to return multiple mask hypotheses.
             return_logits (bool): Whether to return raw logits instead of binary masks.
@@ -138,6 +140,7 @@ class SAM2Model(Model):
         masks_dict = predictor.run_inference(
             point_coords=points_np,
             point_labels=labels_np,
+            box=box,
             mask_input=mask_input,
             multimask_output=multimask_output,
             return_logits=return_logits,
