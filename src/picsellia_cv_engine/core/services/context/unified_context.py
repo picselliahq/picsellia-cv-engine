@@ -145,13 +145,21 @@ def create_processing_context_from_config(  # noqa: C901
             else:
                 target_id = config.input.dataset_version.id
             inputs["input_dataset_version_id"] = target_id
-            if config.output and config.output.dataset_version.id:
+            if (
+                config.output
+                and config.output.dataset_version
+                and config.output.dataset_version.id
+            ):
                 inputs["output_dataset_version_id"] = config.output.dataset_version.id
             elif config.inputs and "output_dataset_version_id" in config.inputs.keys():
                 inputs["output_dataset_version_id"] = config.inputs[
                     "output_dataset_version_id"
                 ]
-            if config.output and config.output.dataset_version.name:
+            if (
+                config.output
+                and config.output.dataset_version
+                and config.output.dataset_version.name
+            ):
                 inputs["target_version_name"] = config.output.dataset_version.name
             elif config.inputs and "target_version_name" in config.inputs.keys():
                 inputs["target_version_name"] = config.inputs["target_version_name"]
@@ -176,7 +184,7 @@ def create_processing_context_from_config(  # noqa: C901
             else:
                 target_id = config.input.datalake.id
             inputs["input_datalake_id"] = target_id
-            if config.output and config.output.datalake.id:
+            if config.output and config.output.datalake and config.output.datalake.id:
                 inputs["output_datalake_id"] = config.output.datalake.id
             elif config.inputs and "output_datalake_id" in config.inputs.keys():
                 inputs["output_datalake_id"] = config.inputs["output_datalake_id"]
