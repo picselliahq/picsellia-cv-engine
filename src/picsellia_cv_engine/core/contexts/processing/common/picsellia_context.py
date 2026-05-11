@@ -60,8 +60,6 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
         self.processing_parameters: TParameters = processing_parameters_cls(
             log_data=self.parameters
         )
-        processing_name = self.job_context["processing_name"]
-        self.processing_type = self.client.get_processing(name=processing_name).type
 
         # TODO: remove this after full deprecation of legacy processing jobs
         self._load_legacy_inputs()
