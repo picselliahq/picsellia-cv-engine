@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import picsellia
+import requests
 
 from picsellia_cv_engine.core.logging.colors import Colors
 
@@ -73,11 +74,17 @@ class PicselliaContext(ABC):
         Returns:
             picsellia.Client: An authenticated client object.
         """
+        if os.getenv("REQUESTS_CA_BUNDLE"):
+            session = requests.Session()
+            session.verify = os.getenv("REQUESTS_CA_BUNDLE")
+        else:
+            session = None
         return picsellia.Client(
             api_token=self.api_token,
             host=self.host,
             organization_id=self.organization_id,
             organization_name=self.organization_name,
+            session=session,
         )
 
     def _format_parameter_with_color_and_suffix(
