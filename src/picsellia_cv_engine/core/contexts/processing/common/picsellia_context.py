@@ -44,10 +44,6 @@ class PicselliaProcessingContext(PicselliaContext, Generic[TParameters]):
 
         self.job_context: dict[str, Any] = self._initialize_job_context()
 
-        print(f"job_info: {self.job_info}")
-
-        print(f"job_context: {self.job_context}")
-
         self.target_id = self.job_context.get("target_id")
         self.parameters: dict[str, Any] = self.job_context.get("parameters", {}) or {}
         self.inputs: dict[str, Any] = self.job_context.get("inputs", {}) or {}
