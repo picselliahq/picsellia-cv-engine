@@ -59,8 +59,16 @@ class JobDSVCreate(BaseModel):
     type: Literal["DATASET_VERSION_CREATION"]
 
 
+class JobDataAugmentation(BaseModel):
+    type: Literal["DATA_AUGMENTATION"]
+
+
+class JobAutoAnnotation(BaseModel):
+    type: Literal["AUTO_ANNOTATION"]
+
+
 class JobAutoTag(BaseModel):
-    type: Literal["DATA_AUTO_TAGGING"]
+    type: Literal["DATA_AUTO_TAGGING", "AUTO_TAGGING"]
 
 
 class JobModelProcess(BaseModel):
@@ -108,6 +116,15 @@ class DatasetVersionCreationConfig(BaseConfig):
     output: OutputDatasetVersionCreation | None = None
 
 
+# ── DATA_AUGMENTATION ────────────────────────────────────────────────────────
+
+
+class DataAugmentationConfig(BaseConfig):
+    job: JobDataAugmentation
+    input: InputDatasetVersionCreation | None = None
+    output: OutputDatasetVersionCreation | None = None
+
+
 # ── PRE_ANNOTATION ───────────────────────────────────────────────────────────
 
 
@@ -118,6 +135,14 @@ class InputPreAnnotation(BaseModel):
 
 class PreAnnotationConfig(BaseConfig):
     job: JobPreAnn
+    input: InputPreAnnotation | None = None
+
+
+# ── AUTO_ANNOTATION ──────────────────────────────────────────────────────────
+
+
+class AutoAnnotationConfig(BaseConfig):
+    job: JobAutoAnnotation
     input: InputPreAnnotation | None = None
 
 
