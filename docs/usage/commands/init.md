@@ -1,6 +1,7 @@
 # `pxl-pipeline init`
 
-The `init` command bootstraps a new **pipeline project** (either processing or training) with the standard folder structure, dependencies, and metadata required to run pipelines in Picsellia.
+The `init` command bootstraps a new **pipeline project** (either processing or training) with the standard folder
+structure, dependencies, and metadata required to run pipelines in Picsellia.
 
 ## Usage
 
@@ -21,16 +22,21 @@ pxl-pipeline init PIPELINE_NAME \
 
 ### Options
 
-| Option           | Description                                                         | Default       |
-|------------------|---------------------------------------------------------------------|---------------|
-| `--type`         | Pipeline type: `processing` or `training`.                          | ✅ Required   |
-| `--template`     | Template name.                         | ✅ Required   |
-| `--output-dir`   | Target directory where the pipeline will be created.                | `.` (current) |
-| `--use-pyproject`| Generate a `pyproject.toml` for dependency management (via `uv`).   | `True`        |
+| Option              | Description                                                                 | Default       |
+|---------------------|-----------------------------------------------------------------------------|---------------|
+| `--type`            | Pipeline type: `processing` or `training`.                                  | ✅ Required    |
+| `--template`        | Template name.                                                              | ✅ Required    |
+| `--output-dir`      | Target directory where the pipeline will be created.                        | `.` (current) |
+| `--use-pyproject`   | Generate a `pyproject.toml` for dependency management (via `uv`).           | `True`        |
+| `--run-config-file` | Prefill `config.toml` from an existing `run_config.toml` (non-interactive). | None          |
+
+> Note: `--run-config-file` is also available on other commands (like `test`, `smoke-test`, and `launch`) for both
+> training and processing pipelines. The training-only restriction applies specifically to `pxl-pipeline init`.
 
 ## Templates
 
 ### Processing
+
 - `dataset_version`: process a dataset version with custom logic, inputs, and parameters.
 
 - `datalake`: process data in a datalake (tagging, filtering, etc.).
@@ -38,7 +44,9 @@ pxl-pipeline init PIPELINE_NAME \
 - `model_version`: process a model version (conversion, compression, etc.).
 
 ### Training
-- `simple_training`: A minimal, framework-agnostic training pipeline scaffold that you can extend with any ML framework.
+
+- `simple`: A minimal, framework-agnostic training pipeline scaffold that you can extend with any ML framework.
+- `yolov8`: A YOLOv8-oriented training pipeline scaffold (Ultralytics).
 
 ## Behavior
 
@@ -67,15 +75,22 @@ export PICSELLIA_ENV=STAGING
 
     - Or create a new one (define model name, version, framework, inference type)
 
-- Save model metadata into config.toml:
+- Save **deploy targets** into `config.toml` (required for `pxl-pipeline deploy`):
 
 ```toml
 [model_version]
-name = "v1"
 origin_name = "MyModel"
+name = "v1"
 framework = "ONNX"
 inference_type = "OBJECT_DETECTION"
 ```
+
+To deploy the same training image to multiple model versions, use `[[model_versions]]` instead —
+see [deploy — Training pipelines](deploy.md#training-pipelines).
+
+With `--run-config-file`, init runs non-interactively and may only store `[model_version].id` from the run config. That
+id is for local testing; **deploy still requires** `origin_name`, `name`, `framework`, and `inference_type` in
+`config.toml`.
 
 ## Examples
 
@@ -88,10 +103,11 @@ pxl-pipeline init my_dataset_pipeline \
 ```
 
 ### Create a training pipeline
+
 ```bash
 pxl-pipeline init my_training_pipeline \
   --type training \
-  --template simple_training
+  --template simple
 ```
 
 👉 During setup, the CLI will prompt:

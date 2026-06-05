@@ -35,7 +35,9 @@ my_pipeline/
 ### Key files:
 
 - **`config.toml`**
-  Describes the pipeline metadata, entrypoint files, requirements file, and model metadata.
+  Describes pipeline metadata, entrypoint files, and Docker settings.
+  - **Processing:** optional `inputs_class` (synced to the platform on deploy).
+  - **Training:** `[model_version]` or `[[model_versions]]` deploy targets (where the training Docker image is registered).
   ➕ This makes pipelines easily portable and shareable.
 
 - **`pyproject.toml` / `uv.lock`**
@@ -213,6 +215,26 @@ Each parameter can include:
 
 
 Advanced use cases (enums, optional types, dynamic validation) are documented in the base Parameters class via extract_parameter(...).
+
+## Training deploy targets (`config.toml`)
+
+Training pipelines register their Docker image on **model versions**, not on a Processing asset. Configure deploy targets in `config.toml` — separate from `run_config.toml` (used for local test).
+
+Define **either** one `[model_version]` **or** several `[[model_versions]]` tables. Each target needs `origin_name`, `name`, `framework`, and `inference_type`:
+
+```toml
+[model_version]
+origin_name = "MyModel"
+name = "v1"
+framework = "YOLOV8"
+inference_type = "OBJECT_DETECTION"
+```
+
+On `pxl-pipeline deploy`, the CLI creates missing models/versions, pushes the image, and updates every listed target with Docker metadata and default hyperparameters from `parameters_class`.
+
+`[input.model_version].id` in `run_config.toml` is only for **local test** — deploy ignores it.
+
+See [deploy — Training pipelines](commands/deploy.md#training-pipelines) for multiple targets and the full deploy sequence.
 
 ## Working with pipeline inputs
 

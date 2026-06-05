@@ -1,6 +1,6 @@
 # Simple Training Pipeline
 
-This guide explains how to create, customize, test, and deploy a training pipeline using the `simple_training` template from the `pxl-pipeline` cli.
+This guide explains how to create, customize, test, and deploy a training pipeline using the `simple` template from the `pxl-pipeline` cli.
 
 This is the recommended starting point for training pipelines. It provides a minimal, framework-agnostic scaffold that you can extend with any ML framework of your choice.
 
@@ -9,7 +9,7 @@ This is the recommended starting point for training pipelines. It provides a min
 ## 1. Initialize your pipeline
 
 ```bash
-pxl-pipeline init my_training_pipeline --type training --template simple_training
+pxl-pipeline init my_training_pipeline --type training --template simple
 ```
 
 This generates a pipeline folder with standard files. See [project structure](../cli_overview.md#project-structure) for details.
@@ -125,6 +125,8 @@ image_size = 640
 
 Fill in the `input.train_dataset_version.id` and `input.model_version.id` with the UUIDs from your Picsellia workspace. The `output.experiment` section defines where the experiment results will be stored.
 
+> **Note:** `run_config.toml` drives **local test** runs only. It does not configure `deploy`.
+
 ## 4. Test your pipeline locally
 
 ```bash
@@ -150,16 +152,62 @@ my_training_pipeline/runs/<runX>/
 
 See [how runs/ work](../cli_overview.md#how-runs-work) for details on configuration reuse.
 
-## 5. Deploy to Picsellia
+## 5. Configure `config.toml` for deploy
+
+Before `pxl-pipeline deploy`, `config.toml` must declare where the training Docker image should be registered on Picsellia.
+
+Use **either** a single `[model_version]` **or** several `[[model_versions]]` rows — not both:
+
+```toml
+[model_version]
+origin_name = "my-training-model"
+name = "v1"
+framework = "YOLOV8"
+inference_type = "OBJECT_DETECTION"
+```
+
+
+| Field            | Description                                                       |
+| ---------------- | ----------------------------------------------------------------- |
+| `origin_name`    | Model name on the platform (created on deploy if missing).        |
+| `name`           | Version name (created on deploy if missing).                      |
+| `framework`      | `Framework` enum from the Picsellia SDK (e.g. `YOLOV8`, `ONNX`).  |
+| `inference_type` | `InferenceType` enum (e.g. `OBJECT_DETECTION`, `CLASSIFICATION`). |
+
+
+Interactive `init` fills this section for you. If you used `init --run-config-file`, add these fields manually — an `id` alone is not enough for deploy.
+
+To attach the same training pipeline to multiple model versions:
+
+```toml
+[[model_versions]]
+origin_name = "my-training-model"
+name = "v1"
+framework = "YOLOV8"
+inference_type = "OBJECT_DETECTION"
+
+[[model_versions]]
+origin_name = "my-training-model"
+name = "v2"
+framework = "YOLOV8"
+inference_type = "OBJECT_DETECTION"
+```
+
+See [deploy — Training pipelines](../commands/deploy.md#training-pipelines) for the full deploy flow.
+
+## 6. Deploy to Picsellia
 
 ```bash
-pxl-pipeline deploy my_training_pipeline
+pxl-pipeline deploy my_training_pipeline --organization my-org --env STAGING
 ```
 
 This will:
 
-- Build a Docker image (based on your Dockerfile)
-- Push it to your Docker registry
-- Register the pipeline with the selected model version in Picsellia
+1. Validate deploy targets from `[model_version]` or `[[model_versions]]` in `config.toml`
+2. Ensure each target model/version exists on the platform (create if needed)
+3. Build a Docker image (based on your Dockerfile) and push it to your registry
+4. Update **each** target model version with the image, tag, and default hyperparameters
 
 Your `Dockerfile` installs `picsellia-cv-engine` and any other dependencies from `pyproject.toml`.
+
+After deploy, users can launch training from the Picsellia UI on any of the registered model versions.
